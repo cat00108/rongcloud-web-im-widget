@@ -2,7 +2,7 @@
     <div id="rong-conversation" class="kefuChatBox both am-fade-and-slide-top" ng-show="showSelf" ng-class="{'fullScreen':resoures.fullScreen}" ><!-- fullScreen 全屏class -->
         <evaluatedir type="evaluate.type" display="evaluate.showevaluate" confirm="evaluate.onConfirm(data)" cancle="evaluate.onCancle()"></evaluatedir>
         <div class="kefuChat">
-            <div id="header" class="header blueBg online">
+            <div id="header" class="rong-header blueBg online">
                 <div class="infoBar pull-left">
                     <div class="infoBarTit">
                         <!-- <span class="Presence Presence--stacked"></span> -->
@@ -55,7 +55,7 @@
                         </div>
                     </div>
                 </div>
-            <div id="footer" class="footer" style="display: block;">
+            <div id="footer" class="rong-footer" style="display: block;">
                 <div class="footer-con">
                     <div class="text-layout">
                         <div id="funcPanel" class="funcPanel robotMode">
@@ -81,7 +81,7 @@
                         ng-model="currentConversation.messageContent"></pre>
                     </div>
                     <div class="powBox">
-                        <button type="button" style="background-color: #0099ff;" class="btn send-btn" id="sendBtn" ng-click="send()">发送</button>
+                        <button type="button" style="background-color: #0099ff;" class="rong-btn rong-send-btn" id="rong-sendBtn" ng-click="send()">发送</button>
                     </div>
                 </div>
             </div>

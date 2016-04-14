@@ -240,7 +240,7 @@ textarea {
 .kefuListBox.both .kefuList{
      /*border-radius: 0px 5px 0px 0px;*/
 }
-.kefuListBox .kefuList .header{
+.kefuListBox .kefuList .rong-header{
     height: 36px;
 }
 .kefuListBox .kefuList .toolBar{
@@ -623,18 +623,18 @@ textarea {
     bottom: 0px;
     border-radius: 5px 5px 5px 5px;
 }
-.kefuChat .header{
+.kefuChat .rong-header{
     height: 36px;
     border-radius: 4px 4px 0px 0px;
 }
-.kefuChat .header .infoBar{
+.kefuChat .rong-header .infoBar{
     height: 36px;
     line-height: 36px;
 }
-.kefuChat .header .infoBarTit{
+.kefuChat .rong-header .infoBarTit{
     position: relative;
 }
-.kefuChat .header .Presence{
+.kefuChat .rong-header .Presence{
     border-radius: 50%;
     width: 8px;
     height: 8px;
@@ -642,31 +642,31 @@ textarea {
     left: 16px;
     border: 0;
 }
-.kefuChat .header.online .Presence{
+.kefuChat .rong-header.online .Presence{
     background-color: #20e600;
 }
-.kefuChat .header .kefuName{
+.kefuChat .rong-header .kefuName{
     color: #fff;
     padding-left: 33px;
 }
-.kefuChat .header .toolBar{
+.kefuChat .rong-header .toolBar{
     margin-right: 10px;
 }
-.kefuChat .header .toolBar a{
+.kefuChat .rong-header .toolBar a{
     width: 20px;
     height: 20px;
     margin-top: 9px;
 }
-.kefuChat .header .toolBar .kefuChatBoxHide{
+.kefuChat .rong-header .toolBar .kefuChatBoxHide{
     background-position: 0 -460px;
 }
-.kefuChat .header .toolBar .kefuChatBoxMin{
+.kefuChat .rong-header .toolBar .kefuChatBoxMin{
     background-position: 0 -252px;
 }
-.kefuChat .header .toolBar .kefuChatBoxMax{
+.kefuChat .rong-header .toolBar .kefuChatBoxMax{
     background-position: 0 -213px;
 }
-.kefuChat .header .toolBar .kefuChatBoxClose{
+.kefuChat .rong-header .toolBar .kefuChatBoxClose{
     background-position: 0 -291px;
 }
 #Messages {
@@ -1033,7 +1033,7 @@ textarea {
     font-size: 14px;
     color: #8e969f;
 }
-.footer {
+.rong-footer {
     background: #fff;
     display: none;
     height: 114px;
@@ -1043,7 +1043,7 @@ textarea {
     right: 0px;
     border-radius: 0px 0px 5px 5px;
 }
-.fullScreen .footer {
+.fullScreen .rong-footer {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -1099,7 +1099,7 @@ textarea {
     /*width: 100%;*/
     height: 24px;
 }
-.send-btn {
+.rong-send-btn {
     position: absolute;
     top:30px;
     right: 10px;
@@ -1850,7 +1850,7 @@ textarea {
     padding: 20px 20px 10px;
     text-align: center;
 }
-.layermbox .btn{
+.layermbox .rong-btn{
     display: inline-block;
     width: 54px;
     height: 30px;
@@ -1860,7 +1860,7 @@ textarea {
     color: #000;
     overflow: hidden;
 }
-.layermbox .btn:hover{
+.layermbox .rong-btn:hover{
     background-color: #0099ff;
     color: #fff;
     border-color: #0099ff;
@@ -1891,25 +1891,25 @@ textarea {
 .layermbox .layerPanel2 .labels a{
     line-height: 27px;
 }
-.layermbox .layerPanel2 .btn{
+.layermbox .layerPanel2 .rong-btn{
     width: 47%;
     border-radius: 15px;
     height: 28px;
     line-height: 28px;
     color: #676e6f;
 }
-.layermbox .layerPanel2 .btn:hover{
+.layermbox .layerPanel2 .rong-btn:hover{
     color: #fff;
 }
-.layermbox .layerPanel2 .btn.cur{
+.layermbox .layerPanel2 .rong-btn.cur{
     background-color: #0099ff;
     color: #fff;
     border-color: #0099ff;
 }
-.layermbox .layerPanel2 .btn:nth-child(2n+1){
+.layermbox .layerPanel2 .rong-btn:nth-child(2n+1){
     margin-right: 3%;
 }
-.layermbox .layerPanel2 .btn:nth-child(3),.layermbox .layerPanel2 .btn:nth-child(4){
+.layermbox .layerPanel2 .rong-btn:nth-child(3),.layermbox .layerPanel2 .rong-btn:nth-child(4){
     margin-top: 8px;
 }
 .layermbox .layerPanel2 .suggestBox{
@@ -1928,7 +1928,7 @@ textarea {
 .layermbox .subBox{
 
 }
-.layermbox .subBox .btn{
+.layermbox .subBox .rong-btn{
     width: 70%;
     font-size: 14px;
     border-radius: 4px;

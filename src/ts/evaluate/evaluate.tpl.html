@@ -21,8 +21,8 @@
                         <div class="type2" ng-show="type==2">
                             <h4>&nbsp;&nbsp;是否解决了您的问题 ？</h4>
                             <div class="layerPanel1">
-                                <a class="btn btnY" ng-class="{'cur':data.value===true}" href="javascript:void(0);" ng-click="confirm(true)">是</a>
-                                <a class="btn btnN" ng-class="{'cur':data.value===false}" href="javascript:void(0);" ng-click="confirm(false)">否</a>
+                                <a class="rong-btn btnY" ng-class="{'cur':data.value===true}" href="javascript:void(0);" ng-click="confirm(true)">是</a>
+                                <a class="rong-btn btnN" ng-class="{'cur':data.value===false}" href="javascript:void(0);" ng-click="confirm(false)">否</a>
                             </div>
                         </div>
 
@@ -30,7 +30,7 @@
                         <div class="layerPanel2" ng-show="displayDescribe">
                             <p>是否有以下情况 ？</p>
                             <div class="labels">
-                                <span ng-repeat="item in labels"><a class="btn" ng-class="{'cur':data.label==item}" ng-click="data.label=item" href="">{{item}}</a></span>
+                                <span ng-repeat="item in labels"><a class="rong-btn" ng-class="{'cur':data.label==item}" ng-click="data.label=item" href="">{{item}}</a></span>
                                 <!-- <a class="btn" ng-click="" href="">答非所问</a>
                                 <a class="btn" ng-click="" href="">理解能力差</a>
                                 <a class="btn" ng-click="" href="">一问三不知</a>
@@ -40,7 +40,7 @@
                                 <textarea name="" placeholder="欢迎给我们的服务提建议~" ng-model="data.describe"></textarea>
                             </div>
                             <div class="subBox">
-                                <a class="btn" href="" ng-click="commit()">提交评价</a>
+                                <a class="rong-btn" href="" ng-click="commit()">提交评价</a>
                             </div>
                         </div>
                     </div>

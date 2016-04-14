@@ -6,7 +6,7 @@
 支持IE9+、Chrome、Firefox等
 
 ```
-npm install -g typescript@1.6.0beta tsd grunt-cli
+npm install -g typescript@1.6.0beta tsd grunt-cli bower
 ```
 
 如有必要，使用 `sudo npm`
