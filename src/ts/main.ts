@@ -6,6 +6,7 @@ var widget = angular.module("RongWebIMWidget", ["RongWebIMWidget.conversationSer
 
 widget.run(["$http", "WebIMWidget", "widgetConfig", function($http: angular.IHttpService,
     WebIMWidget: WebIMWidget, widgetConfig: widgetConfig) {
+    WidgetModule.NotificationHelper.requestPermission();
     var protocol = location.protocol === "https:" ? "https:" : "http:";
     $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.0.15.min.js", function() {
         $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.0.15.min.js", function() {
@@ -245,6 +246,16 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                     console.log(data);
                     var msg = WidgetModule.Message.convert(data);
 
+                    if (WidgetModule.Helper.checkType(providerdata.getUserInfo) == "function" && msg.content) {
+                        providerdata.getUserInfo(msg.senderUserId, {
+                            onSuccess: function(data) {
+                                if (data) {
+                                    msg.content.userInfo = new WidgetModule.UserInfo(data.userId, data.name, data.portraitUri);
+                                }
+                            }
+                        })
+                    }
+
                     switch (data.messageType) {
                         case WidgetModule.MessageType.VoiceMessage:
                             msg.content.isUnReade = true;
@@ -253,6 +264,11 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.ImageMessage:
                         case WidgetModule.MessageType.RichContentMessage:
                             addMessageAndOperation(msg);
+                            WidgetModule.NotificationHelper.showNotification({
+                                title: msg.content.userInfo.name,
+                                icon: "",
+                                body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                            });
                             break;
                         case WidgetModule.MessageType.ContactNotificationMessage:
                             //好友通知自行处理
@@ -267,15 +283,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                             //未捕获的消息类型
                             break;
                     }
-                    if (WidgetModule.Helper.checkType(providerdata.getUserInfo) == "function" && msg.content) {
-                        providerdata.getUserInfo(msg.senderUserId, {
-                            onSuccess: function(data) {
-                                if (data) {
-                                    msg.content.userInfo = new WidgetModule.UserInfo(data.userId, data.name, data.portraitUri);
-                                }
-                            }
-                        })
-                    }
+
                     if (WebIMWidget.onReceivedMessage) {
                         WebIMWidget.onReceivedMessage(msg);
                     }
