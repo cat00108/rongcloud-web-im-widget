@@ -21,8 +21,8 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
   angular.element(document).ready(function() {
 
     WebIMWidget.init({
-      appkey: "z3v5yqkbv8v30",
-      token: "/jmqZI8QkQjkIf3pW6fMt7I6ZiT8q7s0UEaMPWY0lMyxu55c8bJO3/VqHhVG+5rbgoBbb9WE1cARaIf9YN+emg==",
+      appkey: "3argexb6r934e",
+      token: "AgbuB0f1xAujcvfW3YBazIT92+VsUe7ien9j+5OQOOCbT8ZLrGfdaG6Qj1UafWSqx3U4gSBapJG4lSO5xHmpaQ==",
       style:{
         width:600,
         left:100,

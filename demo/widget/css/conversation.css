@@ -1089,6 +1089,8 @@ textarea {
     resize: none;
     font-size: 9pt;
     overflow: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 .text:focus {
     outline: 0;

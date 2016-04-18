@@ -1944,6 +1944,17 @@ declare module RongIMLib {
         static obtain(content: string, imageUri: string): ImageMessage;
         encode(): string;
     }
+    class ReadReceiptMessage implements MessageContent, UserInfoAttachedMessage, ExtraAttachedMessage {
+        user: UserInfo;
+        messageUId: string;
+        lastMessageSendTime: string;
+        type: string
+        extra: string;
+        messageName: string;
+        constructor(message: any);
+        static obtain(messageUId: string, lastMessageSendTime: string, type: string): ReadReceiptMessage;
+        encode(): string;
+    }
     class LocationMessage implements MessageContent, UserInfoAttachedMessage, ExtraAttachedMessage {
         user: UserInfo;
         latiude: number;

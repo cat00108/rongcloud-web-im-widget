@@ -8,7 +8,7 @@ widget.run(["$http", "WebIMWidget", "widgetConfig", function($http: angular.IHtt
     WebIMWidget: WebIMWidget, widgetConfig: widgetConfig) {
     WidgetModule.NotificationHelper.requestPermission();
     var protocol = location.protocol === "https:" ? "https:" : "http:";
-    $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.0.15.min.js", function() {
+    $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function() {
         $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.0.15.min.js", function() {
             RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
         });
@@ -279,6 +279,11 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.UnknownMessage:
                             //未知消息自行处理
                             break;
+                        case WidgetModule.MessageType.ReadReceiptMessage:
+                            if (data.messageDirection == WidgetModule.MessageDirection.SEND) {
+                                RongIMSDKServer.clearUnreadCount(data.conversationType, data.targetId)
+                            }
+                            break;
                         default:
                             //未捕获的消息类型
                             break;
@@ -290,14 +295,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                     conversationServer.onReceivedMessage(msg);
 
                     if (WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId) {
-                        RongIMLib.RongIMClient.getInstance().clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId, {
-                            onSuccess: function() {
-
-                            },
-                            onError: function() {
-
-                            }
-                        })
+                        RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
                     }
                     conversationListServer.updateConversations().then(function() { });
                 }
@@ -402,6 +400,21 @@ widget.filter("historyTime", ["$filter", function($filter: angular.IFilterServic
         }
     };
 }]);
+widget.directive('errSrc', function() {
+    return {
+        link: function(scope: any, element: any, attrs: any) {
+            if (!attrs.ngSrc) {
+                attrs.$set('src', attrs.errSrc);
+            }
+
+            element.bind('error', function() {
+                if (attrs.src != attrs.errSrc) {
+                    attrs.$set('src', attrs.errSrc);
+                }
+            });
+        }
+    }
+});
 
 interface widgetConfig {
     displayConversationList: boolean

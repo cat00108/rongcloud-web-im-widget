@@ -73,7 +73,8 @@ module WidgetModule {
         HandShakeResponseMessage: "HandShakeResponseMessage",
         ChangeModeResponseMessage: "ChangeModeResponseMessage",
         TerminateMessage: "TerminateMessage",
-        CustomerStatusUpdateMessage: "CustomerStatusUpdateMessage"
+        CustomerStatusUpdateMessage: "CustomerStatusUpdateMessage",
+        ReadReceiptMessage: "ReadReceiptMessage"
     }
 
     export enum PanelType {

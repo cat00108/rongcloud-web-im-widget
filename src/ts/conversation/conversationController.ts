@@ -66,7 +66,31 @@ conversationController.controller("conversationController", ["$scope",
             }
         });
 
+        $scope.$watch("showSelf", function(newVal: string, oldVal: string) {
+            if (newVal === oldVal)
+                return;
+            if (newVal) {
+                uploadFileRefresh();
+            } else {
+                qiniuuploader && qiniuuploader.destroy();
+            }
+        })
+
+        $scope.$watch("_inputPanelState", function(newVal: any, oldVal: any) {
+            if (newVal === oldVal)
+                return;
+            if (newVal == WidgetModule.InputPanelType.person) {
+                uploadFileRefresh();
+            } else {
+                qiniuuploader && qiniuuploader.destroy();
+            }
+        })
+
         conversationServer.onConversationChangged = function(conversation: WidgetModule.Conversation) {
+
+            setTimeout(function() {
+                $scope.$apply();
+            }, 0);
 
             if (widgetConfig.displayConversationList) {
                 $scope.showSelf = true;
@@ -240,10 +264,14 @@ conversationController.controller("conversationController", ["$scope",
 
 
         conversationServer._onConnectSuccess = function() {
+            updateUploadToken();
+        }
+
+        function updateUploadToken() {
             RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
                 onSuccess: function(data) {
                     conversationServer._uploadToken = data.token;
-                    uploadFileInit();
+                    uploadFileRefresh();
                 }, onError: function() {
 
                 }
@@ -483,9 +511,10 @@ conversationController.controller("conversationController", ["$scope",
                 }
             })
         }
-
-        function uploadFileInit() {
-            var qiniuuploader = Qiniu.uploader({
+        var qiniuuploader: any
+        function uploadFileRefresh() {
+            qiniuuploader && qiniuuploader.destroy();
+            qiniuuploader = Qiniu.uploader({
                 // runtimes: 'html5,flash,html4',
                 runtimes: 'html5,html4',
                 browse_button: 'upload-file',
@@ -515,6 +544,7 @@ conversationController.controller("conversationController", ["$scope",
                     'UploadProgress': function(up: any, file: any) {
                     },
                     'UploadComplete': function() {
+                        updateUploadToken();
                     },
                     'FileUploaded': function(up: any, file: any, info: any) {
                         if (!$scope.currentConversation.targetId || !$scope.currentConversation.targetType) {
@@ -551,6 +581,7 @@ conversationController.controller("conversationController", ["$scope",
                         });
                     },
                     'Error': function(up: any, err: any, errTip: any) {
+                        updateUploadToken();
                     }
                     // ,
                     // 'Key': function(up: any, file: any) {

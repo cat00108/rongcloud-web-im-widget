@@ -21,7 +21,7 @@ conversationListDir.directive("rongConversationList", [function() {
     }
 }]);
 
-conversationListDir.directive("conversationItem", ["conversationServer", "conversationListServer", function(conversationServer: ConversationServer, conversationListServer: conversationListServer) {
+conversationListDir.directive("conversationItem", ["conversationServer", "conversationListServer", "RongIMSDKServer", function(conversationServer: ConversationServer, conversationListServer: conversationListServer, RongIMSDKServer: RongIMSDKServer) {
     return {
         restrict: "E",
         scope: { item: "=" },
@@ -34,7 +34,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
         '</p>' +
         '</div>' +
         '<div class="photo">' +
-        '<img class="img" ng-src="{{item.portraitUri}}" err-src="../widget/images/webBg.png" alt="">' +
+        '<img class="img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
         // '<i class="Presence Presence--stacked Presence--mainBox"></i>' +
         '</div>' +
         '<div class="info">' +
@@ -55,6 +55,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
 
                     }
                 })
+                RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
                 conversationListServer.updateConversations();
             });
 

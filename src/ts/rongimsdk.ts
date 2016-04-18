@@ -60,6 +60,18 @@ SDKServer.factory("RongIMSDKServer", ["$q", function($q: angular.IQService) {
         return RongIMLib.RongIMClient.getInstance();
     }
 
+    RongIMSDKServer.sendReadReceiptMessage = function(targetId: string, type: number) {
+        RongIMLib.RongIMClient.getInstance().getConversation(type, targetId, {
+            onSuccess: function(data) {
+                var read = RongIMLib.ReadReceiptMessage.obtain(data.latestMessage.messageUId, data.latestMessage.sentTime, "1");
+                RongIMSDKServer.sendMessage(type, targetId, read);
+            },
+            onError: function() {
+
+            }
+        })
+    }
+
     RongIMSDKServer.setOnReceiveMessageListener = function(option: any) {
         RongIMLib.RongIMClient.setOnReceiveMessageListener(option);
     }
@@ -257,6 +269,7 @@ interface RongIMSDKServer {
     getHistoryMessages(type: number, targetId: string, num: number): angular.IPromise<{ data: RongIMLib.Message[], has: boolean }>
     disconnect(): void
     logout(): void
+    sendReadReceiptMessage(targetId: string, type: number):void
 
     voice: any
 }
