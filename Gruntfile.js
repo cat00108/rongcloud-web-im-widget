@@ -178,10 +178,17 @@ module.exports = function(grunt) {
           }
         }
       }
-    }
+    },
 
-
-
+    css_ownprefix: {
+      css:{
+        // options:{
+        // },
+        files:{
+          './tmp/':['./src/css/*.css']
+        }
+      }
+    },
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -193,6 +200,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-angular-templates');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('css-ownprefix');
 
   grunt.registerTask("default", function() {
     grunt.log.writeln("env" + process.env.path);

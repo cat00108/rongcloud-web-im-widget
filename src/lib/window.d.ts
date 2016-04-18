@@ -27,6 +27,28 @@ declare module RongIMLib {
 interface Window {
     webkitURL: any
     RongIMLib: any
+    Notification: Notification
+}
+interface Notification extends Function {
+    title: string;
+    dir: string;
+    lang: string;
+    body: string;
+    tag: string;
+    icon: string;
+    data: any;
+    slient: boolean;
+
+    onclick: (ev: MouseEvent) => any;
+    onerror: () => any;
+    onshow: () => any;
+    onclose: () => any;
+    close: () => any;
+}
+declare var Notification: {
+    new (title: string, config: any): Notification
+    requestPermission(fun: any): void
+    permission: any
 }
 interface JQuery {
     rebox(target: any): JQuery

@@ -254,6 +254,52 @@ module WidgetModule {
             return msg;
         }
 
+        static messageToNotification = function(msg: any) {
+            if (!msg)
+                return null;
+            var msgtype = msg.messageType, msgContent: string;
+            if (msgtype == MessageType.ImageMessage) {
+                msgContent = "[图片]";
+            } else if (msgtype == MessageType.LocationMessage) {
+                msgContent = "[位置]";
+            } else if (msgtype == MessageType.VoiceMessage) {
+                msgContent = "[语音]";
+            } else if (msgtype == MessageType.ContactNotificationMessage || msgtype == MessageType.CommandNotificationMessage) {
+                msgContent = "[通知消息]";
+            } else if (msg.objectName == "RC:GrpNtf") {
+                var data = msg.content.message.content.data.data
+                switch (msg.content.message.content.operation) {
+                    case "Add":
+                        msgContent = data.targetUserDisplayNames ? (data.targetUserDisplayNames.join("、") + " 加入了群组") : "加入群组";
+                        break;
+                    case "Quit":
+                        msgContent = data.operatorNickname + " 退出了群组";
+                        break;
+                    case "Kicked":
+                        //由于之前数据问题
+                        msgContent = data.targetUserDisplayNames ? (data.targetUserDisplayNames.join("、") + " 被剔出群组") : "移除群组";
+                        break;
+                    case "Rename":
+                        msgContent = data.operatorNickname + " 修改了群名称";
+                        break;
+                    case "Create":
+                        msgContent = data.operatorNickname + " 创建了群组";
+                        break;
+                    case "Dismiss":
+                        msgContent = data.operatorNickname + " 解散了群组 " + data.targetGroupName;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                msgContent = msg.content ? msg.content.content : "";
+                msgContent = RongIMLib.RongIMEmoji.emojiToSymbol(msgContent);
+                msgContent = msgContent.replace(/\n/g, " ");
+                msgContent = msgContent.replace(/([\w]{49,50})/g, "$1 ");
+            }
+            return msgContent;
+        }
     }
 
     export class UserInfo {
@@ -486,4 +532,61 @@ module WidgetModule {
         }
     }
 
+    export class NotificationHelper {
+
+        static desktopNotification = true;
+
+        static isNotificationSupported() {
+            return typeof Notification === "function";
+        }
+
+        static requestPermission() {
+            if (!NotificationHelper.isNotificationSupported()) {
+                return;
+            }
+            Notification.requestPermission(function(status: string) {
+            });
+        }
+
+        static onclick(n: Notification) { }
+
+        static showNotification(config: any) {
+            if (!NotificationHelper.isNotificationSupported()) {
+                console.log('the current browser does not support Notification API');
+                return;
+            }
+            if (Notification.permission !== "granted") {
+                console.log('the current page has not been granted for notification');
+                return;
+            }
+            if (!document.hidden) {
+                return;
+            }
+            if (!NotificationHelper.desktopNotification) {
+                return;
+            }
+
+            var title = config.title;
+            delete config.title;
+            var n = new Notification(title, config);
+
+            n.onshow = function() {
+                setTimeout(function() {
+                    n.close();
+                }, 5000);
+            };
+
+            n.onclick = function() {
+                window.focus();
+                NotificationHelper.onclick(n);
+                n.close();
+            };
+
+            n.onerror = function() {
+            };
+
+            n.onclose = function() {
+            };
+        }
+    }
 }
