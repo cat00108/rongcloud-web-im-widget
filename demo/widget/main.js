@@ -10881,8 +10881,8 @@ conversationServer.factory("conversationServer", ["$q", "providerdata", function
     }]);
 /// <reference path="../../../typings/tsd.d.ts"/>
 var conversationListCtr = angular.module("RongWebIMWidget.conversationListController", []);
-conversationListCtr.controller("conversationListController", ["$scope", "conversationListServer", "WebIMWidget",
-    function ($scope, conversationListServer, WebIMWidget) {
+conversationListCtr.controller("conversationListController", ["$scope", "conversationListServer", "WebIMWidget", "widgetConfig", "providerdata",
+    function ($scope, conversationListServer, WebIMWidget, widgetConfig, providerdata) {
         $scope.conversationListServer = conversationListServer;
         $scope.WebIMWidget = WebIMWidget;
         conversationListServer.refreshConversationList = function () {
@@ -10893,10 +10893,32 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
         $scope.minbtn = function () {
             WebIMWidget.display = false;
         };
+        var checkOnlieStatus;
+        function refreshOnlineStatus() {
+            var arr = conversationListServer.conversationList.map(function (item) { return item.targetId; });
+            providerdata.getOnlineStatus(arr, {
+                onSuccess: function (data) {
+                    conversationListServer._onlineStatus = data;
+                    conversationListServer.updateConversations();
+                }
+            });
+        }
+        function startCheckOnline() {
+            if (widgetConfig.displayConversationList && providerdata.getOnlineStatus) {
+                checkOnlieStatus = setInterval(function () {
+                    refreshOnlineStatus();
+                }, 10 * 1000);
+            }
+        }
+        function stopCeckOnline() {
+            clearInterval(checkOnlieStatus);
+        }
         $scope.connected = true;
         conversationListServer._onConnectStatusChange = function (status) {
             if (status == RongIMLib.ConnectionStatus.CONNECTED) {
                 $scope.connected = true;
+                refreshOnlineStatus();
+                startCheckOnline();
             }
             else {
                 $scope.connected = false;
@@ -10930,7 +10952,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
             restrict: "E",
             scope: { item: "=" },
             template: '<div class="chatList">' +
-                '<div class="chat_item online ">' +
+                '<div class="chat_item " ng-class="{\'online\':item.onLine}">' +
                 '<div class="ext">' +
                 '<p class="attr clearfix">' +
                 '<span class="badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
@@ -10939,11 +10961,11 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                 '</div>' +
                 '<div class="photo">' +
                 '<img class="img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
-                // '<i class="Presence Presence--stacked Presence--mainBox"></i>' +
+                '<i class="Presence Presence--stacked Presence--mainBox"></i>' +
                 '</div>' +
                 '<div class="info">' +
                 '<h3 class="nickname">' +
-                '<span class="nickname_text">{{item.title}}</span>' +
+                '<span class="nickname_text" title="{{item.title}}">{{item.title}}</span>' +
                 '</h3>' +
                 '</div>' +
                 '</div>' +
@@ -10983,6 +11005,7 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
     function ($q, providerdata) {
         var server = {};
         server.conversationList = [];
+        server._onlineStatus = [];
         server.updateConversations = function () {
             var defer = $q.defer();
             RongIMLib.RongIMClient.getInstance().getConversationList({
@@ -11024,6 +11047,10 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
                         }
                         server.conversationList.push(con);
                     }
+                    server._onlineStatus.forEach(function (item) {
+                        var conv = server.getConversation(WidgetModule.EnumConversationType.PRIVATE, item.id);
+                        conv && (conv.onLine = item.status);
+                    });
                     defer.resolve();
                     server.refreshConversationList();
                 },
@@ -11471,6 +11498,9 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
         };
         WebIMWidget.setGroupInfoProvider = function (fun) {
             providerdata.getGroupInfo = fun;
+        };
+        WebIMWidget.setOnlineStatusProvider = function (fun) {
+            providerdata.getOnlineStatus = fun;
         };
         WebIMWidget.EnumConversationListPosition = WidgetModule.EnumConversationListPosition;
         WebIMWidget.EnumConversationType = WidgetModule.EnumConversationType;
@@ -12336,7 +12366,7 @@ angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache
 
 
   $templateCache.put('./src/ts/conversationlist/conversationList.tpl.html',
-    "<div id=rong-conversation-list class=\"kefuListBox both\"><div class=kefuList><div class=\"rong-header blueBg\"><div class=\"toolBar headBtn\"><div class=\"sprite people\"></div><span class=recent>最近联系人</span><div class=\"sprite arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=content><div class=netStatus ng-hide=connected><div class=sprite></div><span>与服务器连接断开</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
+    "<div id=rong-conversation-list class=\"kefuListBox both\"><div class=kefuList><div class=\"rong-header blueBg\"><div class=\"toolBar headBtn\"><div class=\"sprite people\"></div><span class=recent>最近联系人</span><div class=\"sprite arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=content><div class=netStatus ng-hide=connected><div class=sprite></div><span>与服务器连接断开,请刷新重试</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
   );
 
 

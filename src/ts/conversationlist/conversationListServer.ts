@@ -9,6 +9,8 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
 
         server.conversationList = <WidgetModule.Conversation[]>[];
 
+        server._onlineStatus = []
+
         server.updateConversations = function() {
             var defer = $q.defer();
 
@@ -53,6 +55,10 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
 
                         server.conversationList.push(con);
                     }
+                    server._onlineStatus.forEach(function(item) {
+                        var conv = server.getConversation(WidgetModule.EnumConversationType.PRIVATE, item.id);
+                        conv && (conv.onLine = item.status);
+                    });
                     defer.resolve();
                     server.refreshConversationList();
                 },
@@ -81,12 +87,13 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
             server.conversationList.unshift(conversation);
         }
 
-        server._onConnectStatusChange=function(){}
+        server._onConnectStatusChange = function() { }
 
         return server;
     }]);
 interface conversationListServer {
     conversationList: WidgetModule.Conversation[]
+    _onlineStatus: any[]
     updateConversations(): angular.IPromise<any>
     refreshConversationList(): void
     getConversation(type: number, id: string): WidgetModule.Conversation

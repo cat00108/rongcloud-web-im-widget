@@ -38,15 +38,31 @@ demo.controller("main", ["$scope", "WebIMWidget","$http", function($scope,
     WebIMWidget.show();
 
     WebIMWidget.setUserInfoProvider(function(targetId,obj){
-        obj.onSuccess({name:"陌："+targetId});
+        $http({
+          url:"/userinfo.json"
+        }).success(function(rep){
+          var user;
+          rep.userlist.forEach(function(item){
+            if(item.id==targetId){
+              user=item;
+            }
+          })
+
+          if(user){
+            obj.onSuccess({id:user.id,name:user.name});
+          }else{
+            obj.onSuccess({id:targetId,name:"陌："+targetId});
+          }
+        })
     });
 
-    // WebIMWidget.onCloseBefore=function(obj){
-    //   console.log("关闭前");
-    //   setTimeout(function(){
-    //     obj.close();
-    //   },1000)
-    // }
+    WebIMWidget.setOnlineStatusProvider(function(arr,obj){
+        $http({
+          url:"/online.json"
+        }).success(function(rep){
+          obj.onSuccess(rep.data);
+        })
+    })
 
     WebIMWidget.onClose=function(){
       console.log("已关闭");

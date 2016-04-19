@@ -325,6 +325,10 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             providerdata.getGroupInfo = fun;
         }
 
+        WebIMWidget.setOnlineStatusProvider = function(fun) {
+            providerdata.getOnlineStatus = fun;
+        }
+
         WebIMWidget.EnumConversationListPosition = WidgetModule.EnumConversationListPosition;
 
         WebIMWidget.EnumConversationType = WidgetModule.EnumConversationType;
@@ -426,6 +430,7 @@ interface widgetConfig {
 interface providerdata {
     getUserInfo: UserInfoProvider
     getGroupInfo: GroupInfoProvider
+    getOnlineStatus: OnlineStatusProvider
     getCacheUserInfo(id): WidgetModule.UserInfo
     addUserInfo(user: WidgetModule.UserInfo): void
 }
@@ -479,12 +484,17 @@ interface WebIMWidget {
 
     setUserInfoProvider(fun: UserInfoProvider)
     setGroupInfoProvider(fun: GroupInfoProvider)
+    setOnlineStatusProvider(fun: OnlineStatusProvider)
 
     /**
      * 静态属性
      */
     EnumConversationListPosition: any
     EnumConversationType: any
+}
+
+interface OnlineStatusProvider {
+    (targetId: string[], callback: CallBack<{ id: string, status: boolean }[]>): void
 }
 
 interface UserInfoProvider {

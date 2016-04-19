@@ -26,7 +26,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
         restrict: "E",
         scope: { item: "=" },
         template: '<div class="chatList">' +
-        '<div class="chat_item online ">' +
+        '<div class="chat_item " ng-class="{\'online\':item.onLine}">' +
         '<div class="ext">' +
         '<p class="attr clearfix">' +
         '<span class="badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
@@ -35,11 +35,11 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
         '</div>' +
         '<div class="photo">' +
         '<img class="img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
-        // '<i class="Presence Presence--stacked Presence--mainBox"></i>' +
+        '<i class="Presence Presence--stacked Presence--mainBox"></i>' +
         '</div>' +
         '<div class="info">' +
         '<h3 class="nickname">' +
-        '<span class="nickname_text">{{item.title}}</span>' +
+        '<span class="nickname_text" title="{{item.title}}">{{item.title}}</span>' +
         '</h3>' +
         '</div>' +
         '</div>' +
