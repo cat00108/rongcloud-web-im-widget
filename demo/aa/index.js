@@ -22,7 +22,8 @@ demo.controller("main", ["$scope", "WebIMWidget","$http", function($scope,
 
     WebIMWidget.init({
       appkey: "3argexb6r934e",
-      token: "CIbKk/z1AOjB/ForzWFDWpUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcSIX81T5zgZyU5xfoVDjRmdg2Mh5WIasRw==",
+      // token: "CIbKk/z1AOjB/ForzWFDWpUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcSIX81T5zgZyU5xfoVDjRmdg2Mh5WIasRw==",
+      token:"3Y2egzIYQ9g8M76BiwiTcoT92+VsUe7ien9j+5OQOOBXujb945nEL1nDAGUvIP/hzgPI+chetYG4lSO5xHmpaQ==",
       style:{
         width:600,
         positionFixed:true,
