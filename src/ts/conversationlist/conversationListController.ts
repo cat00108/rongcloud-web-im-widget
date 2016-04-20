@@ -28,11 +28,9 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
         }
 
         function startCheckOnline() {
-            if (widgetConfig.displayConversationList && providerdata.getOnlineStatus) {
-                checkOnlieStatus = setInterval(function() {
-                    refreshOnlineStatus();
-                }, 10 * 1000);
-            }
+            checkOnlieStatus = setInterval(function() {
+                refreshOnlineStatus();
+            }, 10 * 1000);
         }
         function stopCeckOnline() {
             clearInterval(checkOnlieStatus);
@@ -43,8 +41,10 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
         conversationListServer._onConnectStatusChange = function(status: any) {
             if (status == RongIMLib.ConnectionStatus.CONNECTED) {
                 $scope.connected = true;
-                refreshOnlineStatus();
-                startCheckOnline();
+                if (widgetConfig.displayConversationList && providerdata.getOnlineStatus) {
+                    refreshOnlineStatus();
+                    startCheckOnline();
+                }
             } else {
                 $scope.connected = false;
             }

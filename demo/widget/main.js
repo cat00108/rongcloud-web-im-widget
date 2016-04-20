@@ -10707,7 +10707,7 @@ conversationDirective.directive("imagemessage", [function () {
                 var img = new Image();
                 img.src = scope.msg.imageUri;
                 setTimeout(function () {
-                    $('#rebox_' + scope.$id).rebox({ selector: 'a' }).bind("rebox:open", function () {
+                    $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999 }).bind("rebox:open", function () {
                         //jQuery rebox 点击空白关闭
                         var rebox = document.getElementsByClassName("rebox")[0];
                         rebox.onclick = function (e) {
@@ -10904,11 +10904,9 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
             });
         }
         function startCheckOnline() {
-            if (widgetConfig.displayConversationList && providerdata.getOnlineStatus) {
-                checkOnlieStatus = setInterval(function () {
-                    refreshOnlineStatus();
-                }, 10 * 1000);
-            }
+            checkOnlieStatus = setInterval(function () {
+                refreshOnlineStatus();
+            }, 10 * 1000);
         }
         function stopCeckOnline() {
             clearInterval(checkOnlieStatus);
@@ -10917,8 +10915,10 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
         conversationListServer._onConnectStatusChange = function (status) {
             if (status == RongIMLib.ConnectionStatus.CONNECTED) {
                 $scope.connected = true;
-                refreshOnlineStatus();
-                startCheckOnline();
+                if (widgetConfig.displayConversationList && providerdata.getOnlineStatus) {
+                    refreshOnlineStatus();
+                    startCheckOnline();
+                }
             }
             else {
                 $scope.connected = false;
