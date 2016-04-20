@@ -10139,6 +10139,7 @@ conversationController.controller("conversationController", ["$scope",
             }
             else {
                 $scope.messageList = currenthis;
+                adjustScrollbars();
             }
             //TODO:获取草稿
             $scope.currentConversation.messageContent = RongIMLib.RongIMClient.getInstance().getTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId) || "";
@@ -10532,6 +10533,7 @@ conversationController.controller("conversationController", ["$scope",
                         });
                     },
                     'Error': function (up, err, errTip) {
+                        console.log(err);
                         updateUploadToken();
                     }
                 }
@@ -10624,7 +10626,8 @@ conversationDirective.directive('contenteditableDire', function () {
             ngModel.$render = function () {
                 element.html(ngModel.$viewValue || '');
             };
-            WidgetModule.Helper.browser.msie ? element.bind("keyup paste", read) : element.bind("input", read);
+            element.bind("keyup paste", read);
+            // element.bind("input", read);
             function read() {
                 var html = element.html();
                 html = html.replace(/^<br>$/i, "");
@@ -10987,7 +10990,6 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                     RongIMLib.RongIMClient.getInstance().removeConversation(scope.item.targetType, scope.item.targetId, {
                         onSuccess: function () {
                             if (conversationServer.current.targetType == scope.item.targetType && conversationServer.current.targetId == scope.item.targetId) {
-                                conversationServer.onConversationChangged(new WidgetModule.Conversation());
                             }
                             conversationListServer.updateConversations();
                         },
@@ -11226,7 +11228,8 @@ var widget = angular.module("RongWebIMWidget", ["RongWebIMWidget.conversationSer
 widget.run(["$http", "WebIMWidget", "widgetConfig", function ($http, WebIMWidget, widgetConfig) {
         WidgetModule.NotificationHelper.requestPermission();
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function () {
+        //$script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function() {
+        $script.get("../lib/RongIMLib-kefu.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.0.15.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
@@ -11370,6 +11373,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             widgetConfig.reminder = defaultconfig.reminder;
             RongIMSDKServer.init(defaultconfig.appkey);
             RongIMSDKServer.connect(defaultconfig.token).then(function (userId) {
+                conversationListServer.updateConversations();
                 console.log("connect success:" + userId);
                 if (WidgetModule.Helper.checkType(defaultconfig.onSuccess) == "function") {
                     defaultconfig.onSuccess(userId);
@@ -11383,7 +11387,6 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         }
                     });
                 }
-                conversationListServer.updateConversations();
                 conversationServer._onConnectSuccess();
             }, function (err) {
                 if (err.tokenError) {

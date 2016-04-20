@@ -65,7 +65,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                 RongIMLib.RongIMClient.getInstance().removeConversation(scope.item.targetType, scope.item.targetId, {
                     onSuccess: function() {
                         if (conversationServer.current.targetType == scope.item.targetType && conversationServer.current.targetId == scope.item.targetId) {
-                            conversationServer.onConversationChangged(new WidgetModule.Conversation());
+                            // conversationServer.onConversationChangged(new WidgetModule.Conversation());
                         }
                         conversationListServer.updateConversations();
                     },

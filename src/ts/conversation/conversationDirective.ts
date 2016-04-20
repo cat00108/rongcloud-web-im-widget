@@ -95,7 +95,8 @@ conversationDirective.directive('contenteditableDire', function() {
                 element.html(ngModel.$viewValue || '');
             };
 
-            WidgetModule.Helper.browser.msie ? element.bind("keyup paste", read) : element.bind("input", read);
+            element.bind("keyup paste", read);
+            // element.bind("input", read);
 
             function read() {
                 var html = element.html();

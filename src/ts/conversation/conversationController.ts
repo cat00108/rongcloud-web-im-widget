@@ -142,6 +142,7 @@ conversationController.controller("conversationController", ["$scope",
                 });
             } else {
                 $scope.messageList = currenthis;
+                adjustScrollbars();
             }
 
             //TODO:获取草稿
@@ -581,6 +582,7 @@ conversationController.controller("conversationController", ["$scope",
                         });
                     },
                     'Error': function(up: any, err: any, errTip: any) {
+                        console.log(err);
                         updateUploadToken();
                     }
                     // ,
