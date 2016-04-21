@@ -54,6 +54,7 @@ interface JQuery {
     rebox(target: any): JQuery
     niceScroll(config: any): any
 }
+declare var jQuery: JQuery
 
 declare var Qiniu: Qiniu;
 

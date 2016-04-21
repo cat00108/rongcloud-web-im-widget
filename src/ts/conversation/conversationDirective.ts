@@ -9,14 +9,16 @@ conversationDirective.directive("rongConversation", [function() {
         templateUrl: "./src/ts/conversation/template.tpl.html",
         controller: "conversationController",
         link: function(scope: any, ele: angular.IRootElementService) {
-            $("#Messages").niceScroll({
-                'cursorcolor': "#0099ff",
-                'cursoropacitymax': 1,
-                'touchbehavior': false,
-                'cursorwidth': "8px",
-                'cursorborder': "0",
-                'cursorborderradius': "5px"
-            });
+            if (jQuery && jQuery.niceScroll) {
+                $("#Messages").niceScroll({
+                    'cursorcolor': "#0099ff",
+                    'cursoropacitymax': 1,
+                    'touchbehavior': false,
+                    'cursorwidth': "8px",
+                    'cursorborder': "0",
+                    'cursorborderradius': "5px"
+                });
+            }
         }
     }
 }]);
@@ -183,17 +185,19 @@ conversationDirective.directive("imagemessage", [function() {
             var img = new Image();
             img.src = scope.msg.imageUri;
             setTimeout(function() {
-                $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999 }).bind("rebox:open", function() {
-                    //jQuery rebox 点击空白关闭
-                    var rebox = <any>document.getElementsByClassName("rebox")[0];
-                    rebox.onclick = function(e: any) {
-                        if (e.target.tagName.toLowerCase() != "img") {
-                            var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
-                            rebox_close.click();
-                            rebox = null; rebox_close = null;
+                if (jQuery && jQuery.rebox) {
+                    $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999 }).bind("rebox:open", function() {
+                        //jQuery rebox 点击空白关闭
+                        var rebox = <any>document.getElementsByClassName("rebox")[0];
+                        rebox.onclick = function(e: any) {
+                            if (e.target.tagName.toLowerCase() != "img") {
+                                var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
+                                rebox_close.click();
+                                rebox = null; rebox_close = null;
+                            }
                         }
-                    }
-                });
+                    });
+                }
             })
             img.onload = function() {
                 //scope.isLoaded = true;

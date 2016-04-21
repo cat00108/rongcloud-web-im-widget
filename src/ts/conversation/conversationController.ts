@@ -129,6 +129,7 @@ conversationController.controller("conversationController", ["$scope",
             conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || []
 
             var currenthis = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
+            $scope.messageList = currenthis;
             if (currenthis.length == 0) {
                 conversationServer._getHistoryMessages(+conversation.targetType, conversation.targetId, 3).then(function(data) {
                     $scope.messageList = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId];
@@ -141,7 +142,6 @@ conversationController.controller("conversationController", ["$scope",
                     }
                 });
             } else {
-                $scope.messageList = currenthis;
                 adjustScrollbars();
             }
 
@@ -344,7 +344,7 @@ conversationController.controller("conversationController", ["$scope",
             ret.senderUserId = conversationServer.loginUser.id;
 
             ret.messageDirection = RongIMLib.MessageDirection.SEND;
-            ret.sentTime = (new Date()).getTime() - RongIMLib.RongIMClient.getInstance().getDeltaTime();
+            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
             ret.messageType = messageType;
 
             return ret;
@@ -360,7 +360,7 @@ conversationController.controller("conversationController", ["$scope",
             ret.senderUserId = $scope.currentConversation.targetId;
 
             ret.messageDirection = RongIMLib.MessageDirection.RECEIVE;
-            ret.sentTime = (new Date()).getTime() - RongIMLib.RongIMClient.getInstance().getDeltaTime();
+            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
             ret.messageType = messageType;
 
             return ret;
@@ -474,17 +474,23 @@ conversationController.controller("conversationController", ["$scope",
 
             msg.user = userinfo;
 
-            RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, msg, {
-                onSuccess: function(retMessage: RongIMLib.Message) {
+            try {
+                RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, msg, {
+                    onSuccess: function(retMessage: RongIMLib.Message) {
 
-                    conversationListServer.updateConversations().then(function() {
+                        conversationListServer.updateConversations().then(function() {
 
-                    });
-                },
-                onError: function(error) {
-                    console.log(error);
-                }
-            });
+                        });
+                    },
+                    onError: function(error) {
+                        console.log(error);
+                    }
+                });
+
+            } catch (e) {
+                console.log(e);
+            }
+
 
             var content = packDisplaySendMessage(msg, WidgetModule.MessageType.TextMessage);
 
