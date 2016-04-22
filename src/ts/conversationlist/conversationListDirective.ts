@@ -9,7 +9,7 @@ conversationListDir.directive("rongConversationList", [function() {
         templateUrl: "./src/ts/conversationlist/conversationList.tpl.html",
         controller: "conversationListController",
         link: function(scope: any, ele: angular.IRootElementService) {
-            $(ele).find(".content").niceScroll({
+            $(ele).find(".rongcloud-content").niceScroll({
                 'cursorcolor': "#0099ff",
                 'cursoropacitymax': 1,
                 'touchbehavior': false,
@@ -25,21 +25,21 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
     return {
         restrict: "E",
         scope: { item: "=" },
-        template: '<div class="chatList">' +
-        '<div class="chat_item " ng-class="{\'online\':item.onLine}">' +
-        '<div class="ext">' +
-        '<p class="attr clearfix">' +
-        '<span class="badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
-        '<i class="sprite no-remind" ng-click="remove($event)"></i>' +
+        template: '<div class="rongcloud-chatList">' +
+        '<div class="rongcloud-chat_item " ng-class="{\'online\':item.onLine}">' +
+        '<div class="rongcloud-ext">' +
+        '<p class="rongcloud-attr clearfix">' +
+        '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
+        '<i class="rongcloud-sprite no-remind" ng-click="remove($event)"></i>' +
         '</p>' +
         '</div>' +
-        '<div class="photo">' +
-        '<img class="img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
-        '<i class="Presence Presence--stacked Presence--mainBox"></i>' +
+        '<div class="rongcloud-photo">' +
+        '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
+        '<i class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
         '</div>' +
-        '<div class="info">' +
-        '<h3 class="nickname">' +
-        '<span class="nickname_text" title="{{item.title}}">{{item.title}}</span>' +
+        '<div class="rongcloud-info">' +
+        '<h3 class="rongcloud-nickname">' +
+        '<span class="rongcloud-nickname_text" title="{{item.title}}">{{item.title}}</span>' +
         '</h3>' +
         '</div>' +
         '</div>' +

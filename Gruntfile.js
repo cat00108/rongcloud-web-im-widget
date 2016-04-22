@@ -55,7 +55,7 @@ module.exports = function(grunt) {
     connect: {
       demo: {
         options: {
-          port: 8000,
+          port: 80,
           hostname: '*',
           open: true,
           keepalive: true,
@@ -182,11 +182,26 @@ module.exports = function(grunt) {
 
     css_ownprefix: {
       css:{
-        // options:{
-        // },
-        files:{
-          './tmp/':['./src/css/*.css']
-        }
+        options:{
+          prefix:"rongcloud-"
+        },
+        files:[{
+          expand:true,
+          cwd:"./src",
+          src:['css/conversation.css'],
+          dest:'./aaa/'
+        }]
+      },
+      html:{
+        options:{
+          prefix:"rongcloud-"
+        },
+        files:[{
+          expand:true,
+          cwd:"./src",
+          src:['ts/**/*.html'],
+          dest:'./aaa/'
+        }]
       }
     },
   });

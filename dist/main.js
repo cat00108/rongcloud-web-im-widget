@@ -10070,7 +10070,30 @@ conversationController.controller("conversationController", ["$scope",
                 RongIMLib.RongIMClient.getInstance().saveTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, newVal);
             }
         });
+        $scope.$watch("showSelf", function (newVal, oldVal) {
+            if (newVal === oldVal)
+                return;
+            if (newVal) {
+                uploadFileRefresh();
+            }
+            else {
+                qiniuuploader && qiniuuploader.destroy();
+            }
+        });
+        $scope.$watch("_inputPanelState", function (newVal, oldVal) {
+            if (newVal === oldVal)
+                return;
+            if (newVal == WidgetModule.InputPanelType.person) {
+                uploadFileRefresh();
+            }
+            else {
+                qiniuuploader && qiniuuploader.destroy();
+            }
+        });
         conversationServer.onConversationChangged = function (conversation) {
+            setTimeout(function () {
+                $scope.$apply();
+            }, 0);
             if (widgetConfig.displayConversationList) {
                 $scope.showSelf = true;
             }
@@ -10102,6 +10125,7 @@ conversationController.controller("conversationController", ["$scope",
             //TODO:获取历史消息
             conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
             var currenthis = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
+            $scope.messageList = currenthis;
             if (currenthis.length == 0) {
                 conversationServer._getHistoryMessages(+conversation.targetType, conversation.targetId, 3).then(function (data) {
                     $scope.messageList = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId];
@@ -10115,7 +10139,7 @@ conversationController.controller("conversationController", ["$scope",
                 });
             }
             else {
-                $scope.messageList = currenthis;
+                adjustScrollbars();
             }
             //TODO:获取草稿
             $scope.currentConversation.messageContent = RongIMLib.RongIMClient.getInstance().getTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId) || "";
@@ -10231,14 +10255,17 @@ conversationController.controller("conversationController", ["$scope",
             }
         };
         conversationServer._onConnectSuccess = function () {
+            updateUploadToken();
+        };
+        function updateUploadToken() {
             RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
                 onSuccess: function (data) {
                     conversationServer._uploadToken = data.token;
-                    uploadFileInit();
+                    uploadFileRefresh();
                 }, onError: function () {
                 }
             });
-        };
+        }
         $scope.getHistory = function () {
             var arr = conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId];
             arr.splice(0, arr.length);
@@ -10299,7 +10326,7 @@ conversationController.controller("conversationController", ["$scope",
             ret.targetId = $scope.currentConversation.targetId;
             ret.senderUserId = conversationServer.loginUser.id;
             ret.messageDirection = RongIMLib.MessageDirection.SEND;
-            ret.sentTime = (new Date()).getTime() - RongIMLib.RongIMClient.getInstance().getDeltaTime();
+            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
             ret.messageType = messageType;
             return ret;
         }
@@ -10312,7 +10339,7 @@ conversationController.controller("conversationController", ["$scope",
             ret.targetId = $scope.currentConversation.targetId;
             ret.senderUserId = $scope.currentConversation.targetId;
             ret.messageDirection = RongIMLib.MessageDirection.RECEIVE;
-            ret.sentTime = (new Date()).getTime() - RongIMLib.RongIMClient.getInstance().getDeltaTime();
+            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
             ret.messageType = messageType;
             return ret;
         }
@@ -10413,15 +10440,20 @@ conversationController.controller("conversationController", ["$scope",
             var msg = RongIMLib.TextMessage.obtain(con);
             var userinfo = new RongIMLib.UserInfo(conversationServer.loginUser.id, conversationServer.loginUser.name, conversationServer.loginUser.portraitUri);
             msg.user = userinfo;
-            RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, msg, {
-                onSuccess: function (retMessage) {
-                    conversationListServer.updateConversations().then(function () {
-                    });
-                },
-                onError: function (error) {
-                    console.log(error);
-                }
-            });
+            try {
+                RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, msg, {
+                    onSuccess: function (retMessage) {
+                        conversationListServer.updateConversations().then(function () {
+                        });
+                    },
+                    onError: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+            catch (e) {
+                console.log(e);
+            }
             var content = packDisplaySendMessage(msg, WidgetModule.MessageType.TextMessage);
             var cmsg = WidgetModule.Message.convert(content);
             conversationServer._addHistoryMessages(cmsg);
@@ -10442,8 +10474,10 @@ conversationController.controller("conversationController", ["$scope",
                 }
             });
         };
-        function uploadFileInit() {
-            var qiniuuploader = Qiniu.uploader({
+        var qiniuuploader;
+        function uploadFileRefresh() {
+            qiniuuploader && qiniuuploader.destroy();
+            qiniuuploader = Qiniu.uploader({
                 // runtimes: 'html5,flash,html4',
                 runtimes: 'html5,html4',
                 browse_button: 'upload-file',
@@ -10473,6 +10507,7 @@ conversationController.controller("conversationController", ["$scope",
                     'UploadProgress': function (up, file) {
                     },
                     'UploadComplete': function () {
+                        updateUploadToken();
                     },
                     'FileUploaded': function (up, file, info) {
                         if (!$scope.currentConversation.targetId || !$scope.currentConversation.targetType) {
@@ -10503,6 +10538,8 @@ conversationController.controller("conversationController", ["$scope",
                         });
                     },
                     'Error': function (up, err, errTip) {
+                        console.log(err);
+                        updateUploadToken();
                     }
                 }
             });
@@ -10516,14 +10553,16 @@ conversationDirective.directive("rongConversation", [function () {
             templateUrl: "./src/ts/conversation/template.tpl.html",
             controller: "conversationController",
             link: function (scope, ele) {
-                $("#Messages").niceScroll({
-                    'cursorcolor': "#0099ff",
-                    'cursoropacitymax': 1,
-                    'touchbehavior': false,
-                    'cursorwidth': "8px",
-                    'cursorborder': "0",
-                    'cursorborderradius': "5px"
-                });
+                if (jQuery && jQuery.niceScroll) {
+                    $("#Messages").niceScroll({
+                        'cursorcolor': "#0099ff",
+                        'cursoropacitymax': 1,
+                        'touchbehavior': false,
+                        'cursorwidth': "8px",
+                        'cursorborder': "0",
+                        'cursorborderradius': "5px"
+                    });
+                }
             }
         };
     }]);
@@ -10594,7 +10633,8 @@ conversationDirective.directive('contenteditableDire', function () {
             ngModel.$render = function () {
                 element.html(ngModel.$viewValue || '');
             };
-            WidgetModule.Helper.browser.msie ? element.bind("keyup paste", read) : element.bind("input", read);
+            element.bind("keyup paste", read);
+            // element.bind("input", read);
             function read() {
                 var html = element.html();
                 html = html.replace(/^<br>$/i, "");
@@ -10644,7 +10684,7 @@ conversationDirective.directive("textmessage", [function () {
             restrict: "E",
             scope: { msg: "=" },
             template: '<div class="">' +
-                '<div class="Message-text"><pre class="Message-entry" ng-bind-html="msg.content|trustHtml"><br></pre></div>' +
+                '<div class="rongcloud-Message-text"><pre class="rongcloud-Message-entry" ng-bind-html="msg.content|trustHtml"><br></pre></div>' +
                 '</div>'
         };
     }]);
@@ -10653,8 +10693,8 @@ conversationDirective.directive("includinglinkmessage", [function () {
             restrict: "E",
             scope: { msg: "=" },
             template: '<div class="">' +
-                '<div class="Message-text">' +
-                '<pre class="Message-entry" style="">' +
+                '<div class="rongcloud-Message-text">' +
+                '<pre class="rongcloud-Message-entry" style="">' +
                 '维护中 由于我们的服务商出现故障，融云官网及相关服务也受到影响，给各位用户带来的不便，还请谅解。  您可以通过 <a href="#">【官方微博】</a>了解</pre>' +
                 '</div>' +
                 '</div>'
@@ -10665,8 +10705,8 @@ conversationDirective.directive("imagemessage", [function () {
             restrict: "E",
             scope: { msg: "=" },
             template: '<div class="">' +
-                '<div class="Message-img">' +
-                '<span id="{{\'rebox_\'+$id}}"  class="Message-entry" style="">' +
+                '<div class="rongcloud-Message-img">' +
+                '<span id="{{\'rebox_\'+$id}}"  class="rongcloud-Message-entry" style="">' +
                 // '<p>发给您一张示意图</p>' +
                 // '<img ng-src="{{msg.content}}" alt="">' +
                 '<a href="{{msg.imageUri}}"><img ng-src="{{msg.content}}"  data-image="{{msg.imageUri}}" alt=""/></a>' +
@@ -10677,18 +10717,20 @@ conversationDirective.directive("imagemessage", [function () {
                 var img = new Image();
                 img.src = scope.msg.imageUri;
                 setTimeout(function () {
-                    $('#rebox_' + scope.$id).rebox({ selector: 'a' }).bind("rebox:open", function () {
-                        //jQuery rebox 点击空白关闭
-                        var rebox = document.getElementsByClassName("rebox")[0];
-                        rebox.onclick = function (e) {
-                            if (e.target.tagName.toLowerCase() != "img") {
-                                var rebox_close = document.getElementsByClassName("rebox-close")[0];
-                                rebox_close.click();
-                                rebox = null;
-                                rebox_close = null;
-                            }
-                        };
-                    });
+                    if (jQuery && jQuery.rebox) {
+                        $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999 }).bind("rebox:open", function () {
+                            //jQuery rebox 点击空白关闭
+                            var rebox = document.getElementsByClassName("rebox")[0];
+                            rebox.onclick = function (e) {
+                                if (e.target.tagName.toLowerCase() != "img") {
+                                    var rebox_close = document.getElementsByClassName("rebox-close")[0];
+                                    rebox_close.click();
+                                    rebox = null;
+                                    rebox_close = null;
+                                }
+                            };
+                        });
+                    }
                 });
                 img.onload = function () {
                     //scope.isLoaded = true;
@@ -10709,10 +10751,10 @@ conversationDirective.directive("voicemessage", ["$timeout", function ($timeout)
             restrict: "E",
             scope: { msg: "=" },
             template: '<div class="">' +
-                '<div class="Message-audio">' +
-                '<span class="Message-entry" style="">' +
-                '<span class="audioBox clearfix " ng-click="play()" ng-class="{\'animate\':isplaying}" ><i></i><i></i><i></i></span>' +
-                '<div style="display: inline-block;" ><span class="audioTimer">{{msg.duration}}”</span><span class="audioState" ng-show="msg.isUnReade"></span></div>' +
+                '<div class="rongcloud-Message-audio">' +
+                '<span class="rongcloud-Message-entry" style="">' +
+                '<span class="rongcloud-audioBox rongcloud-clearfix " ng-click="play()" ng-class="{\'animate\':isplaying}" ><i></i><i></i><i></i></span>' +
+                '<div style="display: inline-block;" ><span class="rongcloud-audioTimer">{{msg.duration}}”</span><span class="rongcloud-audioState" ng-show="msg.isUnReade"></span></div>' +
                 '</span>' +
                 '</div>' +
                 '</div>',
@@ -10745,9 +10787,9 @@ conversationDirective.directive("locationmessage", [function () {
             restrict: "E",
             scope: { msg: "=" },
             template: '<div class="">' +
-                '<div class="Message-map">' +
-                '<span class="Message-entry" style="">' +
-                '<div class="mapBox">' +
+                '<div class="rongcloud-Message-map">' +
+                '<span class="rongcloud-Message-entry" style="">' +
+                '<div class="rongcloud-mapBox">' +
                 '<img ng-src="{{msg.content}}" alt="">' +
                 '<span>{{msg.poi}}</span>' +
                 '</div>' +
@@ -10761,11 +10803,11 @@ conversationDirective.directive("richcontentmessage", [function () {
             restrict: "E",
             scope: { msg: "=" },
             template: '<div class="">' +
-                '<div class="Message-image-text">' +
-                '<span class="Message-entry" style="">' +
-                '<div class="image-textBox">' +
+                '<div class="rongcloud-Message-image-text">' +
+                '<span class="rongcloud-Message-entry" style="">' +
+                '<div class="rongcloud-image-textBox">' +
                 '<h4>{{msg.title}}</h4>' +
-                '<div class="cont clearfix">' +
+                '<div class="rongcloud-cont rongcloud-clearfix">' +
                 '<img ng-src="{{msg.imageUri}}" alt="">' +
                 '<div>{{msg.content}}</div>' +
                 '</div>' +
@@ -10851,8 +10893,8 @@ conversationServer.factory("conversationServer", ["$q", "providerdata", function
     }]);
 /// <reference path="../../../typings/tsd.d.ts"/>
 var conversationListCtr = angular.module("RongWebIMWidget.conversationListController", []);
-conversationListCtr.controller("conversationListController", ["$scope", "conversationListServer", "WebIMWidget",
-    function ($scope, conversationListServer, WebIMWidget) {
+conversationListCtr.controller("conversationListController", ["$scope", "conversationListServer", "WebIMWidget", "widgetConfig", "providerdata",
+    function ($scope, conversationListServer, WebIMWidget, widgetConfig, providerdata) {
         $scope.conversationListServer = conversationListServer;
         $scope.WebIMWidget = WebIMWidget;
         conversationListServer.refreshConversationList = function () {
@@ -10863,10 +10905,32 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
         $scope.minbtn = function () {
             WebIMWidget.display = false;
         };
+        var checkOnlieStatus;
+        function refreshOnlineStatus() {
+            var arr = conversationListServer.conversationList.map(function (item) { return item.targetId; });
+            providerdata.getOnlineStatus(arr, {
+                onSuccess: function (data) {
+                    conversationListServer._onlineStatus = data;
+                    conversationListServer.updateConversations();
+                }
+            });
+        }
+        function startCheckOnline() {
+            checkOnlieStatus = setInterval(function () {
+                refreshOnlineStatus();
+            }, 10 * 1000);
+        }
+        function stopCeckOnline() {
+            clearInterval(checkOnlieStatus);
+        }
         $scope.connected = true;
         conversationListServer._onConnectStatusChange = function (status) {
             if (status == RongIMLib.ConnectionStatus.CONNECTED) {
                 $scope.connected = true;
+                if (widgetConfig.displayConversationList && providerdata.getOnlineStatus) {
+                    refreshOnlineStatus();
+                    startCheckOnline();
+                }
             }
             else {
                 $scope.connected = false;
@@ -10884,7 +10948,7 @@ conversationListDir.directive("rongConversationList", [function () {
             templateUrl: "./src/ts/conversationlist/conversationList.tpl.html",
             controller: "conversationListController",
             link: function (scope, ele) {
-                $(ele).find(".content").niceScroll({
+                $(ele).find(".rongcloud-content").niceScroll({
                     'cursorcolor': "#0099ff",
                     'cursoropacitymax': 1,
                     'touchbehavior': false,
@@ -10895,25 +10959,25 @@ conversationListDir.directive("rongConversationList", [function () {
             }
         };
     }]);
-conversationListDir.directive("conversationItem", ["conversationServer", "conversationListServer", function (conversationServer, conversationListServer) {
+conversationListDir.directive("conversationItem", ["conversationServer", "conversationListServer", "RongIMSDKServer", function (conversationServer, conversationListServer, RongIMSDKServer) {
         return {
             restrict: "E",
             scope: { item: "=" },
-            template: '<div class="chatList">' +
-                '<div class="chat_item online ">' +
-                '<div class="ext">' +
-                '<p class="attr clearfix">' +
-                '<span class="badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
-                '<i class="sprite no-remind" ng-click="remove($event)"></i>' +
+            template: '<div class="rongcloud-chatList">' +
+                '<div class="rongcloud-chat_item " ng-class="{\'online\':item.onLine}">' +
+                '<div class="rongcloud-ext">' +
+                '<p class="rongcloud-attr clearfix">' +
+                '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
+                '<i class="rongcloud-sprite no-remind" ng-click="remove($event)"></i>' +
                 '</p>' +
                 '</div>' +
-                '<div class="photo">' +
-                '<img class="img" ng-src="{{item.portraitUri}}" err-src="../widget/images/webBg.png" alt="">' +
-                // '<i class="Presence Presence--stacked Presence--mainBox"></i>' +
+                '<div class="rongcloud-photo">' +
+                '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
+                '<i class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
                 '</div>' +
-                '<div class="info">' +
-                '<h3 class="nickname">' +
-                '<span class="nickname_text">{{item.title}}</span>' +
+                '<div class="rongcloud-info">' +
+                '<h3 class="rongcloud-nickname">' +
+                '<span class="rongcloud-nickname_text" title="{{item.title}}">{{item.title}}</span>' +
                 '</h3>' +
                 '</div>' +
                 '</div>' +
@@ -10927,6 +10991,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                         onError: function () {
                         }
                     });
+                    RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
                     conversationListServer.updateConversations();
                 });
                 scope.remove = function (e) {
@@ -10934,7 +10999,6 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                     RongIMLib.RongIMClient.getInstance().removeConversation(scope.item.targetType, scope.item.targetId, {
                         onSuccess: function () {
                             if (conversationServer.current.targetType == scope.item.targetType && conversationServer.current.targetId == scope.item.targetId) {
-                                conversationServer.onConversationChangged(new WidgetModule.Conversation());
                             }
                             conversationListServer.updateConversations();
                         },
@@ -10952,6 +11016,7 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
     function ($q, providerdata) {
         var server = {};
         server.conversationList = [];
+        server._onlineStatus = [];
         server.updateConversations = function () {
             var defer = $q.defer();
             RongIMLib.RongIMClient.getInstance().getConversationList({
@@ -10993,6 +11058,10 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
                         }
                         server.conversationList.push(con);
                     }
+                    server._onlineStatus.forEach(function (item) {
+                        var conv = server.getConversation(WidgetModule.EnumConversationType.PRIVATE, item.id);
+                        conv && (conv.onLine = item.status);
+                    });
                     defer.resolve();
                     server.refreshConversationList();
                 },
@@ -11166,8 +11235,10 @@ var KefuPostion;
 var widget = angular.module("RongWebIMWidget", ["RongWebIMWidget.conversationServer",
     "RongWebIMWidget.conversationListServer", "RongIMSDKModule", "Evaluate"]);
 widget.run(["$http", "WebIMWidget", "widgetConfig", function ($http, WebIMWidget, widgetConfig) {
+        WidgetModule.NotificationHelper.requestPermission();
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.0.15.min.js", function () {
+        //$script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function() {
+        $script.get("../lib/RongIMLib-kefu.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.0.15.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
@@ -11311,6 +11382,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             widgetConfig.reminder = defaultconfig.reminder;
             RongIMSDKServer.init(defaultconfig.appkey);
             RongIMSDKServer.connect(defaultconfig.token).then(function (userId) {
+                conversationListServer.updateConversations();
                 console.log("connect success:" + userId);
                 if (WidgetModule.Helper.checkType(defaultconfig.onSuccess) == "function") {
                     defaultconfig.onSuccess(userId);
@@ -11324,7 +11396,6 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         }
                     });
                 }
-                conversationListServer.updateConversations();
                 conversationServer._onConnectSuccess();
             }, function (err) {
                 if (err.tokenError) {
@@ -11371,6 +11442,15 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 onReceived: function (data) {
                     console.log(data);
                     var msg = WidgetModule.Message.convert(data);
+                    if (WidgetModule.Helper.checkType(providerdata.getUserInfo) == "function" && msg.content) {
+                        providerdata.getUserInfo(msg.senderUserId, {
+                            onSuccess: function (data) {
+                                if (data) {
+                                    msg.content.userInfo = new WidgetModule.UserInfo(data.userId, data.name, data.portraitUri);
+                                }
+                            }
+                        });
+                    }
                     switch (data.messageType) {
                         case WidgetModule.MessageType.VoiceMessage:
                             msg.content.isUnReade = true;
@@ -11379,6 +11459,11 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.ImageMessage:
                         case WidgetModule.MessageType.RichContentMessage:
                             addMessageAndOperation(msg);
+                            WidgetModule.NotificationHelper.showNotification({
+                                title: msg.content.userInfo.name,
+                                icon: "",
+                                body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                            });
                             break;
                         case WidgetModule.MessageType.ContactNotificationMessage:
                             //好友通知自行处理
@@ -11389,30 +11474,21 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.UnknownMessage:
                             //未知消息自行处理
                             break;
+                        case WidgetModule.MessageType.ReadReceiptMessage:
+                            if (data.messageDirection == WidgetModule.MessageDirection.SEND) {
+                                RongIMSDKServer.clearUnreadCount(data.conversationType, data.targetId);
+                            }
+                            break;
                         default:
                             //未捕获的消息类型
                             break;
-                    }
-                    if (WidgetModule.Helper.checkType(providerdata.getUserInfo) == "function" && msg.content) {
-                        providerdata.getUserInfo(msg.senderUserId, {
-                            onSuccess: function (data) {
-                                if (data) {
-                                    msg.content.userInfo = new WidgetModule.UserInfo(data.userId, data.name, data.portraitUri);
-                                }
-                            }
-                        });
                     }
                     if (WebIMWidget.onReceivedMessage) {
                         WebIMWidget.onReceivedMessage(msg);
                     }
                     conversationServer.onReceivedMessage(msg);
                     if (WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId) {
-                        RongIMLib.RongIMClient.getInstance().clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId, {
-                            onSuccess: function () {
-                            },
-                            onError: function () {
-                            }
-                        });
+                        RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
                     }
                     conversationListServer.updateConversations().then(function () { });
                 }
@@ -11434,6 +11510,9 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
         };
         WebIMWidget.setGroupInfoProvider = function (fun) {
             providerdata.getGroupInfo = fun;
+        };
+        WebIMWidget.setOnlineStatusProvider = function (fun) {
+            providerdata.getOnlineStatus = fun;
         };
         WebIMWidget.EnumConversationListPosition = WidgetModule.EnumConversationListPosition;
         WebIMWidget.EnumConversationType = WidgetModule.EnumConversationType;
@@ -11498,6 +11577,20 @@ widget.filter("historyTime", ["$filter", function ($filter) {
             }
         };
     }]);
+widget.directive('errSrc', function () {
+    return {
+        link: function (scope, element, attrs) {
+            if (!attrs.ngSrc) {
+                attrs.$set('src', attrs.errSrc);
+            }
+            element.bind('error', function () {
+                if (attrs.src != attrs.errSrc) {
+                    attrs.$set('src', attrs.errSrc);
+                }
+            });
+        }
+    };
+});
 /// <reference path="../../typings/tsd.d.ts"/>
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -11591,7 +11684,8 @@ var WidgetModule;
         HandShakeResponseMessage: "HandShakeResponseMessage",
         ChangeModeResponseMessage: "ChangeModeResponseMessage",
         TerminateMessage: "TerminateMessage",
-        CustomerStatusUpdateMessage: "CustomerStatusUpdateMessage"
+        CustomerStatusUpdateMessage: "CustomerStatusUpdateMessage",
+        ReadReceiptMessage: "ReadReceiptMessage"
     };
     (function (PanelType) {
         PanelType[PanelType["Message"] = 1] = "Message";
@@ -11753,6 +11847,56 @@ var WidgetModule;
                 msg.content.userInfo = SDKmsg.content.user;
             }
             return msg;
+        };
+        Message.messageToNotification = function (msg) {
+            if (!msg)
+                return null;
+            var msgtype = msg.messageType, msgContent;
+            if (msgtype == WidgetModule.MessageType.ImageMessage) {
+                msgContent = "[图片]";
+            }
+            else if (msgtype == WidgetModule.MessageType.LocationMessage) {
+                msgContent = "[位置]";
+            }
+            else if (msgtype == WidgetModule.MessageType.VoiceMessage) {
+                msgContent = "[语音]";
+            }
+            else if (msgtype == WidgetModule.MessageType.ContactNotificationMessage || msgtype == WidgetModule.MessageType.CommandNotificationMessage) {
+                msgContent = "[通知消息]";
+            }
+            else if (msg.objectName == "RC:GrpNtf") {
+                var data = msg.content.message.content.data.data;
+                switch (msg.content.message.content.operation) {
+                    case "Add":
+                        msgContent = data.targetUserDisplayNames ? (data.targetUserDisplayNames.join("、") + " 加入了群组") : "加入群组";
+                        break;
+                    case "Quit":
+                        msgContent = data.operatorNickname + " 退出了群组";
+                        break;
+                    case "Kicked":
+                        //由于之前数据问题
+                        msgContent = data.targetUserDisplayNames ? (data.targetUserDisplayNames.join("、") + " 被剔出群组") : "移除群组";
+                        break;
+                    case "Rename":
+                        msgContent = data.operatorNickname + " 修改了群名称";
+                        break;
+                    case "Create":
+                        msgContent = data.operatorNickname + " 创建了群组";
+                        break;
+                    case "Dismiss":
+                        msgContent = data.operatorNickname + " 解散了群组 " + data.targetGroupName;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                msgContent = msg.content ? msg.content.content : "";
+                msgContent = RongIMLib.RongIMEmoji.emojiToSymbol(msgContent);
+                msgContent = msgContent.replace(/\n/g, " ");
+                msgContent = msgContent.replace(/([\w]{49,50})/g, "$1 ");
+            }
+            return msgContent;
         };
         return Message;
     })(ChatPanel);
@@ -11952,6 +12096,57 @@ var WidgetModule;
         return Helper;
     })();
     WidgetModule.Helper = Helper;
+    var NotificationHelper = (function () {
+        function NotificationHelper() {
+        }
+        NotificationHelper.isNotificationSupported = function () {
+            return typeof Notification === "function";
+        };
+        NotificationHelper.requestPermission = function () {
+            if (!NotificationHelper.isNotificationSupported()) {
+                return;
+            }
+            Notification.requestPermission(function (status) {
+            });
+        };
+        NotificationHelper.onclick = function (n) { };
+        NotificationHelper.showNotification = function (config) {
+            if (!NotificationHelper.isNotificationSupported()) {
+                console.log('the current browser does not support Notification API');
+                return;
+            }
+            if (Notification.permission !== "granted") {
+                console.log('the current page has not been granted for notification');
+                return;
+            }
+            if (!document.hidden) {
+                return;
+            }
+            if (!NotificationHelper.desktopNotification) {
+                return;
+            }
+            var title = config.title;
+            delete config.title;
+            var n = new Notification(title, config);
+            n.onshow = function () {
+                setTimeout(function () {
+                    n.close();
+                }, 5000);
+            };
+            n.onclick = function () {
+                window.focus();
+                NotificationHelper.onclick(n);
+                n.close();
+            };
+            n.onerror = function () {
+            };
+            n.onclose = function () {
+            };
+        };
+        NotificationHelper.desktopNotification = true;
+        return NotificationHelper;
+    })();
+    WidgetModule.NotificationHelper = NotificationHelper;
 })(WidgetModule || (WidgetModule = {}));
 var SDKServer = angular.module("RongIMSDKModule", []);
 SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
@@ -12007,6 +12202,16 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
         };
         RongIMSDKServer.getInstance = function () {
             return RongIMLib.RongIMClient.getInstance();
+        };
+        RongIMSDKServer.sendReadReceiptMessage = function (targetId, type) {
+            RongIMLib.RongIMClient.getInstance().getConversation(type, targetId, {
+                onSuccess: function (data) {
+                    var read = RongIMLib.ReadReceiptMessage.obtain(data.latestMessage.messageUId, data.latestMessage.sentTime, "1");
+                    RongIMSDKServer.sendMessage(type, targetId, read);
+                },
+                onError: function () {
+                }
+            });
         };
         RongIMSDKServer.setOnReceiveMessageListener = function (option) {
             RongIMLib.RongIMClient.setOnReceiveMessageListener(option);
@@ -12168,22 +12373,22 @@ angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache
   'use strict';
 
   $templateCache.put('./src/ts/conversation/template.tpl.html',
-    "<div id=rong-conversation class=\"kefuChatBox both am-fade-and-slide-top\" ng-show=showSelf ng-class=\"{'fullScreen':resoures.fullScreen}\"><evaluatedir type=evaluate.type display=evaluate.showevaluate confirm=evaluate.onConfirm(data) cancle=evaluate.onCancle()></evaluatedir><div class=kefuChat><div id=header class=\"rong-header blueBg online\"><div class=\"infoBar pull-left\"><div class=infoBarTit><span class=kefuName ng-bind=currentConversation.title></span></div></div><div class=\"toolBar headBtn pull-right\"><a href=javascript:; class=\"kefuChatBoxHide sprite\" ng-show=!widgetConfig.displayConversationList ng-click=minimize() title=隐藏></a> <a href=javascript:; class=\"kefuChatBoxClose sprite\" ng-click=close() title=结束对话></a></div></div><div class=\"outlineBox hide\"><div class=sprite></div><span>网络连接断开</span></div><div id=Messages><div class=emptyBox>暂时没有新消息</div><div class=MessagesInner><div ng-repeat=\"item in messageList\" ng-switch=item.panelType><div class=Messages-date ng-switch-when=104><b>{{item.sentTime|historyTime}}</b></div><div class=Messages-history ng-switch-when=105><b ng-click=getHistory()>查看历史消息</b></div><div class=Messages-history ng-switch-when=106><b ng-click=getMoreMessage()>获取更多消息</b></div><div class=sys-tips ng-switch-when=2><span ng-bind-html=item.content.content|trustHtml></span></div><div class=Message ng-switch-when=1><div class=Messages-unreadLine></div><div><div class=Message-header><img class=\"img u-isActionable Message-avatar avatar\" ng-src=\"{{item.content.userInfo.portraitUri||'http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg'}}\" alt=\"\"><div class=\"Message-author clearfix\"><a class=\"author u-isActionable\">{{item.content.userInfo.name}}</a></div></div></div><div class=Message-body ng-switch=item.messageType><textmessage ng-switch-when=TextMessage msg=item.content></textmessage><imagemessage ng-switch-when=ImageMessage msg=item.content></imagemessage><voicemessage ng-switch-when=VoiceMessage msg=item.content></voicemessage><locationmessage ng-switch-when=LocationMessage msg=item.content></locationmessage><richcontentmessage ng-switch-when=RichContentMessage msg=item.content></richcontentmessage></div></div></div></div></div><div id=footer class=rong-footer style=\"display: block\"><div class=footer-con><div class=text-layout><div id=funcPanel class=\"funcPanel robotMode\"><div class=mode1 ng-show=\"_inputPanelState==0\"><div class=MessageForm-tool id=expressionWrap><i class=\"sprite iconfont-smile\" ng-click=\"showemoji=!showemoji\"></i><div class=expressionWrap ng-show=showemoji><i class=arrow></i><emoji ng-repeat=\"item in emojiList\" item=item content=msgvalue></emoji></div></div><div class=MessageForm-tool><i class=\"sprite iconfont-upload\" id=upload-file style=\"position: relative; z-index: 1\"></i></div></div><div class=mode2 ng-show=\"_inputPanelState==2\"><a ng-click=switchPerson() id=chatSwitch class=chatSwitch>转人工服务</a></div></div><pre id=inputMsg class=\"text grey\" contenteditable contenteditable-dire ng-focus=\"showemoji=fase\" style=\"background-color: rgba(0,0,0,0);color:black\" ctrl-enter-keys fun=send() ctrlenter=false placeholder=请输入文字... ondrop=\"return false\" ng-model=currentConversation.messageContent></pre></div><div class=powBox><button type=button style=\"background-color: #0099ff\" class=\"btn rong-send-btn\" id=sendBtn ng-click=send()>发送</button></div></div></div></div></div>"
+    "<div id=rong-conversation class=\"rongcloud-kefuChatBox rongcloud-both rongcloud-am-fade-and-slide-top\" ng-show=showSelf ng-class=\"{'fullScreen':resoures.fullScreen}\"><evaluatedir type=evaluate.type display=evaluate.showevaluate confirm=evaluate.onConfirm(data) cancle=evaluate.onCancle()></evaluatedir><div class=rongcloud-kefuChat><div id=header class=\"rongcloud-rong-header rongcloud-blueBg rongcloud-online\"><div class=\"rongcloud-infoBar rongcloud-pull-left\"><div class=rongcloud-infoBarTit><span class=rongcloud-kefuName ng-bind=currentConversation.title></span></div></div><div class=\"rongcloud-toolBar rongcloud-headBtn rongcloud-pull-right\"><a href=javascript:; class=\"rongcloud-kefuChatBoxHide rongcloud-sprite\" ng-show=!widgetConfig.displayConversationList ng-click=minimize() title=隐藏></a> <a href=javascript:; class=\"rongcloud-kefuChatBoxClose rongcloud-sprite\" ng-click=close() title=结束对话></a></div></div><div class=\"rongcloud-outlineBox rongcloud-hide\"><div class=rongcloud-sprite></div><span>网络连接断开</span></div><div id=Messages><div class=rongcloud-emptyBox>暂时没有新消息</div><div class=rongcloud-MessagesInner><div ng-repeat=\"item in messageList\" ng-switch=item.panelType><div class=rongcloud-Messages-date ng-switch-when=104><b>{{item.sentTime|historyTime}}</b></div><div class=rongcloud-Messages-history ng-switch-when=105><b ng-click=getHistory()>查看历史消息</b></div><div class=rongcloud-Messages-history ng-switch-when=106><b ng-click=getMoreMessage()>获取更多消息</b></div><div class=rongcloud-sys-tips ng-switch-when=2><span ng-bind-html=item.content.content|trustHtml></span></div><div class=rongcloud-Message ng-switch-when=1><div class=rongcloud-Messages-unreadLine></div><div><div class=rongcloud-Message-header><img class=\"rongcloud-img rongcloud-u-isActionable rongcloud-Message-avatar rongcloud-avatar\" ng-src=\"{{item.content.userInfo.portraitUri||'http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg'}}\" alt=\"\"><div class=\"rongcloud-Message-author rongcloud-clearfix\"><a class=\"rongcloud-author rongcloud-u-isActionable\">{{item.content.userInfo.name}}</a> <span>{{item.content.userInfo.id}}</span></div></div></div><div class=rongcloud-Message-body ng-switch=item.messageType><textmessage ng-switch-when=TextMessage msg=item.content></textmessage><imagemessage ng-switch-when=ImageMessage msg=item.content></imagemessage><voicemessage ng-switch-when=VoiceMessage msg=item.content></voicemessage><locationmessage ng-switch-when=LocationMessage msg=item.content></locationmessage><richcontentmessage ng-switch-when=RichContentMessage msg=item.content></richcontentmessage></div></div></div></div></div><div id=footer class=rongcloud-rong-footer style=\"display: block\"><div class=rongcloud-footer-con><div class=rongcloud-text-layout><div id=funcPanel class=\"rongcloud-funcPanel rongcloud-robotMode\"><div class=rongcloud-mode1 ng-show=\"_inputPanelState==0\"><div class=rongcloud-MessageForm-tool id=expressionWrap><i class=\"rongcloud-sprite rongcloud-iconfont-smile\" ng-click=\"showemoji=!showemoji\"></i><div class=rongcloud-expressionWrap ng-show=showemoji><i class=rongcloud-arrow></i><emoji ng-repeat=\"item in emojiList\" item=item content=msgvalue></emoji></div></div><div class=rongcloud-MessageForm-tool><i class=\"rongcloud-sprite rongcloud-iconfont-upload\" id=upload-file style=\"position: relative; z-index: 1\"></i></div></div><div class=rongcloud-mode2 ng-show=\"_inputPanelState==2\"><a ng-click=switchPerson() id=chatSwitch class=rongcloud-chatSwitch>转人工服务</a></div></div><pre id=inputMsg class=\"rongcloud-text rongcloud-grey\" contenteditable contenteditable-dire ng-focus=\"showemoji=fase\" style=\"background-color: rgba(0,0,0,0);color:black\" ctrl-enter-keys fun=send() ctrlenter=false placeholder=请输入文字... ondrop=\"return false\" ng-model=currentConversation.messageContent></pre></div><div class=rongcloud-powBox><button type=button style=\"background-color: #0099ff\" class=\"rongcloud-rong-btn rongcloud-rong-send-btn\" id=rong-sendBtn ng-click=send()>发送</button></div></div></div></div></div>"
   );
 
 
   $templateCache.put('./src/ts/conversationlist/conversationList.tpl.html',
-    "<div id=rong-conversation-list class=\"kefuListBox both\"><div class=kefuList><div class=\"rong-header blueBg\"><div class=\"toolBar headBtn\"><div class=\"sprite people\"></div><span class=recent>最近联系人</span><div class=\"sprite arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=content><div class=netStatus ng-hide=connected><div class=sprite></div><span>与服务器连接断开</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
+    "<div id=rong-conversation-list class=\"rongcloud-kefuListBox rongcloud-both\"><div class=rongcloud-kefuList><div class=\"rongcloud-rong-header rongcloud-blueBg\"><div class=\"rongcloud-toolBar rongcloud-headBtn\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent>最近联系人</span><div class=\"rongcloud-sprite rongcloud-arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=rongcloud-content><div class=rongcloud-netStatus ng-hide=connected><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
   );
 
 
   $templateCache.put('./src/ts/evaluate/evaluate.tpl.html',
-    "<div class=layermbox ng-show=display><div class=laymshade></div><div class=layermmain><div class=section><div class=layermchild ng-show=!end><div class=layermcont><div class=type1 ng-show=\"type==1\"><h4>&nbsp;评价客服</h4><div class=layerPanel1><div class=star><span ng-repeat=\"item in stars track by $index\"><span ng-class=\"{'star-on':$index<data.stars,'star-off':$index>=data.stars}\" ng-click=confirm($index+1)></span></span></div></div></div><div class=type2 ng-show=\"type==2\"><h4>&nbsp;&nbsp;是否解决了您的问题 ？</h4><div class=layerPanel1><a class=\"btn btnY\" ng-class=\"{'cur':data.value===true}\" href=javascript:void(0); ng-click=confirm(true)>是</a> <a class=\"btn btnN\" ng-class=\"{'cur':data.value===false}\" href=javascript:void(0); ng-click=confirm(false)>否</a></div></div><div class=layerPanel2 ng-show=displayDescribe><p>是否有以下情况 ？</p><div class=labels><span ng-repeat=\"item in labels\"><a class=btn ng-class=\"{'cur':data.label==item}\" ng-click=\"data.label=item\" href=\"\">{{item}}</a></span></div><div class=suggestBox><textarea name=\"\" placeholder=欢迎给我们的服务提建议~ ng-model=data.describe></textarea></div><div class=subBox><a class=btn href=\"\" ng-click=commit()>提交评价</a></div></div></div><div class=layermbtn><span ng-click=confirm()>跳过</span><span ng-click=cancle()>取消</span></div></div><div class=\"layermchild feedback\" ng-show=end><div class=layermcont>感谢您的反馈 ^ - ^ ！</div></div></div></div></div>"
+    "<div class=rongcloud-layermbox ng-show=display><div class=rongcloud-laymshade></div><div class=rongcloud-layermmain><div class=rongcloud-section><div class=rongcloud-layermchild ng-show=!end><div class=rongcloud-layermcont><div class=rongcloud-type1 ng-show=\"type==1\"><h4>&nbsp;评价客服</h4><div class=rongcloud-layerPanel1><div class=rongcloud-star><span ng-repeat=\"item in stars track by $index\"><span ng-class=\"{'star-on':$index<data.stars,'star-off':$index>=data.stars}\" ng-click=confirm($index+1)></span></span></div></div></div><div class=rongcloud-type2 ng-show=\"type==2\"><h4>&nbsp;&nbsp;是否解决了您的问题 ？</h4><div class=rongcloud-layerPanel1><a class=\"rongcloud-rong-btn rongcloud-btnY\" ng-class=\"{'cur':data.value===true}\" href=javascript:void(0); ng-click=confirm(true)>是</a> <a class=\"rongcloud-rong-btn rongcloud-btnN\" ng-class=\"{'cur':data.value===false}\" href=javascript:void(0); ng-click=confirm(false)>否</a></div></div><div class=rongcloud-layerPanel2 ng-show=displayDescribe><p>是否有以下情况 ？</p><div class=rongcloud-labels><span ng-repeat=\"item in labels\"><a class=rongcloud-rong-btn ng-class=\"{'cur':data.label==item}\" ng-click=\"data.label=item\" href=\"\">{{item}}</a></span></div><div class=rongcloud-suggestBox><textarea name=\"\" placeholder=欢迎给我们的服务提建议~ ng-model=data.describe></textarea></div><div class=rongcloud-subBox><a class=rongcloud-rong-btn href=\"\" ng-click=commit()>提交评价</a></div></div></div><div class=rongcloud-layermbtn><span ng-click=confirm()>跳过</span><span ng-click=cancle()>取消</span></div></div><div class=\"rongcloud-layermchild rongcloud-feedback\" ng-show=end><div class=rongcloud-layermcont>感谢您的反馈 ^ - ^ ！</div></div></div></div></div>"
   );
 
 
   $templateCache.put('./src/ts/main.tpl.html',
-    "<div id=rong-widget-box><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"kefuBtnBox blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=kefuBtn href=\"javascript: void(0);\"><div class=\"sprite people\"></div><span class=recent>{{widgetConfig.reminder||\"最近联系人\"}}</span></a></div></div>"
+    "<div id=rong-widget-box><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent>{{widgetConfig.reminder||\"最近联系人\"}}</span></a></div></div>"
   );
 
 }]);
