@@ -31,13 +31,14 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
       },
       displayConversationList:true,
       displayMinButton:true,
+      voiceUrl:'../widget/images/sms-received.mp3',
       conversationListPosition:WebIMWidget.EnumConversationListPosition.left,
       onError:function(error){
         console.log("error:"+error);
       }
     });
 
-    WebIMWidget.show();
+    // WebIMWidget.show();
 
     WebIMWidget.setUserInfoProvider(function(targetId,obj){
         obj.onSuccess({name:"陌："+targetId});
@@ -54,7 +55,6 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
       console.log("已关闭");
     }
 
-    WebIMWidget.show();
 
 
     //设置会话

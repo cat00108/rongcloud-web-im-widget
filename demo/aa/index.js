@@ -30,6 +30,7 @@ demo.controller("main", ["$scope", "WebIMWidget","$http", function($scope,
         bottom:20,
       },
       displayConversationList:true,
+      voiceUrl:'../widget/images/sms-received.mp3',
       conversationListPosition:WebIMWidget.EnumConversationListPosition.right,
       onError:function(error){
         console.log("error:"+error);

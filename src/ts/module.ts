@@ -531,6 +531,35 @@ module WidgetModule {
                 }
             }
         }
+        static CookieHelper = {
+            setCookie: function(name: string, value: string, exires?: number) {
+                if (exires) {
+                    var date = new Date();
+                    date.setDate(date.getDate() + exires)
+                    document.cookie = name + "=" + encodeURI(value) + ";expires=" + date.toUTCString();
+                } else {
+                    document.cookie = name + "=" + encodeURI(value) + ";";
+                }
+            },
+            getCookie: function(name: string) {
+                var start = document.cookie.indexOf(name + "=");
+                if (start != -1) {
+                    var end = document.cookie.indexOf(";", start);
+                    if (end == -1) {
+                        end = document.cookie.length;
+                    }
+                    return decodeURI(document.cookie.substring(start + name.length + 1, end));
+                } else {
+                    return ""
+                }
+            },
+            removeCookie: function(name: string) {
+                var con = this.getCookie(name);
+                if (con) {
+                    this.setCookie(name, "con", -1);
+                }
+            }
+        }
     }
 
     export class NotificationHelper {
@@ -558,9 +587,6 @@ module WidgetModule {
             }
             if (Notification.permission !== "granted") {
                 console.log('the current page has not been granted for notification');
-                return;
-            }
-            if (!document.hidden) {
                 return;
             }
             if (!NotificationHelper.desktopNotification) {

@@ -2,6 +2,7 @@
     <div class="rongcloud-kefuList">
         <div class="rongcloud-rong-header rongcloud-blueBg">
             <div class="rongcloud-toolBar rongcloud-headBtn">
+                <div ng-show="config.voiceNotification" class="rongcloud-voice" ng-class="{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}" ng-click="data.voiceSound=!data.voiceSound"></div>
                 <div class="rongcloud-sprite rongcloud-people"></div>
                 <span class="rongcloud-recent">最近联系人</span>
                 <!-- <span class="rongcloud-count">2/4</span> -->

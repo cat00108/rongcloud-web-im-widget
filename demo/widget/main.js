@@ -10553,7 +10553,7 @@ conversationDirective.directive("rongConversation", [function () {
             templateUrl: "./src/ts/conversation/template.tpl.html",
             controller: "conversationController",
             link: function (scope, ele) {
-                if (jQuery && jQuery.niceScroll) {
+                if (jQuery && jQuery.nicescroll) {
                     $("#Messages").niceScroll({
                         'cursorcolor': "#0099ff",
                         'cursoropacitymax': 1,
@@ -10906,6 +10906,16 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
             WebIMWidget.display = false;
         };
         var checkOnlieStatus;
+        var voicecookie = WidgetModule.Helper.CookieHelper.getCookie("voiceSound");
+        providerdata.voiceSound = voicecookie ? (voicecookie == "true") : true;
+        $scope.data = providerdata;
+        $scope.config = widgetConfig;
+        $scope.$watch("data.voiceSound", function (newVal, oldVal) {
+            if (newVal === oldVal) {
+                return;
+            }
+            WidgetModule.Helper.CookieHelper.setCookie("voiceSound", newVal);
+        });
         function refreshOnlineStatus() {
             var arr = conversationListServer.conversationList.map(function (item) { return item.targetId; });
             providerdata.getOnlineStatus(arr, {
@@ -10948,14 +10958,16 @@ conversationListDir.directive("rongConversationList", [function () {
             templateUrl: "./src/ts/conversationlist/conversationList.tpl.html",
             controller: "conversationListController",
             link: function (scope, ele) {
-                $(ele).find(".rongcloud-content").niceScroll({
-                    'cursorcolor': "#0099ff",
-                    'cursoropacitymax': 1,
-                    'touchbehavior': false,
-                    'cursorwidth': "8px",
-                    'cursorborder': "0",
-                    'cursorborderradius': "5px"
-                });
+                if (jQuery && jQuery.nicescroll) {
+                    $(ele).find(".rongcloud-content").niceScroll({
+                        'cursorcolor': "#0099ff",
+                        'cursoropacitymax': 1,
+                        'touchbehavior': false,
+                        'cursorwidth': "8px",
+                        'cursorborder': "0",
+                        'cursorborderradius': "5px"
+                    });
+                }
             }
         };
     }]);
@@ -10973,7 +10985,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                 '</div>' +
                 '<div class="rongcloud-photo">' +
                 '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
-                '<i class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
+                '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
                 '</div>' +
                 '<div class="rongcloud-info">' +
                 '<h3 class="rongcloud-nickname">' +
@@ -10985,14 +10997,16 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
             link: function (scope, ele, attr) {
                 ele.on("click", function () {
                     conversationServer.onConversationChangged(new WidgetModule.Conversation(scope.item.targetType, scope.item.targetId, scope.item.title));
-                    RongIMLib.RongIMClient.getInstance().clearUnreadCount(scope.item.targetType, scope.item.targetId, {
-                        onSuccess: function () {
-                        },
-                        onError: function () {
-                        }
-                    });
-                    RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
-                    conversationListServer.updateConversations();
+                    if (scope.item.unreadMessageCount > 0) {
+                        RongIMLib.RongIMClient.getInstance().clearUnreadCount(scope.item.targetType, scope.item.targetId, {
+                            onSuccess: function () {
+                            },
+                            onError: function () {
+                            }
+                        });
+                        RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
+                        conversationListServer.updateConversations();
+                    }
                 });
                 scope.remove = function (e) {
                     e.stopPropagation();
@@ -11062,8 +11076,15 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
                         var conv = server.getConversation(WidgetModule.EnumConversationType.PRIVATE, item.id);
                         conv && (conv.onLine = item.status);
                     });
-                    defer.resolve();
-                    server.refreshConversationList();
+                    RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
+                        onSuccess: function (num) {
+                            providerdata.totalUnreadCount = num || 0;
+                            defer.resolve();
+                            server.refreshConversationList();
+                        },
+                        onError: function () {
+                        }
+                    });
                 },
                 onError: function (error) {
                     defer.reject(error);
@@ -11235,7 +11256,6 @@ var KefuPostion;
 var widget = angular.module("RongWebIMWidget", ["RongWebIMWidget.conversationServer",
     "RongWebIMWidget.conversationListServer", "RongIMSDKModule", "Evaluate"]);
 widget.run(["$http", "WebIMWidget", "widgetConfig", function ($http, WebIMWidget, widgetConfig) {
-        WidgetModule.NotificationHelper.requestPermission();
         var protocol = location.protocol === "https:" ? "https:" : "http:";
         //$script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function() {
         $script.get("../lib/RongIMLib-kefu.js", function () {
@@ -11286,6 +11306,8 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
         var defaultconfig = {
             displayMinButton: true,
             conversationListPosition: WidgetModule.EnumConversationListPosition.left,
+            desktopNotification: true,
+            voiceNotification: true,
             style: {
                 positionFixed: false,
                 width: 450,
@@ -11294,15 +11316,21 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 right: 0
             }
         };
+        var eleplaysound = null;
         WebIMWidget.display = false;
         WebIMWidget.init = function (config) {
             if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
                 widgetConfig.config = config;
                 return;
             }
+            if (defaultconfig.desktopNotification) {
+                WidgetModule.NotificationHelper.requestPermission();
+            }
             var defaultStyle = defaultconfig.style;
             angular.extend(defaultconfig, config);
             angular.extend(defaultStyle, config.style);
+            eleplaysound = document.getElementById("rongcloud-playsound");
+            eleplaysound && defaultconfig.voiceUrl && (eleplaysound.src = defaultconfig.voiceUrl);
             var eleconversation = document.getElementById("rong-conversation");
             var eleconversationlist = document.getElementById("rong-conversation-list");
             var eleminbtn = document.getElementById("rong-widget-minbtn");
@@ -11380,6 +11408,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             widgetConfig.displayConversationList = defaultconfig.displayConversationList;
             widgetConfig.displayMinButton = defaultconfig.displayMinButton;
             widgetConfig.reminder = defaultconfig.reminder;
+            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
             RongIMSDKServer.init(defaultconfig.appkey);
             RongIMSDKServer.connect(defaultconfig.token).then(function (userId) {
                 conversationListServer.updateConversations();
@@ -11459,11 +11488,16 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.ImageMessage:
                         case WidgetModule.MessageType.RichContentMessage:
                             addMessageAndOperation(msg);
-                            WidgetModule.NotificationHelper.showNotification({
-                                title: msg.content.userInfo.name,
-                                icon: "",
-                                body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
-                            });
+                            if (providerdata.voiceSound == true && eleplaysound && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.voiceNotification && defaultconfig.displayConversationList) {
+                                eleplaysound.play();
+                            }
+                            if ((document.hidden || !WebIMWidget.display) && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.desktopNotification && defaultconfig.displayConversationList) {
+                                WidgetModule.NotificationHelper.showNotification({
+                                    title: msg.content.userInfo.name,
+                                    icon: "",
+                                    body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                                });
+                            }
                             break;
                         case WidgetModule.MessageType.ContactNotificationMessage:
                             //好友通知自行处理
@@ -11487,17 +11521,25 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         WebIMWidget.onReceivedMessage(msg);
                     }
                     conversationServer.onReceivedMessage(msg);
-                    if (WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId) {
+                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
                         RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                        RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
                     }
                     conversationListServer.updateConversations().then(function () { });
                 }
             });
+            window.onfocus = function () {
+                if (conversationServer.current && conversationServer.current.targetId) {
+                    RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                    RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                    conversationListServer.updateConversations().then(function () { });
+                }
+            };
         };
         function addMessageAndOperation(msg) {
             var hislist = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] || [];
             if (hislist.length == 0) {
-                // hislist.push(new WidgetModule.GetHistoryPanel());
+                hislist.push(new WidgetModule.GetHistoryPanel());
                 hislist.push(new WidgetModule.TimePanl(msg.sentTime));
             }
             conversationServer._addHistoryMessages(msg);
@@ -11535,10 +11577,11 @@ widget.directive("rongWidget", [function () {
             controller: "rongWidgetController"
         };
     }]);
-widget.controller("rongWidgetController", ["$scope", "WebIMWidget", "widgetConfig",
-    function ($scope, WebIMWidget, widgetConfig) {
+widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget", "widgetConfig", "providerdata",
+    function ($scope, $interval, WebIMWidget, widgetConfig, providerdata) {
         $scope.main = WebIMWidget;
         $scope.widgetConfig = widgetConfig;
+        $scope.data = providerdata;
         WebIMWidget.show = function () {
             WebIMWidget.display = true;
             WebIMWidget.fullScreen = false;
@@ -11547,6 +11590,19 @@ widget.controller("rongWidgetController", ["$scope", "WebIMWidget", "widgetConfi
                 $scope.$apply();
             });
         };
+        var interval = null;
+        $scope.$watch("data.totalUnreadCount", function (newVal, oldVal) {
+            console.log(newVal, oldVal);
+            if (newVal > 0) {
+                interval && $interval.cancel(interval);
+                interval = $interval(function () {
+                    $scope.twinkle = !$scope.twinkle;
+                }, 1000);
+            }
+            else {
+                $interval.cancel(interval);
+            }
+        });
         WebIMWidget.hidden = function () {
             WebIMWidget.display = false;
             setTimeout(function () {
@@ -12093,6 +12149,37 @@ var WidgetModule;
                 }
             }
         };
+        Helper.CookieHelper = {
+            setCookie: function (name, value, exires) {
+                if (exires) {
+                    var date = new Date();
+                    date.setDate(date.getDate() + exires);
+                    document.cookie = name + "=" + encodeURI(value) + ";expires=" + date.toUTCString();
+                }
+                else {
+                    document.cookie = name + "=" + encodeURI(value) + ";";
+                }
+            },
+            getCookie: function (name) {
+                var start = document.cookie.indexOf(name + "=");
+                if (start != -1) {
+                    var end = document.cookie.indexOf(";", start);
+                    if (end == -1) {
+                        end = document.cookie.length;
+                    }
+                    return decodeURI(document.cookie.substring(start + name.length + 1, end));
+                }
+                else {
+                    return "";
+                }
+            },
+            removeCookie: function (name) {
+                var con = this.getCookie(name);
+                if (con) {
+                    this.setCookie(name, "con", -1);
+                }
+            }
+        };
         return Helper;
     })();
     WidgetModule.Helper = Helper;
@@ -12117,9 +12204,6 @@ var WidgetModule;
             }
             if (Notification.permission !== "granted") {
                 console.log('the current page has not been granted for notification');
-                return;
-            }
-            if (!document.hidden) {
                 return;
             }
             if (!NotificationHelper.desktopNotification) {
@@ -12378,7 +12462,7 @@ angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache
 
 
   $templateCache.put('./src/ts/conversationlist/conversationList.tpl.html',
-    "<div id=rong-conversation-list class=\"rongcloud-kefuListBox rongcloud-both\"><div class=rongcloud-kefuList><div class=\"rongcloud-rong-header rongcloud-blueBg\"><div class=\"rongcloud-toolBar rongcloud-headBtn\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent>最近联系人</span><div class=\"rongcloud-sprite rongcloud-arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=rongcloud-content><div class=rongcloud-netStatus ng-hide=connected><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
+    "<div id=rong-conversation-list class=\"rongcloud-kefuListBox rongcloud-both\"><div class=rongcloud-kefuList><div class=\"rongcloud-rong-header rongcloud-blueBg\"><div class=\"rongcloud-toolBar rongcloud-headBtn\"><div ng-show=config.voiceNotification class=rongcloud-voice ng-class=\"{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}\" ng-click=\"data.voiceSound=!data.voiceSound\"></div><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent>最近联系人</span><div class=\"rongcloud-sprite rongcloud-arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=rongcloud-content><div class=rongcloud-netStatus ng-hide=connected><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
   );
 
 
@@ -12388,7 +12472,7 @@ angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache
 
 
   $templateCache.put('./src/ts/main.tpl.html',
-    "<div id=rong-widget-box><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent>{{widgetConfig.reminder||\"最近联系人\"}}</span></a></div></div>"
+    "<div id=rong-widget-box><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent ng-show=\"data.totalUnreadCount==0\">{{widgetConfig.reminder||\"最近联系人\"}}</span> <span class=rongcloud-recent ng-show=\"data.totalUnreadCount>0\"><span ng-show=twinkle>(您有未读消息)</span></span></a></div><audio id=rongcloud-playsound style=\"width: 0px;height: 0px;display: none\" src=\"\" controls></audio></div>"
   );
 
 }]);

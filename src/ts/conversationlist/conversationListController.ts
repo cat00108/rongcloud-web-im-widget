@@ -15,7 +15,22 @@ conversationListCtr.controller("conversationListController", ["$scope", "convers
         $scope.minbtn = function() {
             WebIMWidget.display = false;
         }
+
         var checkOnlieStatus: any;
+
+        var voicecookie = WidgetModule.Helper.CookieHelper.getCookie("voiceSound");
+
+        providerdata.voiceSound = voicecookie ? (voicecookie == "true") : true;
+
+        $scope.data = providerdata;
+        $scope.config = widgetConfig;
+
+        $scope.$watch("data.voiceSound", function(newVal, oldVal) {
+            if (newVal === oldVal) {
+                return;
+            }
+            WidgetModule.Helper.CookieHelper.setCookie("voiceSound", newVal);
+        })
 
         function refreshOnlineStatus() {
             var arr = conversationListServer.conversationList.map(function(item) { return item.targetId });

@@ -9,7 +9,7 @@ conversationDirective.directive("rongConversation", [function() {
         templateUrl: "./src/ts/conversation/template.tpl.html",
         controller: "conversationController",
         link: function(scope: any, ele: angular.IRootElementService) {
-            if (jQuery && jQuery.niceScroll) {
+            if (jQuery && jQuery.nicescroll) {
                 $("#Messages").niceScroll({
                     'cursorcolor': "#0099ff",
                     'cursoropacitymax': 1,

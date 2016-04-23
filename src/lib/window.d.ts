@@ -51,12 +51,12 @@ declare var Notification: {
     permission: any
 }
 interface JQueryStatic {
-    rebox(target: any): JQuery
-    niceScroll(config: any): any
+    rebox: any
+    nicescroll: any
 }
 interface JQuery {
-  rebox(target: any): JQuery
-  niceScroll(config: any): any
+    rebox(target: any): JQuery
+    niceScroll(config: any): any
 }
 
 declare var jQuery: JQueryStatic

@@ -9,14 +9,16 @@ conversationListDir.directive("rongConversationList", [function() {
         templateUrl: "./src/ts/conversationlist/conversationList.tpl.html",
         controller: "conversationListController",
         link: function(scope: any, ele: angular.IRootElementService) {
-            $(ele).find(".rongcloud-content").niceScroll({
-                'cursorcolor': "#0099ff",
-                'cursoropacitymax': 1,
-                'touchbehavior': false,
-                'cursorwidth': "8px",
-                'cursorborder': "0",
-                'cursorborderradius': "5px"
-            });
+            if (jQuery && jQuery.nicescroll) {
+                $(ele).find(".rongcloud-content").niceScroll({
+                    'cursorcolor': "#0099ff",
+                    'cursoropacitymax': 1,
+                    'touchbehavior': false,
+                    'cursorwidth': "8px",
+                    'cursorborder': "0",
+                    'cursorborderradius': "5px"
+                });
+            }
         }
     }
 }]);
@@ -35,7 +37,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
         '</div>' +
         '<div class="rongcloud-photo">' +
         '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
-        '<i class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
+        '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
         '</div>' +
         '<div class="rongcloud-info">' +
         '<h3 class="rongcloud-nickname">' +
@@ -46,17 +48,19 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
         '</div>',
         link: function(scope, ele, attr) {
             ele.on("click", function() {
-                conversationServer.onConversationChangged(new WidgetModule.Conversation(scope.item.targetType, scope.item.targetId, scope.item.title))
-                RongIMLib.RongIMClient.getInstance().clearUnreadCount(scope.item.targetType, scope.item.targetId, {
-                    onSuccess: function() {
+                conversationServer.onConversationChangged(new WidgetModule.Conversation(scope.item.targetType, scope.item.targetId, scope.item.title));
+                if (scope.item.unreadMessageCount > 0) {
+                    RongIMLib.RongIMClient.getInstance().clearUnreadCount(scope.item.targetType, scope.item.targetId, {
+                        onSuccess: function() {
 
-                    },
-                    onError: function() {
+                        },
+                        onError: function() {
 
-                    }
-                })
-                RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
-                conversationListServer.updateConversations();
+                        }
+                    })
+                    RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
+                    conversationListServer.updateConversations();
+                }
             });
 
             scope.remove = function(e) {

@@ -3,8 +3,7 @@
 var conversationListSer = angular.module("RongWebIMWidget.conversationListServer", ["RongWebIMWidget.conversationListDirective", "RongWebIMWidget"]);
 
 conversationListSer.factory("conversationListServer", ["$q", "providerdata",
-    function($q: angular.IQService, providerdata: providerdata
-    ) {
+    function($q: angular.IQService, providerdata: providerdata) {
         var server = <conversationListServer>{};
 
         server.conversationList = <WidgetModule.Conversation[]>[];
@@ -59,13 +58,26 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
                         var conv = server.getConversation(WidgetModule.EnumConversationType.PRIVATE, item.id);
                         conv && (conv.onLine = item.status);
                     });
-                    defer.resolve();
-                    server.refreshConversationList();
+
+
+                    RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
+                        onSuccess: function(num) {
+                            providerdata.totalUnreadCount = num || 0;
+                            defer.resolve();
+                            server.refreshConversationList();
+                        },
+                        onError: function() {
+
+                        }
+                    });
                 },
                 onError: function(error) {
                     defer.reject(error);
                 }
             }, null);
+
+
+
 
             return defer.promise;
         }

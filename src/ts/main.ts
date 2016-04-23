@@ -6,10 +6,10 @@ var widget = angular.module("RongWebIMWidget", ["RongWebIMWidget.conversationSer
 
 widget.run(["$http", "WebIMWidget", "widgetConfig", function($http: angular.IHttpService,
     WebIMWidget: WebIMWidget, widgetConfig: widgetConfig) {
-    WidgetModule.NotificationHelper.requestPermission();
+
     var protocol = location.protocol === "https:" ? "https:" : "http:";
     //$script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function() {
-	$script.get("../lib/RongIMLib-kefu.js", function() {
+    $script.get("../lib/RongIMLib-kefu.js", function() {
         $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.0.15.min.js", function() {
             RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
         });
@@ -66,6 +66,8 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
         var defaultconfig = <Config>{
             displayMinButton: true,
             conversationListPosition: WidgetModule.EnumConversationListPosition.left,
+            desktopNotification: true,
+            voiceNotification: true,
             style: {
                 positionFixed: false,
                 width: 450,
@@ -74,6 +76,8 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 right: 0
             }
         }
+
+        var eleplaysound = null;
 
         WebIMWidget.display = false;
 
@@ -84,9 +88,16 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 return;
             }
 
+            if (defaultconfig.desktopNotification) {
+                WidgetModule.NotificationHelper.requestPermission();
+            }
+
             var defaultStyle = defaultconfig.style;
             angular.extend(defaultconfig, config);
             angular.extend(defaultStyle, config.style);
+
+            eleplaysound = document.getElementById("rongcloud-playsound");
+            eleplaysound && defaultconfig.voiceUrl && (eleplaysound.src = defaultconfig.voiceUrl);
 
             var eleconversation = document.getElementById("rong-conversation");
             var eleconversationlist = document.getElementById("rong-conversation-list");
@@ -178,6 +189,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             widgetConfig.displayConversationList = defaultconfig.displayConversationList;
             widgetConfig.displayMinButton = defaultconfig.displayMinButton;
             widgetConfig.reminder = defaultconfig.reminder;
+            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
 
             RongIMSDKServer.init(defaultconfig.appkey);
 
@@ -266,11 +278,16 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.ImageMessage:
                         case WidgetModule.MessageType.RichContentMessage:
                             addMessageAndOperation(msg);
-                            WidgetModule.NotificationHelper.showNotification({
-                                title: msg.content.userInfo.name,
-                                icon: "",
-                                body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
-                            });
+                            if (providerdata.voiceSound == true && eleplaysound && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.voiceNotification && defaultconfig.displayConversationList) {
+                                eleplaysound.play()
+                            }
+                            if ((document.hidden || !WebIMWidget.display) && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.desktopNotification && defaultconfig.displayConversationList) {
+                                WidgetModule.NotificationHelper.showNotification({
+                                    title: msg.content.userInfo.name,
+                                    icon: "",
+                                    body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                                });
+                            }
                             break;
                         case WidgetModule.MessageType.ContactNotificationMessage:
                             //好友通知自行处理
@@ -296,20 +313,27 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                     }
                     conversationServer.onReceivedMessage(msg);
 
-                    if (WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId) {
+                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
                         RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                        RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
                     }
                     conversationListServer.updateConversations().then(function() { });
                 }
             });
 
-
+            window.onfocus = function() {
+                if (conversationServer.current && conversationServer.current.targetId) {
+                    RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                    RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                    conversationListServer.updateConversations().then(function() { });
+                }
+            }
         }
 
         function addMessageAndOperation(msg: WidgetModule.Message) {
             var hislist = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] || []
             if (hislist.length == 0) {
-                // hislist.push(new WidgetModule.GetHistoryPanel());
+                hislist.push(new WidgetModule.GetHistoryPanel());
                 hislist.push(new WidgetModule.TimePanl(msg.sentTime));
             }
             conversationServer._addHistoryMessages(msg);
@@ -358,12 +382,13 @@ widget.directive("rongWidget", [function() {
     }
 }]);
 
-widget.controller("rongWidgetController", ["$scope", "WebIMWidget", "widgetConfig",
-    function($scope, WebIMWidget, widgetConfig: widgetConfig
+widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget", "widgetConfig", "providerdata",
+    function($scope, $interval: angular.IIntervalService, WebIMWidget, widgetConfig: widgetConfig, providerdata: providerdata
     ) {
 
         $scope.main = WebIMWidget;
         $scope.widgetConfig = widgetConfig;
+        $scope.data = providerdata;
 
         WebIMWidget.show = function() {
             WebIMWidget.display = true;
@@ -373,6 +398,18 @@ widget.controller("rongWidgetController", ["$scope", "WebIMWidget", "widgetConfi
                 $scope.$apply();
             });
         }
+        var interval = null;
+        $scope.$watch("data.totalUnreadCount", function(newVal, oldVal) {
+            console.log(newVal, oldVal)
+            if (newVal > 0) {
+                interval && $interval.cancel(interval);
+                interval = $interval(function() {
+                    $scope.twinkle = !$scope.twinkle;
+                }, 1000);
+            } else {
+                $interval.cancel(interval);
+            }
+        })
 
         WebIMWidget.hidden = function() {
             WebIMWidget.display = false;
@@ -427,6 +464,7 @@ interface widgetConfig {
     displayMinButton: boolean
     config: any
     reminder: string
+    voiceNotification: boolean
 }
 
 interface providerdata {
@@ -435,6 +473,8 @@ interface providerdata {
     getOnlineStatus: OnlineStatusProvider
     getCacheUserInfo(id): WidgetModule.UserInfo
     addUserInfo(user: WidgetModule.UserInfo): void
+    totalUnreadCount: number
+    voiceSound: boolean
 }
 
 interface Config {
@@ -446,7 +486,11 @@ interface Config {
     displayConversationList?: boolean;
     conversationListPosition?: any;
     displayMinButton?: boolean;
+    desktopNotification?: boolean;
+    voiceNotification?: boolean;
+    voiceUrl?: boolean;
     reminder?: string;
+
     style?: {
         positionFixed?: boolean;
         height?: number;
@@ -468,6 +512,7 @@ interface WebIMWidget {
     display: boolean
     fullScreen: boolean
     connected: boolean
+    totalUnreadCount: number
 
     setConversation(targetType: number, targetId: string, title: string): void
 
