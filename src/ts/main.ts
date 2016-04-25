@@ -312,7 +312,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                     }
                     conversationServer.onReceivedMessage(msg);
 
-                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
+                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && data.messageType != WidgetModule.MessageType.ReadReceiptMessage) {
                         RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
                         RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
                     }
@@ -321,10 +321,14 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             });
 
             window.onfocus = function() {
-                if (conversationServer.current && conversationServer.current.targetId) {
-                    RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
-                    RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
-                    conversationListServer.updateConversations().then(function() { });
+                if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
+                    RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
+                        if (conv.unreadMessageCount > 0) {
+                            RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                            RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                            conversationListServer.updateConversations().then(function() { });
+                        }
+                    })
                 }
             }
         }
@@ -381,9 +385,9 @@ widget.directive("rongWidget", [function() {
     }
 }]);
 
-widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget", "widgetConfig", "providerdata",
-    function($scope, $interval: angular.IIntervalService, WebIMWidget, widgetConfig: widgetConfig, providerdata: providerdata
-    ) {
+widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget", "widgetConfig", "providerdata", "conversationServer", "RongIMSDKServer", "conversationListServer",
+    function($scope, $interval: angular.IIntervalService, WebIMWidget, widgetConfig: widgetConfig, providerdata: providerdata,
+        conversationServer: ConversationServer, RongIMSDKServer: RongIMSDKServer, conversationListServer: conversationListServer) {
 
         $scope.main = WebIMWidget;
         $scope.widgetConfig = widgetConfig;
@@ -399,7 +403,6 @@ widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget",
         }
         var interval = null;
         $scope.$watch("data.totalUnreadCount", function(newVal, oldVal) {
-            console.log(newVal, oldVal)
             if (newVal > 0) {
                 interval && $interval.cancel(interval);
                 interval = $interval(function() {
@@ -407,6 +410,18 @@ widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget",
                 }, 1000);
             } else {
                 $interval.cancel(interval);
+            }
+        });
+
+        $scope.$watch("main.display", function() {
+            if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
+                RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
+                    if (conv.unreadMessageCount > 0) {
+                        RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                        RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                        conversationListServer.updateConversations().then(function() { });
+                    }
+                })
             }
         })
 

@@ -11520,7 +11520,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         WebIMWidget.onReceivedMessage(msg);
                     }
                     conversationServer.onReceivedMessage(msg);
-                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
+                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && data.messageType != WidgetModule.MessageType.ReadReceiptMessage) {
                         RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
                         RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
                     }
@@ -11529,9 +11529,13 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             });
             window.onfocus = function () {
                 if (conversationServer.current && conversationServer.current.targetId) {
-                    RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
-                    RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
-                    conversationListServer.updateConversations().then(function () { });
+                    RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function (conv) {
+                        if (conv.unreadMessageCount > 0) {
+                            RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                            RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                            conversationListServer.updateConversations().then(function () { });
+                        }
+                    });
                 }
             };
         };
@@ -12471,7 +12475,7 @@ angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache
 
 
   $templateCache.put('./src/ts/main.tpl.html',
-    "<div id=rong-widget-box class=rongcloud-container><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent ng-show=\"data.totalUnreadCount==0\">{{widgetConfig.reminder||\"最近联系人\"}}</span> <span class=rongcloud-recent ng-show=\"data.totalUnreadCount>0\"><span ng-show=twinkle>(您有未读消息)</span></span></a></div><audio id=rongcloud-playsound style=\"width: 0px;height: 0px;display: none\" src=\"\" controls></audio></div>"
+    "<div id=rong-widget-box class=rongcloud-container><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent ng-show=\"!data.totalUnreadCount||data.totalUnreadCount==0\">{{widgetConfig.reminder||\"最近联系人\"}}</span> <span class=rongcloud-recent ng-show=\"data.totalUnreadCount>0\"><span ng-show=twinkle>(您有未读消息)</span></span></a></div><audio id=rongcloud-playsound style=\"width: 0px;height: 0px;display: none\" src=\"\" controls></audio></div>"
   );
 
 }]);
