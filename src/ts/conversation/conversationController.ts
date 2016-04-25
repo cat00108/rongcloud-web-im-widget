@@ -527,7 +527,7 @@ conversationController.controller("conversationController", ["$scope",
                 browse_button: 'upload-file',
                 // browse_button: 'upload',
                 container: 'funcPanel',
-                drop_element: 'Messages',
+                drop_element: 'inputMsg',
                 max_file_size: '100mb',
                 // flash_swf_url: 'js/plupload/Moxie.swf',
                 dragdrop: true,
@@ -541,7 +541,7 @@ conversationController.controller("conversationController", ["$scope",
                     mime_types: [{ title: "Image files", extensions: "jpg,gif,png" }],
                     prevent_duplicates: false
                 },
-                // multi_selection: false,
+                multi_selection: false,
                 auto_start: true,
                 init: {
                     'FilesAdded': function(up: any, files: any) {
