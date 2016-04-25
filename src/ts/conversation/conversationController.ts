@@ -541,7 +541,7 @@ conversationController.controller("conversationController", ["$scope",
                     mime_types: [{ title: "Image files", extensions: "jpg,gif,png" }],
                     prevent_duplicates: false
                 },
-                multi_selection: false,
+                // multi_selection: false,
                 auto_start: true,
                 init: {
                     'FilesAdded': function(up: any, files: any) {

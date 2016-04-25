@@ -32,7 +32,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
         '<div class="rongcloud-ext">' +
         '<p class="rongcloud-attr clearfix">' +
         '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
-        '<i class="rongcloud-sprite no-remind" ng-click="remove($event)"></i>' +
+        '<i class="rongcloud-sprite rongcloud-no-remind" ng-click="remove($event)"></i>' +
         '</p>' +
         '</div>' +
         '<div class="rongcloud-photo">' +

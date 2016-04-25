@@ -10497,7 +10497,7 @@ conversationController.controller("conversationController", ["$scope",
                     mime_types: [{ title: "Image files", extensions: "jpg,gif,png" }],
                     prevent_duplicates: false
                 },
-                multi_selection: false,
+                // multi_selection: false,
                 auto_start: true,
                 init: {
                     'FilesAdded': function (up, files) {
@@ -10980,7 +10980,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                 '<div class="rongcloud-ext">' +
                 '<p class="rongcloud-attr clearfix">' +
                 '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
-                '<i class="rongcloud-sprite no-remind" ng-click="remove($event)"></i>' +
+                '<i class="rongcloud-sprite rongcloud-no-remind" ng-click="remove($event)"></i>' +
                 '</p>' +
                 '</div>' +
                 '<div class="rongcloud-photo">' +
