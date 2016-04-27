@@ -123,9 +123,6 @@ conversationController.controller("conversationController", ["$scope",
             conversationServer.current = conversation;
             $scope.currentConversation = conversation;
 
-
-            //TODO:获取历史消息
-
             conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || []
 
             var currenthis = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
@@ -145,7 +142,6 @@ conversationController.controller("conversationController", ["$scope",
                 adjustScrollbars();
             }
 
-            //TODO:获取草稿
             $scope.currentConversation.messageContent = RongIMLib.RongIMClient.getInstance().getTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId) || "";
             setTimeout(function() {
                 $scope.$apply();
@@ -538,7 +534,7 @@ conversationController.controller("conversationController", ["$scope",
                 get_new_uptoken: false,
                 // unique_names: true,
                 filters: {
-                    mime_types: [{ title: "Image files", extensions: "jpg,gif,png" }],
+                    mime_types: [{ title: "Image files", extensions: "jpg,gif,png,jpeg,bmp" }],
                     prevent_duplicates: false
                 },
                 multi_selection: false,
@@ -551,17 +547,16 @@ conversationController.controller("conversationController", ["$scope",
                     'UploadProgress': function(up: any, file: any) {
                     },
                     'UploadComplete': function() {
-                        updateUploadToken();
                     },
                     'FileUploaded': function(up: any, file: any, info: any) {
                         if (!$scope.currentConversation.targetId || !$scope.currentConversation.targetType) {
                             alert("请先选择一个会话目标。")
                             return;
                         }
+                        info = info.replace(/'/g, "\"");
                         info = JSON.parse(info);
                         RongIMLib.RongIMClient.getInstance().getFileUrl(RongIMLib.FileType.IMAGE, info.name, {
                             onSuccess: function(url) {
-
                                 WidgetModule.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function(obj: any, data: any) {
                                     var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
 
@@ -579,6 +574,8 @@ conversationController.controller("conversationController", ["$scope",
                                     conversationServer._addHistoryMessages(WidgetModule.Message.convert(content));
                                     $scope.$apply();
                                     adjustScrollbars();
+
+                                    updateUploadToken();
                                 })
 
                             },

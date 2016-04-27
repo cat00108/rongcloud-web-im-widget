@@ -1,6 +1,6 @@
 {"userlist":[
-  {"id":"aa","name":"张三"},
-  {"id":"bb","name":"李四"},
-  {"id":"cc","name":"王五"},
-  {"id":"dd","name":"赵六"}
+  {"id":"aa","name":"张三","portraitUri":""},
+  {"id":"bb","name":"李四","portraitUri":""},
+  {"id":"cc","name":"王五","portraitUri":""},
+  {"id":"dd","name":"赵六","portraitUri":""}
   ]}

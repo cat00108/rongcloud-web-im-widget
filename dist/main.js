@@ -10122,7 +10122,6 @@ conversationController.controller("conversationController", ["$scope",
             }
             conversationServer.current = conversation;
             $scope.currentConversation = conversation;
-            //TODO:获取历史消息
             conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
             var currenthis = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
             $scope.messageList = currenthis;
@@ -10141,7 +10140,6 @@ conversationController.controller("conversationController", ["$scope",
             else {
                 adjustScrollbars();
             }
-            //TODO:获取草稿
             $scope.currentConversation.messageContent = RongIMLib.RongIMClient.getInstance().getTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId) || "";
             setTimeout(function () {
                 $scope.$apply();
@@ -10494,7 +10492,7 @@ conversationController.controller("conversationController", ["$scope",
                 get_new_uptoken: false,
                 // unique_names: true,
                 filters: {
-                    mime_types: [{ title: "Image files", extensions: "jpg,gif,png" }],
+                    mime_types: [{ title: "Image files", extensions: "jpg,gif,png,jpeg,bmp" }],
                     prevent_duplicates: false
                 },
                 multi_selection: false,
@@ -10507,13 +10505,13 @@ conversationController.controller("conversationController", ["$scope",
                     'UploadProgress': function (up, file) {
                     },
                     'UploadComplete': function () {
-                        updateUploadToken();
                     },
                     'FileUploaded': function (up, file, info) {
                         if (!$scope.currentConversation.targetId || !$scope.currentConversation.targetType) {
                             alert("请先选择一个会话目标。");
                             return;
                         }
+                        info = info.replace(/'/g, "\"");
                         info = JSON.parse(info);
                         RongIMLib.RongIMClient.getInstance().getFileUrl(RongIMLib.FileType.IMAGE, info.name, {
                             onSuccess: function (url) {
@@ -10531,6 +10529,7 @@ conversationController.controller("conversationController", ["$scope",
                                     conversationServer._addHistoryMessages(WidgetModule.Message.convert(content));
                                     $scope.$apply();
                                     adjustScrollbars();
+                                    updateUploadToken();
                                 });
                             },
                             onError: function () {

@@ -51,7 +51,7 @@ demo.controller("main", ["$scope", "WebIMWidget","$http", function($scope,
           })
 
           if(user){
-            obj.onSuccess({id:user.id,name:user.name});
+            obj.onSuccess({id:user.id,name:user.name,portraitUri:user.portraitUri});
           }else{
             obj.onSuccess({id:targetId,name:"陌："+targetId});
           }
