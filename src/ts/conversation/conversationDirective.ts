@@ -182,7 +182,7 @@ conversationDirective.directive("imagemessage", [function() {
             var img = new Image();
             img.src = scope.msg.imageUri;
             setTimeout(function() {
-                $('#rebox_' + scope.$id).rebox({ selector: 'a' }).bind("rebox:open", function() {
+                $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex:999999 }).bind("rebox:open", function() {
                     //jQuery rebox 点击空白关闭
                     var rebox = <any>document.getElementsByClassName("rebox")[0];
                     rebox.onclick = function(e: any) {

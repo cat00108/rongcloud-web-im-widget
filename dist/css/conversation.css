@@ -1089,6 +1089,8 @@ textarea {
     resize: none;
     font-size: 9pt;
     overflow: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 .text:focus {
     outline: 0;
@@ -1850,7 +1852,7 @@ textarea {
     padding: 20px 20px 10px;
     text-align: center;
 }
-.layermbox .btn{
+.layermbox .rong-btn{
     display: inline-block;
     width: 54px;
     height: 30px;
@@ -1860,7 +1862,7 @@ textarea {
     color: #000;
     overflow: hidden;
 }
-.layermbox .btn:hover{
+.layermbox .rong-btn:hover{
     background-color: #0099ff;
     color: #fff;
     border-color: #0099ff;
@@ -1891,25 +1893,25 @@ textarea {
 .layermbox .layerPanel2 .labels a{
     line-height: 27px;
 }
-.layermbox .layerPanel2 .btn{
+.layermbox .layerPanel2 .rong-btn{
     width: 47%;
     border-radius: 15px;
     height: 28px;
     line-height: 28px;
     color: #676e6f;
 }
-.layermbox .layerPanel2 .btn:hover{
+.layermbox .layerPanel2 .rong-btn:hover{
     color: #fff;
 }
-.layermbox .layerPanel2 .btn.cur{
+.layermbox .layerPanel2 .rong-btn.cur{
     background-color: #0099ff;
     color: #fff;
     border-color: #0099ff;
 }
-.layermbox .layerPanel2 .btn:nth-child(2n+1){
+.layermbox .layerPanel2 .rong-btn:nth-child(2n+1){
     margin-right: 3%;
 }
-.layermbox .layerPanel2 .btn:nth-child(3),.layermbox .layerPanel2 .btn:nth-child(4){
+.layermbox .layerPanel2 .rong-btn:nth-child(3),.layermbox .layerPanel2 .rong-btn:nth-child(4){
     margin-top: 8px;
 }
 .layermbox .layerPanel2 .suggestBox{
@@ -1928,7 +1930,7 @@ textarea {
 .layermbox .subBox{
 
 }
-.layermbox .subBox .btn{
+.layermbox .subBox .rong-btn{
     width: 70%;
     font-size: 14px;
     border-radius: 4px;
