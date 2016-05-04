@@ -136,7 +136,7 @@ ul {
     margin: 0;
     padding: 0;
     border: none;
-    line-height: 50px;
+    line-height: 49px;
     float: none;
     text-decoration: none !important;
 }
@@ -222,6 +222,16 @@ ul {
      margin-right: 10px;
      cursor: pointer;
 
+     background-size: 20px 20px ;
+     display: inline-block;
+
+}
+.rongcloud-kefuChatBox .rongcloud-rong-header .rongcloud-voice {
+     width: 20px;
+     border: none;
+     height: 20px;
+     margin-right: 10px;
+     cursor: pointer;
      background-size: 20px 20px ;
      display: inline-block;
 
@@ -711,7 +721,7 @@ ul {
 .rongcloud-Messages-date {
     text-align: center;
     padding: 10px 20px;
-    border-bottom: 1px solid #e4e7ea;
+    /*border-bottom: 1px solid #e4e7ea;*/
     margin-bottom: 30px;
     height: 10px;
 }
@@ -728,7 +738,7 @@ ul {
 .rongcloud-Messages-history {
     text-align: center;
     padding: 10px 20px;
-    border-bottom: 1px solid #e4e7ea;
+    /*border-bottom: 1px solid #e4e7ea;*/
     margin-bottom: 30px;
     height: 10px;
 }

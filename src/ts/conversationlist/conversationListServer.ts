@@ -2,8 +2,8 @@
 
 var conversationListSer = angular.module("RongWebIMWidget.conversationListServer", ["RongWebIMWidget.conversationListDirective", "RongWebIMWidget"]);
 
-conversationListSer.factory("conversationListServer", ["$q", "providerdata",
-    function($q: angular.IQService, providerdata: providerdata) {
+conversationListSer.factory("conversationListServer", ["$q", "providerdata", "widgetConfig", "RongIMSDKServer", "conversationServer",
+    function($q: angular.IQService, providerdata: providerdata, widgetConfig: widgetConfig, RongIMSDKServer: RongIMSDKServer, conversationServer: ConversationServer) {
         var server = <conversationListServer>{};
 
         server.conversationList = <WidgetModule.Conversation[]>[];
@@ -59,17 +59,31 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata",
                         conv && (conv.onLine = item.status);
                     });
 
+                    if (widgetConfig.displayConversationList) {
+                        RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
+                            onSuccess: function(num) {
+                                providerdata.totalUnreadCount = num || 0;
+                                defer.resolve();
+                                server.refreshConversationList();
+                            },
+                            onError: function() {
 
-                    RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
-                        onSuccess: function(num) {
-                            providerdata.totalUnreadCount = num || 0;
-                            defer.resolve();
-                            server.refreshConversationList();
-                        },
-                        onError: function() {
+                            }
+                        });
+                    } else {
+                        RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
+                            if (conv && conv.unreadMessageCount) {
+                                providerdata.totalUnreadCount = conv.unreadMessageCount || 0;
+                                defer.resolve();
+                                server.refreshConversationList();
+                            } else {
+                                providerdata.totalUnreadCount = 0;
+                                defer.resolve();
+                                server.refreshConversationList();
+                            }
+                        })
+                    }
 
-                        }
-                    });
                 },
                 onError: function(error) {
                     defer.reject(error);

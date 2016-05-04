@@ -32,6 +32,7 @@ conversationController.controller("conversationController", ["$scope",
 
         $scope.WebIMWidget = WebIMWidget;
         $scope.widgetConfig = widgetConfig;
+        console.log(widgetConfig)
         $scope.conversationServer = conversationServer;
         $scope._inputPanelState = WidgetModule.InputPanelType.person;
 
@@ -69,8 +70,9 @@ conversationController.controller("conversationController", ["$scope",
         $scope.$watch("showSelf", function(newVal: string, oldVal: string) {
             if (newVal === oldVal)
                 return;
-            if (newVal) {
+            if (newVal && conversationServer._uploadToken) {
                 uploadFileRefresh();
+                console.log("showSelf")
             } else {
                 qiniuuploader && qiniuuploader.destroy();
             }
@@ -79,8 +81,9 @@ conversationController.controller("conversationController", ["$scope",
         $scope.$watch("_inputPanelState", function(newVal: any, oldVal: any) {
             if (newVal === oldVal)
                 return;
-            if (newVal == WidgetModule.InputPanelType.person) {
+            if (newVal == WidgetModule.InputPanelType.person && conversationServer._uploadToken) {
                 uploadFileRefresh();
+                console.log("_inputPanelState")
             } else {
                 qiniuuploader && qiniuuploader.destroy();
             }
@@ -301,7 +304,7 @@ conversationController.controller("conversationController", ["$scope",
         }
 
         function addCustomService(msg: WidgetModule.Message) {
-            if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content) {
+            if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
                 if (conversationServer._customService.currentType == "1") {
                     msg.content.userInfo = {
                         name: conversationServer._customService.human.name || "客服人员",
@@ -312,6 +315,11 @@ conversationController.controller("conversationController", ["$scope",
                         name: conversationServer._customService.robotName,
                         portraitUri: conversationServer._customService.robotIcon,
                     }
+                }
+            } else if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.SEND) {
+                msg.content.userInfo = {
+                    name: "我",
+                    portraitUri: conversationServer.loginUser.portraitUri
                 }
             }
             return msg;

@@ -96,7 +96,11 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             angular.extend(defaultStyle, config.style);
 
             eleplaysound = document.getElementById("rongcloud-playsound");
-            eleplaysound && defaultconfig.voiceUrl && (eleplaysound.src = defaultconfig.voiceUrl);
+            if (eleplaysound && typeof defaultconfig.voiceUrl === "string") {
+                eleplaysound.src = defaultconfig.voiceUrl;
+            } else {
+                defaultconfig.voiceNotification = false;
+            }
 
             var eleconversation = document.getElementById("rong-conversation");
             var eleconversationlist = document.getElementById("rong-conversation-list");
@@ -277,10 +281,13 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.ImageMessage:
                         case WidgetModule.MessageType.RichContentMessage:
                             addMessageAndOperation(msg);
-                            if (providerdata.voiceSound == true && eleplaysound && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.voiceNotification && defaultconfig.displayConversationList) {
-                                eleplaysound.play()
+                            var voiceBase = providerdata.voiceSound == true && eleplaysound && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.voiceNotification;
+                            var currentConvversationBase = conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId;
+                            var notificationBase = (document.hidden || !WebIMWidget.display) && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.desktopNotification;
+                            if ((defaultconfig.displayConversationList && voiceBase) || (!defaultconfig.displayConversationList && voiceBase && currentConvversationBase)) {
+                                eleplaysound.play();
                             }
-                            if ((document.hidden || !WebIMWidget.display) && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.desktopNotification && defaultconfig.displayConversationList) {
+                            if ((notificationBase && defaultconfig.displayConversationList) || (!defaultconfig.displayConversationList && notificationBase && currentConvversationBase)) {
                                 WidgetModule.NotificationHelper.showNotification({
                                     title: msg.content.userInfo.name,
                                     icon: "",
@@ -323,7 +330,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             window.onfocus = function() {
                 if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
                     RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
-                        if (conv.unreadMessageCount > 0) {
+                        if (conv && conv.unreadMessageCount > 0) {
                             RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
                             RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
                             conversationListServer.updateConversations().then(function() { });
@@ -336,7 +343,9 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
         function addMessageAndOperation(msg: WidgetModule.Message) {
             var hislist = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] || []
             if (hislist.length == 0) {
-                hislist.push(new WidgetModule.GetHistoryPanel());
+                if (msg.conversationType != WidgetModule.EnumConversationType.CUSTOMER_SERVICE) {
+                    hislist.push(new WidgetModule.GetHistoryPanel());
+                }
                 hislist.push(new WidgetModule.TimePanl(msg.sentTime));
             }
             conversationServer._addHistoryMessages(msg);
@@ -416,7 +425,7 @@ widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget",
         $scope.$watch("main.display", function() {
             if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
                 RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
-                    if (conv.unreadMessageCount > 0) {
+                    if (conv && conv.unreadMessageCount > 0) {
                         RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
                         RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
                         conversationListServer.updateConversations().then(function() { });
