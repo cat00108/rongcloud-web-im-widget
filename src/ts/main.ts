@@ -6,7 +6,7 @@ var widget = angular.module("RongWebIMWidget", ["RongWebIMWidget.conversationSer
 
 widget.run(["$http", "WebIMWidget", "widgetConfig", function($http: angular.IHttpService,
     WebIMWidget: WebIMWidget, widgetConfig: widgetConfig) {
-    WidgetModule.NotificationHelper.requestPermission();
+
     var protocol = location.protocol === "https:" ? "https:" : "http:";
     $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function() {
         $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.0.15.min.js", function() {
@@ -65,6 +65,8 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
         var defaultconfig = <Config>{
             displayMinButton: true,
             conversationListPosition: WidgetModule.EnumConversationListPosition.left,
+            desktopNotification: true,
+            voiceNotification: true,
             style: {
                 positionFixed: false,
                 width: 450,
@@ -73,6 +75,8 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 right: 0
             }
         }
+
+        var eleplaysound = null;
 
         WebIMWidget.display = false;
 
@@ -83,9 +87,20 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 return;
             }
 
+            if (defaultconfig.desktopNotification) {
+                WidgetModule.NotificationHelper.requestPermission();
+            }
+
             var defaultStyle = defaultconfig.style;
             angular.extend(defaultconfig, config);
             angular.extend(defaultStyle, config.style);
+
+            eleplaysound = document.getElementById("rongcloud-playsound");
+            if (eleplaysound && typeof defaultconfig.voiceUrl === "string") {
+                eleplaysound.src = defaultconfig.voiceUrl;
+            } else {
+                defaultconfig.voiceNotification = false;
+            }
 
             var eleconversation = document.getElementById("rong-conversation");
             var eleconversationlist = document.getElementById("rong-conversation-list");
@@ -177,10 +192,12 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             widgetConfig.displayConversationList = defaultconfig.displayConversationList;
             widgetConfig.displayMinButton = defaultconfig.displayMinButton;
             widgetConfig.reminder = defaultconfig.reminder;
+            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
 
             RongIMSDKServer.init(defaultconfig.appkey);
 
             RongIMSDKServer.connect(defaultconfig.token).then(function(userId) {
+                conversationListServer.updateConversations();
                 console.log("connect success:" + userId);
                 if (WidgetModule.Helper.checkType(defaultconfig.onSuccess) == "function") {
                     defaultconfig.onSuccess(userId);
@@ -195,7 +212,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                     });
                 }
 
-                conversationListServer.updateConversations();
+
 
                 conversationServer._onConnectSuccess();
             }, function(err) {
@@ -264,11 +281,19 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         case WidgetModule.MessageType.ImageMessage:
                         case WidgetModule.MessageType.RichContentMessage:
                             addMessageAndOperation(msg);
-                            WidgetModule.NotificationHelper.showNotification({
-                                title: msg.content.userInfo.name,
-                                icon: "",
-                                body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
-                            });
+                            var voiceBase = providerdata.voiceSound == true && eleplaysound && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.voiceNotification;
+                            var currentConvversationBase = conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId;
+                            var notificationBase = (document.hidden || !WebIMWidget.display) && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.desktopNotification;
+                            if ((defaultconfig.displayConversationList && voiceBase) || (!defaultconfig.displayConversationList && voiceBase && currentConvversationBase)) {
+                                eleplaysound.play();
+                            }
+                            if ((notificationBase && defaultconfig.displayConversationList) || (!defaultconfig.displayConversationList && notificationBase && currentConvversationBase)) {
+                                WidgetModule.NotificationHelper.showNotification({
+                                    title: msg.content.userInfo.name,
+                                    icon: "",
+                                    body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                                });
+                            }
                             break;
                         case WidgetModule.MessageType.ContactNotificationMessage:
                             //好友通知自行处理
@@ -294,20 +319,33 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                     }
                     conversationServer.onReceivedMessage(msg);
 
-                    if (WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId) {
+                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && data.messageType != WidgetModule.MessageType.ReadReceiptMessage) {
                         RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                        RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
                     }
                     conversationListServer.updateConversations().then(function() { });
                 }
             });
 
-
+            window.onfocus = function() {
+                if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
+                    RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
+                        if (conv && conv.unreadMessageCount > 0) {
+                            RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                            RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                            conversationListServer.updateConversations().then(function() { });
+                        }
+                    })
+                }
+            }
         }
 
         function addMessageAndOperation(msg: WidgetModule.Message) {
             var hislist = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] || []
             if (hislist.length == 0) {
-                // hislist.push(new WidgetModule.GetHistoryPanel());
+                if (msg.conversationType != WidgetModule.EnumConversationType.CUSTOMER_SERVICE) {
+                    hislist.push(new WidgetModule.GetHistoryPanel());
+                }
                 hislist.push(new WidgetModule.TimePanl(msg.sentTime));
             }
             conversationServer._addHistoryMessages(msg);
@@ -323,6 +361,10 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
 
         WebIMWidget.setGroupInfoProvider = function(fun) {
             providerdata.getGroupInfo = fun;
+        }
+
+        WebIMWidget.setOnlineStatusProvider = function(fun) {
+            providerdata.getOnlineStatus = fun;
         }
 
         WebIMWidget.EnumConversationListPosition = WidgetModule.EnumConversationListPosition;
@@ -352,12 +394,13 @@ widget.directive("rongWidget", [function() {
     }
 }]);
 
-widget.controller("rongWidgetController", ["$scope", "WebIMWidget", "widgetConfig",
-    function($scope, WebIMWidget, widgetConfig: widgetConfig
-    ) {
+widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget", "widgetConfig", "providerdata", "conversationServer", "RongIMSDKServer", "conversationListServer",
+    function($scope, $interval: angular.IIntervalService, WebIMWidget, widgetConfig: widgetConfig, providerdata: providerdata,
+        conversationServer: ConversationServer, RongIMSDKServer: RongIMSDKServer, conversationListServer: conversationListServer) {
 
         $scope.main = WebIMWidget;
         $scope.widgetConfig = widgetConfig;
+        $scope.data = providerdata;
 
         WebIMWidget.show = function() {
             WebIMWidget.display = true;
@@ -367,6 +410,29 @@ widget.controller("rongWidgetController", ["$scope", "WebIMWidget", "widgetConfi
                 $scope.$apply();
             });
         }
+        var interval = null;
+        $scope.$watch("data.totalUnreadCount", function(newVal, oldVal) {
+            if (newVal > 0) {
+                interval && $interval.cancel(interval);
+                interval = $interval(function() {
+                    $scope.twinkle = !$scope.twinkle;
+                }, 1000);
+            } else {
+                $interval.cancel(interval);
+            }
+        });
+
+        $scope.$watch("main.display", function() {
+            if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
+                RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
+                    if (conv && conv.unreadMessageCount > 0) {
+                        RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                        RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                        conversationListServer.updateConversations().then(function() { });
+                    }
+                })
+            }
+        })
 
         WebIMWidget.hidden = function() {
             WebIMWidget.display = false;
@@ -421,13 +487,17 @@ interface widgetConfig {
     displayMinButton: boolean
     config: any
     reminder: string
+    voiceNotification: boolean
 }
 
 interface providerdata {
     getUserInfo: UserInfoProvider
     getGroupInfo: GroupInfoProvider
+    getOnlineStatus: OnlineStatusProvider
     getCacheUserInfo(id): WidgetModule.UserInfo
     addUserInfo(user: WidgetModule.UserInfo): void
+    totalUnreadCount: number
+    voiceSound: boolean
 }
 
 interface Config {
@@ -439,7 +509,11 @@ interface Config {
     displayConversationList?: boolean;
     conversationListPosition?: any;
     displayMinButton?: boolean;
+    desktopNotification?: boolean;
+    voiceNotification?: boolean;
+    voiceUrl?: boolean;
     reminder?: string;
+
     style?: {
         positionFixed?: boolean;
         height?: number;
@@ -461,6 +535,7 @@ interface WebIMWidget {
     display: boolean
     fullScreen: boolean
     connected: boolean
+    totalUnreadCount: number
 
     setConversation(targetType: number, targetId: string, title: string): void
 
@@ -479,12 +554,17 @@ interface WebIMWidget {
 
     setUserInfoProvider(fun: UserInfoProvider)
     setGroupInfoProvider(fun: GroupInfoProvider)
+    setOnlineStatusProvider(fun: OnlineStatusProvider)
 
     /**
      * 静态属性
      */
     EnumConversationListPosition: any
     EnumConversationType: any
+}
+
+interface OnlineStatusProvider {
+    (targetId: string[], callback: CallBack<{ id: string, status: boolean }[]>): void
 }
 
 interface UserInfoProvider {

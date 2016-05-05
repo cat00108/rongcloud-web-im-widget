@@ -26,15 +26,8 @@ kefu.service("RongKefu", ["WebIMWidget", function(WebIMWidget: WebIMWidget) {
                 };
             }
         }
-        WebIMWidget.init({
-            appkey: config.appkey,
-            token: config.token,
-            reminder: config.reminder,
-            onSuccess: function(e) {
-                config.onSuccess && config.onSuccess(e);
-            },
-            style: style
-        });
+        defaultconfig.style=style;
+        WebIMWidget.init(defaultconfig);
         WebIMWidget.onShow = function() {
             WebIMWidget.setConversation(WidgetModule.EnumConversationType.CUSTOMER_SERVICE, config.kefuId, "客服");
         }

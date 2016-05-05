@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="demo">
+<html>
   <head>
     <meta charset="utf-8">
     <title></title>
@@ -7,22 +7,29 @@
     <link rel="stylesheet" type="text/css" href="../widget/css/conversation.css"/>
 
     <script>
-      // window.WEB_XHR_POLLING = true;
+    if(navigator.userAgent.indexOf("MSIE 9")!=-1){
+      window.WEB_XHR_POLLING = true;
+    }
     </script>
 
   </head>
-  <body ng-controller="main">
-    <h1>{{title}}</h1>
-    <button ng-click="show()">show</button>
-    <button ng-click="hidden()">hidden</button>
-    <button ng-click="setconversation()">设置会话</button>
-    <label>会话类型</label><input ng-model="targetType">
-    <label>会话Id</label><input ng-model="targetId">
-    <!-- <div style="position:fixed;left:0px;width:500px;height:500px;"> -->
-      <!-- <rong-conversation style=""></rong-conversation> -->
-      <rong-widget></rong-widget>
-    <!-- </div> -->
-    <!--客服列表框-->
+  <body>
+    <div ng-app="demo">
+      <div  ng-controller="main">
+        <h1>{{title}}</h1>
+        <button ng-click="show()">show</button>
+        <button ng-click="hidden()">hidden</button>
+        <button ng-click="setconversation()">设置会话</button>
+        <label>会话类型</label><input ng-model="targetType">
+        <label>会话Id</label><input ng-model="targetId">
+        <!-- <div style="position:fixed;left:0px;width:500px;height:500px;"> -->
+          <!-- <rong-conversation style=""></rong-conversation> -->
+          <rong-widget></rong-widget>
+        <!-- </div> -->
+        <!--客服列表框-->
+
+      </div>
+    </div>
 
 
   </body>

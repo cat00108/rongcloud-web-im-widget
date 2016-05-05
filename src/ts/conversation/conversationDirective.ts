@@ -9,14 +9,16 @@ conversationDirective.directive("rongConversation", [function() {
         templateUrl: "./src/ts/conversation/template.tpl.html",
         controller: "conversationController",
         link: function(scope: any, ele: angular.IRootElementService) {
-            $("#Messages").niceScroll({
-                'cursorcolor': "#0099ff",
-                'cursoropacitymax': 1,
-                'touchbehavior': false,
-                'cursorwidth': "8px",
-                'cursorborder': "0",
-                'cursorborderradius': "5px"
-            });
+            if (jQuery && jQuery.nicescroll) {
+                $("#Messages").niceScroll({
+                    'cursorcolor': "#0099ff",
+                    'cursoropacitymax': 1,
+                    'touchbehavior': false,
+                    'cursorwidth': "8px",
+                    'cursorborder': "0",
+                    'cursorborderradius': "5px"
+                });
+            }
         }
     }
 }]);
@@ -95,7 +97,8 @@ conversationDirective.directive('contenteditableDire', function() {
                 element.html(ngModel.$viewValue || '');
             };
 
-            WidgetModule.Helper.browser.msie ? element.bind("keyup paste", read) : element.bind("input", read);
+            element.bind("keyup paste", read);
+            // element.bind("input", read);
 
             function read() {
                 var html = element.html();
@@ -147,7 +150,7 @@ conversationDirective.directive("textmessage", [function() {
         restrict: "E",
         scope: { msg: "=" },
         template: '<div class="">' +
-        '<div class="Message-text"><pre class="Message-entry" ng-bind-html="msg.content|trustHtml"><br></pre></div>' +
+        '<div class="rongcloud-Message-text"><pre class="rongcloud-Message-entry" ng-bind-html="msg.content|trustHtml"><br></pre></div>' +
         '</div>'
     }
 }]);
@@ -157,8 +160,8 @@ conversationDirective.directive("includinglinkmessage", [function() {
         restrict: "E",
         scope: { msg: "=" },
         template: '<div class="">' +
-        '<div class="Message-text">' +
-        '<pre class="Message-entry" style="">' +
+        '<div class="rongcloud-Message-text">' +
+        '<pre class="rongcloud-Message-entry" style="">' +
         '维护中 由于我们的服务商出现故障，融云官网及相关服务也受到影响，给各位用户带来的不便，还请谅解。  您可以通过 <a href="#">【官方微博】</a>了解</pre>' +
         '</div>' +
         '</div>'
@@ -170,8 +173,8 @@ conversationDirective.directive("imagemessage", [function() {
         restrict: "E",
         scope: { msg: "=" },
         template: '<div class="">' +
-        '<div class="Message-img">' +
-        '<span id="{{\'rebox_\'+$id}}"  class="Message-entry" style="">' +
+        '<div class="rongcloud-Message-img">' +
+        '<span id="{{\'rebox_\'+$id}}"  class="rongcloud-Message-entry" style="">' +
         // '<p>发给您一张示意图</p>' +
         // '<img ng-src="{{msg.content}}" alt="">' +
         '<a href="{{msg.imageUri}}"><img ng-src="{{msg.content}}"  data-image="{{msg.imageUri}}" alt=""/></a>' +
@@ -182,17 +185,19 @@ conversationDirective.directive("imagemessage", [function() {
             var img = new Image();
             img.src = scope.msg.imageUri;
             setTimeout(function() {
-                $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex:999999 }).bind("rebox:open", function() {
-                    //jQuery rebox 点击空白关闭
-                    var rebox = <any>document.getElementsByClassName("rebox")[0];
-                    rebox.onclick = function(e: any) {
-                        if (e.target.tagName.toLowerCase() != "img") {
-                            var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
-                            rebox_close.click();
-                            rebox = null; rebox_close = null;
+                if (jQuery && jQuery.rebox) {
+                    $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999 }).bind("rebox:open", function() {
+                        //jQuery rebox 点击空白关闭
+                        var rebox = <any>document.getElementsByClassName("rebox")[0];
+                        rebox.onclick = function(e: any) {
+                            if (e.target.tagName.toLowerCase() != "img") {
+                                var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
+                                rebox_close.click();
+                                rebox = null; rebox_close = null;
+                            }
                         }
-                    }
-                });
+                    });
+                }
             })
             img.onload = function() {
                 //scope.isLoaded = true;
@@ -215,10 +220,10 @@ conversationDirective.directive("voicemessage", ["$timeout", function($timeout: 
         restrict: "E",
         scope: { msg: "=" },
         template: '<div class="">' +
-        '<div class="Message-audio">' +
-        '<span class="Message-entry" style="">' +
-        '<span class="audioBox clearfix " ng-click="play()" ng-class="{\'animate\':isplaying}" ><i></i><i></i><i></i></span>' +
-        '<div style="display: inline-block;" ><span class="audioTimer">{{msg.duration}}”</span><span class="audioState" ng-show="msg.isUnReade"></span></div>' +
+        '<div class="rongcloud-Message-audio">' +
+        '<span class="rongcloud-Message-entry" style="">' +
+        '<span class="rongcloud-audioBox rongcloud-clearfix " ng-click="play()" ng-class="{\'animate\':isplaying}" ><i></i><i></i><i></i></span>' +
+        '<div style="display: inline-block;" ><span class="rongcloud-audioTimer">{{msg.duration}}”</span><span class="rongcloud-audioState" ng-show="msg.isUnReade"></span></div>' +
         '</span>' +
         '</div>' +
         '</div>',
@@ -254,9 +259,9 @@ conversationDirective.directive("locationmessage", [function() {
         restrict: "E",
         scope: { msg: "=" },
         template: '<div class="">' +
-        '<div class="Message-map">' +
-        '<span class="Message-entry" style="">' +
-        '<div class="mapBox">' +
+        '<div class="rongcloud-Message-map">' +
+        '<span class="rongcloud-Message-entry" style="">' +
+        '<div class="rongcloud-mapBox">' +
         '<img ng-src="{{msg.content}}" alt="">' +
         '<span>{{msg.poi}}</span>' +
         '</div>' +
@@ -271,11 +276,11 @@ conversationDirective.directive("richcontentmessage", [function() {
         restrict: "E",
         scope: { msg: "=" },
         template: '<div class="">' +
-        '<div class="Message-image-text">' +
-        '<span class="Message-entry" style="">' +
-        '<div class="image-textBox">' +
+        '<div class="rongcloud-Message-image-text">' +
+        '<span class="rongcloud-Message-entry" style="">' +
+        '<div class="rongcloud-image-textBox">' +
         '<h4>{{msg.title}}</h4>' +
-        '<div class="cont clearfix">' +
+        '<div class="rongcloud-cont rongcloud-clearfix">' +
         '<img ng-src="{{msg.imageUri}}" alt="">' +
         '<div>{{msg.content}}</div>' +
         '</div>' +

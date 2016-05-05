@@ -22,19 +22,20 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
 
     WebIMWidget.init({
       appkey: "3argexb6r934e",
-      token: "tt8zu08SKMJxrv4Y0ymvoJUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcVjEEwGrOODdblCL+ZfLmCJg2Mh5WIasRw==",
+      // token: "tt8zu08SKMJxrv4Y0ymvoJUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcVjEEwGrOODdblCL+ZfLmCJg2Mh5WIasRw==",
+      token:"97OXpNS6Qh3097Db8bhFb5UnU/cREmEFuMhOJuGv5bPlXUSQuAsZcQYznanerk1j0KCcGO+n3Y+2SPAaFF5a9A==",
+      voiceUrl:'../widget/images/sms-received.mp3',
+      desktopNotification:false,
       style:{
           right:10
       },
       onSuccess:function(){
-          WebIMWidget.setConversation("4", "cc", "呵呵");
+          WebIMWidget.setConversation(1, "cc", "呵呵");
       },
       onError:function(error){
         console.log("error:"+error);
       }
     });
-
-    WebIMWidget.show();
 
     WebIMWidget.setUserInfoProvider(function(targetId,obj){
         obj.onSuccess({name:"陌："+targetId});
@@ -51,7 +52,6 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
       console.log("已关闭");
     }
 
-    WebIMWidget.show();
 
 
   });

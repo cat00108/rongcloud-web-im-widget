@@ -50,10 +50,16 @@ declare var Notification: {
     requestPermission(fun: any): void
     permission: any
 }
+interface JQueryStatic {
+    rebox: any
+    nicescroll: any
+}
 interface JQuery {
     rebox(target: any): JQuery
     niceScroll(config: any): any
 }
+
+declare var jQuery: JQueryStatic
 
 declare var Qiniu: Qiniu;
 

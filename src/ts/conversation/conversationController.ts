@@ -32,6 +32,7 @@ conversationController.controller("conversationController", ["$scope",
 
         $scope.WebIMWidget = WebIMWidget;
         $scope.widgetConfig = widgetConfig;
+        console.log(widgetConfig)
         $scope.conversationServer = conversationServer;
         $scope._inputPanelState = WidgetModule.InputPanelType.person;
 
@@ -69,8 +70,9 @@ conversationController.controller("conversationController", ["$scope",
         $scope.$watch("showSelf", function(newVal: string, oldVal: string) {
             if (newVal === oldVal)
                 return;
-            if (newVal) {
+            if (newVal && conversationServer._uploadToken) {
                 uploadFileRefresh();
+                console.log("showSelf")
             } else {
                 qiniuuploader && qiniuuploader.destroy();
             }
@@ -79,8 +81,9 @@ conversationController.controller("conversationController", ["$scope",
         $scope.$watch("_inputPanelState", function(newVal: any, oldVal: any) {
             if (newVal === oldVal)
                 return;
-            if (newVal == WidgetModule.InputPanelType.person) {
+            if (newVal == WidgetModule.InputPanelType.person && conversationServer._uploadToken) {
                 uploadFileRefresh();
+                console.log("_inputPanelState")
             } else {
                 qiniuuploader && qiniuuploader.destroy();
             }
@@ -123,12 +126,10 @@ conversationController.controller("conversationController", ["$scope",
             conversationServer.current = conversation;
             $scope.currentConversation = conversation;
 
-
-            //TODO:获取历史消息
-
             conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || []
 
             var currenthis = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
+            $scope.messageList = currenthis;
             if (currenthis.length == 0) {
                 conversationServer._getHistoryMessages(+conversation.targetType, conversation.targetId, 3).then(function(data) {
                     $scope.messageList = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId];
@@ -141,10 +142,9 @@ conversationController.controller("conversationController", ["$scope",
                     }
                 });
             } else {
-                $scope.messageList = currenthis;
+                adjustScrollbars();
             }
 
-            //TODO:获取草稿
             $scope.currentConversation.messageContent = RongIMLib.RongIMClient.getInstance().getTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId) || "";
             setTimeout(function() {
                 $scope.$apply();
@@ -304,7 +304,7 @@ conversationController.controller("conversationController", ["$scope",
         }
 
         function addCustomService(msg: WidgetModule.Message) {
-            if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content) {
+            if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
                 if (conversationServer._customService.currentType == "1") {
                     msg.content.userInfo = {
                         name: conversationServer._customService.human.name || "客服人员",
@@ -315,6 +315,11 @@ conversationController.controller("conversationController", ["$scope",
                         name: conversationServer._customService.robotName,
                         portraitUri: conversationServer._customService.robotIcon,
                     }
+                }
+            } else if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.SEND) {
+                msg.content.userInfo = {
+                    name: "我",
+                    portraitUri: conversationServer.loginUser.portraitUri
                 }
             }
             return msg;
@@ -343,7 +348,7 @@ conversationController.controller("conversationController", ["$scope",
             ret.senderUserId = conversationServer.loginUser.id;
 
             ret.messageDirection = RongIMLib.MessageDirection.SEND;
-            ret.sentTime = (new Date()).getTime() - RongIMLib.RongIMClient.getInstance().getDeltaTime();
+            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
             ret.messageType = messageType;
 
             return ret;
@@ -359,7 +364,7 @@ conversationController.controller("conversationController", ["$scope",
             ret.senderUserId = $scope.currentConversation.targetId;
 
             ret.messageDirection = RongIMLib.MessageDirection.RECEIVE;
-            ret.sentTime = (new Date()).getTime() - RongIMLib.RongIMClient.getInstance().getDeltaTime();
+            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
             ret.messageType = messageType;
 
             return ret;
@@ -473,17 +478,23 @@ conversationController.controller("conversationController", ["$scope",
 
             msg.user = userinfo;
 
-            RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, msg, {
-                onSuccess: function(retMessage: RongIMLib.Message) {
+            try {
+                RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, msg, {
+                    onSuccess: function(retMessage: RongIMLib.Message) {
 
-                    conversationListServer.updateConversations().then(function() {
+                        conversationListServer.updateConversations().then(function() {
 
-                    });
-                },
-                onError: function(error) {
-                    console.log(error);
-                }
-            });
+                        });
+                    },
+                    onError: function(error) {
+                        console.log(error);
+                    }
+                });
+
+            } catch (e) {
+                console.log(e);
+            }
+
 
             var content = packDisplaySendMessage(msg, WidgetModule.MessageType.TextMessage);
 
@@ -520,7 +531,7 @@ conversationController.controller("conversationController", ["$scope",
                 browse_button: 'upload-file',
                 // browse_button: 'upload',
                 container: 'funcPanel',
-                drop_element: 'Messages',
+                drop_element: 'inputMsg',
                 max_file_size: '100mb',
                 // flash_swf_url: 'js/plupload/Moxie.swf',
                 dragdrop: true,
@@ -531,7 +542,7 @@ conversationController.controller("conversationController", ["$scope",
                 get_new_uptoken: false,
                 // unique_names: true,
                 filters: {
-                    mime_types: [{ title: "Image files", extensions: "jpg,gif,png" }],
+                    mime_types: [{ title: "Image files", extensions: "jpg,gif,png,jpeg,bmp" }],
                     prevent_duplicates: false
                 },
                 multi_selection: false,
@@ -544,17 +555,16 @@ conversationController.controller("conversationController", ["$scope",
                     'UploadProgress': function(up: any, file: any) {
                     },
                     'UploadComplete': function() {
-                        updateUploadToken();
                     },
                     'FileUploaded': function(up: any, file: any, info: any) {
                         if (!$scope.currentConversation.targetId || !$scope.currentConversation.targetType) {
                             alert("请先选择一个会话目标。")
                             return;
                         }
+                        info = info.replace(/'/g, "\"");
                         info = JSON.parse(info);
                         RongIMLib.RongIMClient.getInstance().getFileUrl(RongIMLib.FileType.IMAGE, info.name, {
                             onSuccess: function(url) {
-
                                 WidgetModule.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function(obj: any, data: any) {
                                     var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
 
@@ -572,6 +582,8 @@ conversationController.controller("conversationController", ["$scope",
                                     conversationServer._addHistoryMessages(WidgetModule.Message.convert(content));
                                     $scope.$apply();
                                     adjustScrollbars();
+
+                                    updateUploadToken();
                                 })
 
                             },
@@ -581,6 +593,7 @@ conversationController.controller("conversationController", ["$scope",
                         });
                     },
                     'Error': function(up: any, err: any, errTip: any) {
+                        console.log(err);
                         updateUploadToken();
                     }
                     // ,
