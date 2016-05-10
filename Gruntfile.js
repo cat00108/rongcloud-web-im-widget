@@ -106,7 +106,7 @@ module.exports = function(grunt) {
             src:[
               // './bower_components/jquery/dist/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
-              // './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
+              './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
               './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
             dest:'./build/main.js'
@@ -125,7 +125,7 @@ module.exports = function(grunt) {
             src:[
               // './bower_components/jquery/dist/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
-              // './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
+              './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
             './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
             dest:'./dist/main.js'
@@ -159,8 +159,6 @@ module.exports = function(grunt) {
         dest:'./dist/css/conversation.min.css',
       }
     },
-    im-token
-    im-token-rand
     ngtemplates: {
       app: {
         src: ["./src/ts/**/*.tpl.html"],

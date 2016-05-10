@@ -21,8 +21,8 @@
                         <div class="rongcloud-type2" ng-show="type==2">
                             <h4>&nbsp;&nbsp;是否解决了您的问题 ？</h4>
                             <div class="rongcloud-layerPanel1">
-                                <a class="rongcloud-rong-btn rongcloud-btnY" ng-class="{'cur':data.value===true}" href="javascript:void(0);" ng-click="confirm(true)">是</a>
-                                <a class="rongcloud-rong-btn rongcloud-btnN" ng-class="{'cur':data.value===false}" href="javascript:void(0);" ng-click="confirm(false)">否</a>
+                                <a class="rongcloud-rong-btn rongcloud-btnY" ng-class="{'rongcloud-cur':data.value===true}" href="javascript:void(0);" ng-click="confirm(true)">是</a>
+                                <a class="rongcloud-rong-btn rongcloud-btnN" ng-class="{'rongcloud-cur':data.value===false}" href="javascript:void(0);" ng-click="confirm(false)">否</a>
                             </div>
                         </div>
 
@@ -30,7 +30,7 @@
                         <div class="rongcloud-layerPanel2" ng-show="displayDescribe">
                             <p>是否有以下情况 ？</p>
                             <div class="rongcloud-labels">
-                                <span ng-repeat="item in labels"><a class="rongcloud-rong-btn" ng-class="{'cur':data.label==item}" ng-click="data.label=item" href="">{{item}}</a></span>
+                                <span ng-repeat="item in labels"><a class="rongcloud-rong-btn" ng-class="{'rongcloud-cur':data.label==item}" ng-click="data.label=item" href="">{{item}}</a></span>
                                 <!-- <a class="rongcloud-btn" ng-click="" href="">答非所问</a>
                                 <a class="rongcloud-btn" ng-click="" href="">理解能力差</a>
                                 <a class="rongcloud-btn" ng-click="" href="">一问三不知</a>

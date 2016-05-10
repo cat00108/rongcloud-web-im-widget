@@ -53,6 +53,8 @@
 .rongcloud-container * {
     padding: 0;
     margin: 0;
+    font-size: 14px;
+    font-weight: 400;
 }
 
 /*body,h1,h2,h3,h4,html,img,li,p,pre,ul {
@@ -151,6 +153,11 @@ ul {
     background: url("../images/icon.png") 0 0/50px auto no-repeat;
     display: inline-block;
 }
+.rongcloud-sprite-kefu{
+    background: url("../images/kefuicon.png") 0 0/50px auto no-repeat;
+    background-size: 20px 20px;
+    margin-right: 4px;
+}
 .rongcloud-blueBg{
     background: url(../images/webBg.png) 0 0/10px auto repeat;
 }
@@ -158,8 +165,11 @@ ul {
     /*position: fixed;*/
     z-index: 999;
     box-sizing: border-box;
-    height: 50px;
-    width: 195px;
+    /*height: 50px;
+    width: 195px;*/
+    height: 43px;
+    width:143px;
+
     bottom: 0px;
     text-align: center;
     border-radius: 4px 4px 0px 0px;
@@ -179,7 +189,8 @@ ul {
     margin: 0;
     padding: 0;
     border: none;
-    line-height: 49px;
+    /*line-height: 49px;*/
+    line-height: 41px;
     float: none;
     text-decoration: none !important;
 }
@@ -631,6 +642,7 @@ ul {
     opacity: 1;
     overflow: hidden;
     z-index: 99999;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 2px;
 }
 .rongcloud-kefuChatBox.rongcloud-fullScreen{
     width: 100%!important;
@@ -647,13 +659,14 @@ ul {
     transform: translateX(-45px);
 }
 .rongcloud-kefuChat{
-    border: 1px solid #cdd7db;
+    /*border: 1px solid #cdd7db;*/
     position: absolute;
     top:0px;
     left: 0px;
     right: 0px;
     bottom: 0px;
     border-radius: 5px 5px 5px 5px;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 2px;
 }
 .rongcloud-kefuChat .rongcloud-rong-header{
     height: 36px;
@@ -679,7 +692,7 @@ ul {
 }
 .rongcloud-kefuChat .rongcloud-rong-header .rongcloud-kefuName{
     color: #fff;
-    padding-left: 33px;
+    padding-left: 16px;
 }
 .rongcloud-kefuChat .rongcloud-rong-header .rongcloud-toolBar{
     margin-right: 10px;
@@ -702,13 +715,13 @@ ul {
     background-position: 0 -291px;
 }
 #Messages {
-    background-color: #f9fbfd;
     width: 100%;
     overflow: auto;
-    padding: 30px 20px;
+    padding: 8px 16px;
     position: absolute;
     top:36px;
     bottom: 114px;
+    background-color: white;
 }
 
 #Messages.rongcloud-empty .rongcloud-emptyBox {
@@ -810,6 +823,7 @@ ul {
     word-wrap: break-word;
     word-break: break-all;
     border-spacing: 1px;
+    margin-bottom: 20px;
 }
 
 .rongcloud-Message-header {
@@ -1074,6 +1088,8 @@ ul {
     left:0px;
     right: 0px;
     border-radius: 0px 0px 5px 5px;
+    /*border: 1px solid #cdd7db;
+    border-top: none;*/
 }
 .rongcloud-fullScreen .rongcloud-rong-footer {
     position: fixed;
@@ -1103,6 +1119,7 @@ ul {
 }
 .rongcloud-funcPanel .rongcloud-mode2 a{
     color: #0099ff;
+    font-size: 12px;
 }
 .rongcloud-robotMode {
     display: block;
@@ -1851,6 +1868,7 @@ ul {
     font-size: 0;
     text-align: center;
     border-top: 1px solid #EBEBEB;
+    display: none;
 }
 .rongcloud-layermbtn:before {
     content: '|';
