@@ -9,7 +9,7 @@ conversationListDir.directive("rongConversationList", [function() {
         templateUrl: "./src/ts/conversationlist/conversationList.tpl.html",
         controller: "conversationListController",
         link: function(scope: any, ele: angular.IRootElementService) {
-            if (jQuery && jQuery.nicescroll) {
+            if (window["jQuery"] && window["jQuery"].nicescroll) {
                 $(ele).find(".rongcloud-content").niceScroll({
                     'cursorcolor': "#0099ff",
                     'cursoropacitymax': 1,

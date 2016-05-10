@@ -9,7 +9,7 @@ conversationDirective.directive("rongConversation", [function() {
         templateUrl: "./src/ts/conversation/template.tpl.html",
         controller: "conversationController",
         link: function(scope: any, ele: angular.IRootElementService) {
-            if (jQuery && jQuery.nicescroll) {
+            if (window["jQuery"] && window["jQuery"].nicescroll) {
                 $("#Messages").niceScroll({
                     'cursorcolor': "#0099ff",
                     'cursoropacitymax': 1,
@@ -177,7 +177,7 @@ conversationDirective.directive("imagemessage", [function() {
         '<span id="{{\'rebox_\'+$id}}"  class="rongcloud-Message-entry" style="">' +
         // '<p>发给您一张示意图</p>' +
         // '<img ng-src="{{msg.content}}" alt="">' +
-        '<a href="{{msg.imageUri}}"><img ng-src="{{msg.content}}"  data-image="{{msg.imageUri}}" alt=""/></a>' +
+        '<a href="{{msg.imageUri}}" target="_black"><img ng-src="{{msg.content}}"  data-image="{{msg.imageUri}}" alt=""/></a>' +
         '</span>' +
         '</div>' +
         '</div>',
@@ -185,7 +185,7 @@ conversationDirective.directive("imagemessage", [function() {
             var img = new Image();
             img.src = scope.msg.imageUri;
             setTimeout(function() {
-                if (jQuery && jQuery.rebox) {
+                if (window["jQuery"] && window["jQuery"].rebox) {
                     $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999 }).bind("rebox:open", function() {
                         //jQuery rebox 点击空白关闭
                         var rebox = <any>document.getElementsByClassName("rebox")[0];

@@ -17,11 +17,13 @@ kefu.service("RongKefu", ["WebIMWidget", function(WebIMWidget: WebIMWidget) {
             if (config.position == KefuPostion.left) {
                 style = {
                     left: 20,
+                    width:325,
                     positionFixed: true
                 };
             } else {
                 style = {
                     right: 20,
+                    width:325,
                     positionFixed: true
                 };
             }

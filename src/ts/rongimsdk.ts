@@ -63,8 +63,10 @@ SDKServer.factory("RongIMSDKServer", ["$q", function($q: angular.IQService) {
     RongIMSDKServer.sendReadReceiptMessage = function(targetId: string, type: number) {
         RongIMLib.RongIMClient.getInstance().getConversation(Number(type), targetId, {
             onSuccess: function(data) {
-                var read = RongIMLib.ReadReceiptMessage.obtain(data.latestMessage.messageUId, data.latestMessage.sentTime, "1");
-                RongIMSDKServer.sendMessage(type, targetId, read);
+                if(data){
+                  var read = RongIMLib.ReadReceiptMessage.obtain(data.latestMessage.messageUId, data.latestMessage.sentTime, "1");
+                  RongIMSDKServer.sendMessage(type, targetId, read);
+                }
             },
             onError: function() {
 
