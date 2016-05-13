@@ -32,7 +32,6 @@ conversationController.controller("conversationController", ["$scope",
 
         $scope.WebIMWidget = WebIMWidget;
         $scope.widgetConfig = widgetConfig;
-        console.log(widgetConfig)
         $scope.conversationServer = conversationServer;
         $scope._inputPanelState = WidgetModule.InputPanelType.person;
 
@@ -55,7 +54,7 @@ conversationController.controller("conversationController", ["$scope",
             if (newVal === oldVal)
                 return;
             if (!$scope.emojiList || $scope.emojiList.length == 0) {
-                $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 84);
+                $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 77);
             }
         });
 
@@ -72,7 +71,6 @@ conversationController.controller("conversationController", ["$scope",
                 return;
             if (newVal && conversationServer._uploadToken) {
                 uploadFileRefresh();
-                console.log("showSelf")
             } else {
                 qiniuuploader && qiniuuploader.destroy();
             }
@@ -83,7 +81,6 @@ conversationController.controller("conversationController", ["$scope",
                 return;
             if (newVal == WidgetModule.InputPanelType.person && conversationServer._uploadToken) {
                 uploadFileRefresh();
-                console.log("_inputPanelState")
             } else {
                 qiniuuploader && qiniuuploader.destroy();
             }
@@ -152,7 +149,6 @@ conversationController.controller("conversationController", ["$scope",
         }
 
 
-
         conversationServer.onReceivedMessage = function(msg: WidgetModule.Message) {
             // $scope.messageList.splice(0, $scope.messageList.length);
             if ($scope.currentConversation && msg.targetId == $scope.currentConversation.targetId && msg.conversationType == $scope.currentConversation.targetType) {
@@ -182,7 +178,6 @@ conversationController.controller("conversationController", ["$scope",
                         setTimeout(function() {
                             $scope.evaluate.valid = true;
                         }, 60 * 1000);
-
                         break;
                     case WidgetModule.MessageType.ChangeModeResponseMessage:
                         switch (msg.content.data.status) {
@@ -304,6 +299,9 @@ conversationController.controller("conversationController", ["$scope",
         }
 
         function addCustomService(msg: WidgetModule.Message) {
+            if(msg.content.userInfo){
+                return;
+            }
             if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
                 if (conversationServer._customService.currentType == "1") {
                     msg.content.userInfo = {

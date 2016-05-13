@@ -198,7 +198,6 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
 
             RongIMSDKServer.connect(defaultconfig.token).then(function(userId) {
                 conversationListServer.updateConversations();
-                console.log("connect success:" + userId);
                 if (WidgetModule.Helper.checkType(defaultconfig.onSuccess) == "function") {
                     defaultconfig.onSuccess(userId);
                 }

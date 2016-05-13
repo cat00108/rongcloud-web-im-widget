@@ -19,9 +19,9 @@
                 </div>
             </div>
                 <!-- outline -->
-                <div class="rongcloud-outlineBox rongcloud-hide">
+                <div class="rongcloud-outlineBox" ng-hide="connected">
                     <div class="rongcloud-sprite"></div>
-                    <span>网络连接断开</span>
+                    <span>连接断开,请刷新重连</span>
                 </div>
                 <div id="Messages" class="" >
                     <!-- empty -->
@@ -38,10 +38,9 @@
                             <div class="rongcloud-Message" ng-switch-when="1">
                                 <div class="rongcloud-Messages-unreadLine"></div>
                                 <div>
-                                    <div class="rongcloud-Message-header"><img class="rongcloud-img rongcloud-u-isActionable rongcloud-Message-avatar rongcloud-avatar" ng-src="{{item.content.userInfo.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/usericon.png" errSrcserasdfasdfasdfa alt="">
+                                    <div class="rongcloud-Message-header"><img class="rongcloud-img rongcloud-u-isActionable rongcloud-Message-avatar rongcloud-avatar" ng-src="{{item.content.userInfo.portraitUri||item.content.userInfo.icon}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png" errSrcserasdfasdfasdfa alt="">
                                         <div class="rongcloud-Message-author rongcloud-clearfix">
                                           <a class="rongcloud-author rongcloud-u-isActionable">{{item.content.userInfo.name}}</a>
-                                          <span>{{item.content.userInfo.id}}</span>
                                         </div>
                                     </div>
                                 </div>
