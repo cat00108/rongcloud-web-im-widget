@@ -184,6 +184,8 @@ ul {
     /*transition: all 0.3s ease-in-out 0.1s;*/
     /*position: fixed;*/
     background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 2px;
+    border-radius: 5px;
 }
 #zhichiBtnBox .rongcloud-people{
     background-position: 0 -411px;
@@ -195,7 +197,7 @@ ul {
 }
 
 .rongcloud-kefuListBox .rongcloud-kefuList{
-    border: 1px solid #cdd7db;
+    /*border: 1px solid #cdd7db;*/
     /*border-bottom: none;*/
     /*border-radius: 5px 5px 0px 0px;*/
     overflow: hidden;

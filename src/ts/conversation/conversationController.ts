@@ -208,7 +208,7 @@ conversationController.controller("conversationController", ["$scope",
                     case WidgetModule.MessageType.TerminateMessage:
                         //关闭客服
                         if (msg.content.code == 0) {
-                            $scope.evaluate.CSTerminate = true;
+                            $scope.evaluate.valid = true;
                             $scope.close();
                         } else {
                             if (conversationServer._customService.type == "1") {
@@ -299,7 +299,7 @@ conversationController.controller("conversationController", ["$scope",
         }
 
         function addCustomService(msg: WidgetModule.Message) {
-            if(msg.content.userInfo){
+            if (!msg.content || msg.content.userInfo) {
                 return;
             }
             if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
@@ -388,7 +388,6 @@ conversationController.controller("conversationController", ["$scope",
             type: 1,
             showevaluate: false,
             valid: false,
-            CSTerminate: false,
             onConfirm: function(data) {
                 //发评价
                 if (data) {
@@ -578,8 +577,9 @@ conversationController.controller("conversationController", ["$scope",
                                         }
                                     })
                                     conversationServer._addHistoryMessages(WidgetModule.Message.convert(content));
-                                    $scope.$apply();
-                                    adjustScrollbars();
+                                    $scope.$apply(function() {
+                                        adjustScrollbars();
+                                    });
 
                                     updateUploadToken();
                                 })

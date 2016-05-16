@@ -485,7 +485,7 @@ conversationController.controller("conversationController", ["$scope",
                     case WidgetModule.MessageType.TerminateMessage:
                         //关闭客服
                         if (msg.content.code == 0) {
-                            $scope.evaluate.CSTerminate = true;
+                            $scope.evaluate.valid = true;
                             $scope.close();
                         }
                         else {
@@ -565,7 +565,7 @@ conversationController.controller("conversationController", ["$scope",
             });
         };
         function addCustomService(msg) {
-            if (msg.content.userInfo) {
+            if (!msg.content || msg.content.userInfo) {
                 return;
             }
             if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
@@ -647,7 +647,6 @@ conversationController.controller("conversationController", ["$scope",
             type: 1,
             showevaluate: false,
             valid: false,
-            CSTerminate: false,
             onConfirm: function (data) {
                 //发评价
                 if (data) {
@@ -815,8 +814,9 @@ conversationController.controller("conversationController", ["$scope",
                                         }
                                     });
                                     conversationServer._addHistoryMessages(WidgetModule.Message.convert(content));
-                                    $scope.$apply();
-                                    adjustScrollbars();
+                                    $scope.$apply(function () {
+                                        adjustScrollbars();
+                                    });
                                     updateUploadToken();
                                 });
                             },
@@ -1005,12 +1005,12 @@ conversationDirective.directive("imagemessage", [function () {
                 img.src = scope.msg.imageUri;
                 setTimeout(function () {
                     if (window["jQuery"] && window["jQuery"].rebox) {
-                        $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999 }).bind("rebox:open", function () {
+                        $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rongcloud-rebox" }).bind("rebox:open", function () {
                             //jQuery rebox 点击空白关闭
-                            var rebox = document.getElementsByClassName("rebox")[0];
+                            var rebox = document.getElementsByClassName("rongcloud-rebox")[0];
                             rebox.onclick = function (e) {
                                 if (e.target.tagName.toLowerCase() != "img") {
-                                    var rebox_close = document.getElementsByClassName("rebox-close")[0];
+                                    var rebox_close = document.getElementsByClassName("rongcloud-rebox-close")[0];
                                     rebox_close.click();
                                     rebox = null;
                                     rebox_close = null;
@@ -1271,7 +1271,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
                 '</p>' +
                 '</div>' +
                 '<div class="rongcloud-photo">' +
-                '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
+                '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png" alt="">' +
                 '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
                 '</div>' +
                 '<div class="rongcloud-info">' +
@@ -1375,7 +1375,7 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata", "wi
                         });
                     }
                     else {
-                        RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function (conv) {
+                        conversationServer.current && RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function (conv) {
                             if (conv && conv.unreadMessageCount) {
                                 providerdata.totalUnreadCount = conv.unreadMessageCount || 0;
                                 defer.resolve();
@@ -1427,6 +1427,7 @@ evaluate.directive("evaluatedir", ["$timeout", function ($timeout) {
             link: function (scope, ele) {
                 var stars = [false, false, false, false, false];
                 var labels = ["答非所问", "理解能力差", "一问三不知", "不礼貌"];
+                var enterStars = false;
                 scope.stars = stars.concat();
                 scope.labels = labels.concat();
                 scope.end = false;
@@ -1442,6 +1443,7 @@ evaluate.directive("evaluatedir", ["$timeout", function ($timeout) {
                         return;
                     }
                     else {
+                        enterStars = false;
                         scope.displayDescribe = false;
                         scope.data = {
                             stars: 0,
@@ -1451,8 +1453,12 @@ evaluate.directive("evaluatedir", ["$timeout", function ($timeout) {
                         };
                     }
                 });
+                scope.mousehover = function (data) {
+                    !enterStars && (scope.data.stars = data);
+                };
                 scope.confirm = function (data) {
                     if (data != undefined) {
+                        enterStars = true;
                         if (scope.type == 1) {
                             scope.data.stars = data;
                             if (scope.data.stars != 5) {
@@ -1506,7 +1512,9 @@ evaluate.directive("evaluatedir", ["$timeout", function ($timeout) {
 var kefu = angular.module("RongCloudkefu", ["RongWebIMWidget"]);
 kefu.service("RongKefu", ["WebIMWidget", function (WebIMWidget) {
         var kefuServer = {};
-        var defaultconfig = {};
+        var defaultconfig = {
+            __isKefu: true
+        };
         kefuServer.init = function (config) {
             angular.extend(defaultconfig, config);
             kefuServer._config = config;
@@ -1529,6 +1537,8 @@ kefu.service("RongKefu", ["WebIMWidget", function (WebIMWidget) {
                     };
                 }
             }
+            style.width = defaultconfig.style.width;
+            style.height = defaultconfig.style.height;
             defaultconfig.style = style;
             WebIMWidget.init(defaultconfig);
             WebIMWidget.onShow = function () {
@@ -1599,7 +1609,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
     function ($q, conversationServer, conversationListServer, providerdata, widgetConfig, RongIMSDKServer) {
         var WebIMWidget = {};
         var messageList = {};
-        var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195;
+        var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195, spacing = 3;
         var defaultconfig = {
             displayMinButton: true,
             conversationListPosition: WidgetModule.EnumConversationListPosition.left,
@@ -1633,9 +1643,17 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             else {
                 defaultconfig.voiceNotification = false;
             }
+            widgetConfig.displayConversationList = defaultconfig.displayConversationList;
+            widgetConfig.displayMinButton = defaultconfig.displayMinButton;
+            widgetConfig.reminder = defaultconfig.reminder;
+            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
+            widgetConfig.__isKefu = defaultconfig.__isKefu;
             var eleconversation = document.getElementById("rong-conversation");
             var eleconversationlist = document.getElementById("rong-conversation-list");
             var eleminbtn = document.getElementById("rong-widget-minbtn");
+            if (defaultconfig.__isKefu) {
+                var eleminbtn = document.getElementById("rong-widget-minbtn-kefu");
+            }
             if (defaultStyle) {
                 eleconversation.style["height"] = defaultStyle.height + "px";
                 eleconversation.style["width"] = defaultStyle.width + "px";
@@ -1657,24 +1675,24 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         if (!isNaN(defaultStyle.left)) {
                             eleconversationlist.style["left"] = defaultStyle.left + "px";
                             eleminbtn.style["left"] = defaultStyle.left + "px";
-                            eleconversation.style["left"] = defaultStyle.left + eleConversationListWidth + "px";
+                            eleconversation.style["left"] = defaultStyle.left + eleConversationListWidth + spacing + "px";
                         }
                         if (!isNaN(defaultStyle.right)) {
-                            eleconversationlist.style["right"] = defaultStyle.right + defaultStyle.width + "px";
-                            eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width + "px";
+                            eleconversationlist.style["right"] = defaultStyle.right + defaultStyle.width + spacing + "px";
+                            eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width + spacing + "px";
                             eleconversation.style["right"] = defaultStyle.right + "px";
                         }
                     }
                     else if (defaultconfig.conversationListPosition == WidgetModule.EnumConversationListPosition.right) {
                         if (!isNaN(defaultStyle.left)) {
-                            eleconversationlist.style["left"] = defaultStyle.left + defaultStyle.width + "px";
-                            eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width + "px";
+                            eleconversationlist.style["left"] = defaultStyle.left + defaultStyle.width + spacing + "px";
+                            eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width + spacing + "px";
                             eleconversation.style["left"] = defaultStyle.left + "px";
                         }
                         if (!isNaN(defaultStyle.right)) {
                             eleconversationlist.style["right"] = defaultStyle.right + "px";
                             eleminbtn.style["right"] = defaultStyle.right + "px";
-                            eleconversation.style["right"] = defaultStyle.right + eleConversationListWidth + "px";
+                            eleconversation.style["right"] = defaultStyle.right + eleConversationListWidth + spacing + "px";
                         }
                     }
                     else {
@@ -1707,10 +1725,6 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
             if (defaultconfig.displayMinButton == false) {
                 eleminbtn.style["display"] = "none";
             }
-            widgetConfig.displayConversationList = defaultconfig.displayConversationList;
-            widgetConfig.displayMinButton = defaultconfig.displayMinButton;
-            widgetConfig.reminder = defaultconfig.reminder;
-            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
             RongIMSDKServer.init(defaultconfig.appkey);
             RongIMSDKServer.connect(defaultconfig.token).then(function (userId) {
                 conversationListServer.updateConversations();
@@ -2789,12 +2803,12 @@ angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache
 
 
   $templateCache.put('./src/ts/evaluate/evaluate.tpl.html',
-    "<div class=rongcloud-layermbox ng-show=display><div class=rongcloud-laymshade></div><div class=rongcloud-layermmain><div class=rongcloud-section><div class=rongcloud-layermchild ng-show=!end><div class=rongcloud-layermcont><div class=rongcloud-type1 ng-show=\"type==1\"><h4>&nbsp;评价客服</h4><div class=rongcloud-layerPanel1><div class=rongcloud-star><span ng-repeat=\"item in stars track by $index\"><span ng-class=\"{'rongcloud-star-on':$index<data.stars,'rongcloud-star-off':$index>=data.stars}\" ng-click=confirm($index+1)></span></span></div></div></div><div class=rongcloud-type2 ng-show=\"type==2\"><h4>&nbsp;&nbsp;机器人是否解决了您的问题 ？</h4><div class=rongcloud-layerPanel1><a class=\"rongcloud-rong-btn rongcloud-btnY\" ng-class=\"{'rongcloud-cur':data.value===true}\" href=javascript:void(0); ng-click=confirm(true)>是</a> <a class=\"rongcloud-rong-btn rongcloud-btnN\" ng-class=\"{'rongcloud-cur':data.value===false}\" href=javascript:void(0); ng-click=confirm(false)>否</a></div></div><div class=rongcloud-layerPanel2 ng-show=displayDescribe><p>是否有以下情况 ？</p><div class=rongcloud-labels><span ng-repeat=\"item in labels\"><a class=rongcloud-rong-btn ng-class=\"{'rongcloud-cur':data.label==item}\" ng-click=\"data.label=item\" href=\"\">{{item}}</a></span></div><div class=rongcloud-suggestBox><textarea name=\"\" placeholder=欢迎给我们的服务提建议~ ng-model=data.describe></textarea></div><div class=rongcloud-subBox><a class=rongcloud-rong-btn href=\"\" ng-click=commit()>提交评价</a></div></div></div><div class=rongcloud-layermbtn><span ng-click=confirm()>跳过</span><span ng-click=cancle()>取消</span></div></div><div class=\"rongcloud-layermchild rongcloud-feedback\" ng-show=end><div class=rongcloud-layermcont>感谢您的反馈 ^ - ^ ！</div></div></div></div></div>"
+    "<div class=rongcloud-layermbox ng-show=display><div class=rongcloud-laymshade></div><div class=rongcloud-layermmain><div class=rongcloud-section><div class=rongcloud-layermchild ng-show=!end><div class=rongcloud-layermcont><div class=rongcloud-type1 ng-show=\"type==1\"><h4>&nbsp;评价客服</h4><div class=rongcloud-layerPanel1><div class=rongcloud-star><span ng-repeat=\"item in stars track by $index\"><span ng-class=\"{'rongcloud-star-on':$index<data.stars,'rongcloud-star-off':$index>=data.stars}\" ng-click=confirm($index+1) ng-mouseenter=mousehover($index+1) ng-mouseleave=mousehover(0)></span></span></div></div></div><div class=rongcloud-type2 ng-show=\"type==2\"><h4>&nbsp;&nbsp;机器人是否解决了您的问题 ？</h4><div class=rongcloud-layerPanel1><a class=\"rongcloud-rong-btn rongcloud-btnY\" ng-class=\"{'rongcloud-cur':data.value===true}\" href=javascript:void(0); ng-click=confirm(true)>是</a> <a class=\"rongcloud-rong-btn rongcloud-btnN\" ng-class=\"{'rongcloud-cur':data.value===false}\" href=javascript:void(0); ng-click=confirm(false)>否</a></div></div><div class=rongcloud-layerPanel2 ng-show=displayDescribe><p>是否有以下情况 ？</p><div class=rongcloud-labels><span ng-repeat=\"item in labels\"><a class=rongcloud-rong-btn ng-class=\"{'rongcloud-cur':data.label==item}\" ng-click=\"data.label=item\" href=\"\">{{item}}</a></span></div><div class=rongcloud-suggestBox><textarea name=\"\" placeholder=欢迎给我们的服务提建议~ ng-model=data.describe></textarea></div><div class=rongcloud-subBox><a class=rongcloud-rong-btn href=\"\" ng-click=commit()>提交评价</a></div></div></div><div class=rongcloud-layermbtn><span ng-click=confirm()>跳过</span><span ng-click=cancle()>取消</span></div></div><div class=\"rongcloud-layermchild rongcloud-feedback\" ng-show=end><div class=rongcloud-layermcont>感谢您的反馈 ^ - ^ ！</div></div></div></div></div>"
   );
 
 
   $templateCache.put('./src/ts/main.tpl.html',
-    "<div id=rong-widget-box class=rongcloud-container><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people rongcloud-sprite-kefu\"></div><span class=rongcloud-recent>{{widgetConfig.reminder||\"最近联系人\"}}</span></a></div><audio id=rongcloud-playsound style=\"width: 0px;height: 0px;display: none\" src=\"\" controls></audio></div>"
+    "<div id=rong-widget-box class=rongcloud-container><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent ng-show=\"!data.totalUnreadCount||data.totalUnreadCount==0\">{{widgetConfig.reminder||\"最近联系人\"}}</span> <span class=rongcloud-recent ng-show=\"data.totalUnreadCount>0\"><span ng-show=twinkle>(您有未读消息)</span></span></a></div><div id=rong-widget-minbtn-kefu class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people rongcloud-sprite-kefu\"></div><span class=rongcloud-recent>{{widgetConfig.reminder||\"联系客服\"}}</span></a></div><audio id=rongcloud-playsound style=\"width: 0px;height: 0px;display: none\" src=\"\" controls></audio></div>"
   );
 
 }]);

@@ -9,11 +9,9 @@
                             <h4>&nbsp;评价客服</h4>
                             <div class="rongcloud-layerPanel1">
                                 <div class="rongcloud-star">
-                                  <span ng-repeat="item in stars track by $index" ><span ng-class="{'rongcloud-star-on':$index<data.stars,'rongcloud-star-off':$index>=data.stars}" ng-click="confirm($index+1)"></span></span>
-                                  <!-- <span ng-repeat="item in stars"><img src="images/star_off.png" alt="5" title="5"></span> -->
-                                  <!-- <img src="images/star_on.png" alt="1" title="1">&nbsp;<img src="images/star_on.png" alt="2" title="2">&nbsp;
-                                  <img src="images/star_off.png" alt="3" title="3">&nbsp;<img src="images/star_off.png" alt="4" title="4">&nbsp;
-                                  <img src="images/star_off.png" alt="5" title="5"> -->
+                                  <span ng-repeat="item in stars track by $index" >
+                                    <span ng-class="{'rongcloud-star-on':$index<data.stars,'rongcloud-star-off':$index>=data.stars}" ng-click="confirm($index+1)" ng-mouseenter="mousehover($index+1)" ng-mouseleave="mousehover(0)"></span>
+                                  </span>
                                 </div>
                             </div>
                         </div>

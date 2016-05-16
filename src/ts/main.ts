@@ -60,7 +60,7 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
 
         var messageList = {};
 
-        var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195;
+        var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195, spacing = 3;
 
         var defaultconfig = <Config>{
             displayMinButton: true,
@@ -102,10 +102,22 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 defaultconfig.voiceNotification = false;
             }
 
+
+
+            widgetConfig.displayConversationList = defaultconfig.displayConversationList;
+            widgetConfig.displayMinButton = defaultconfig.displayMinButton;
+            widgetConfig.reminder = defaultconfig.reminder;
+            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
+            widgetConfig.__isKefu = defaultconfig.__isKefu;
+
+
             var eleconversation = document.getElementById("rong-conversation");
             var eleconversationlist = document.getElementById("rong-conversation-list");
 
             var eleminbtn = document.getElementById("rong-widget-minbtn");
+            if (defaultconfig.__isKefu) {
+                var eleminbtn = document.getElementById("rong-widget-minbtn-kefu");
+            }
 
             if (defaultStyle) {
 
@@ -132,27 +144,27 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                         if (!isNaN(defaultStyle.left)) {
                             eleconversationlist.style["left"] = defaultStyle.left + "px";
                             eleminbtn.style["left"] = defaultStyle.left + "px";
-                            eleconversation.style["left"] = defaultStyle.left + eleConversationListWidth + "px";
+                            eleconversation.style["left"] = defaultStyle.left + eleConversationListWidth + spacing  + "px";
                         }
 
                         if (!isNaN(defaultStyle.right)) {
-                            eleconversationlist.style["right"] = defaultStyle.right + defaultStyle.width + "px";
-                            eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width + "px";
+                            eleconversationlist.style["right"] = defaultStyle.right + defaultStyle.width + spacing  + "px";
+                            eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width + spacing  + "px";
                             eleconversation.style["right"] = defaultStyle.right + "px";
                         }
 
 
                     } else if (defaultconfig.conversationListPosition == WidgetModule.EnumConversationListPosition.right) {
                         if (!isNaN(defaultStyle.left)) {
-                            eleconversationlist.style["left"] = defaultStyle.left + defaultStyle.width + "px";
-                            eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width + "px";
+                            eleconversationlist.style["left"] = defaultStyle.left + defaultStyle.width + spacing + "px";
+                            eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width + spacing  + "px";
                             eleconversation.style["left"] = defaultStyle.left + "px";
                         }
 
                         if (!isNaN(defaultStyle.right)) {
                             eleconversationlist.style["right"] = defaultStyle.right + "px";
                             eleminbtn.style["right"] = defaultStyle.right + "px";
-                            eleconversation.style["right"] = defaultStyle.right + eleConversationListWidth + "px";
+                            eleconversation.style["right"] = defaultStyle.right + eleConversationListWidth + spacing  + "px";
                         }
                     } else {
                         throw new Error("config conversationListPosition value is invalid")
@@ -188,11 +200,6 @@ widget.factory("WebIMWidget", ["$q", "conversationServer",
                 eleminbtn.style["display"] = "none";
             }
 
-
-            widgetConfig.displayConversationList = defaultconfig.displayConversationList;
-            widgetConfig.displayMinButton = defaultconfig.displayMinButton;
-            widgetConfig.reminder = defaultconfig.reminder;
-            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
 
             RongIMSDKServer.init(defaultconfig.appkey);
 
@@ -487,6 +494,7 @@ interface widgetConfig {
     config: any
     reminder: string
     voiceNotification: boolean
+    __isKefu: boolean
 }
 
 interface providerdata {
@@ -512,7 +520,7 @@ interface Config {
     voiceNotification?: boolean;
     voiceUrl?: boolean;
     reminder?: string;
-
+    __isKefu?: boolean;
     style?: {
         positionFixed?: boolean;
         height?: number;

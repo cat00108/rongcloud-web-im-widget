@@ -71,7 +71,7 @@ conversationListSer.factory("conversationListServer", ["$q", "providerdata", "wi
                             }
                         });
                     } else {
-                        RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
+                        conversationServer.current && RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
                             if (conv && conv.unreadMessageCount) {
                                 providerdata.totalUnreadCount = conv.unreadMessageCount || 0;
                                 defer.resolve();

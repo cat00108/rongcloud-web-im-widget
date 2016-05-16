@@ -1,27 +1,27 @@
-.rebox { cursor: pointer; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 1000; -webkit-filter: none !important;
+.rongcloud-rebox { cursor: pointer; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 1000; -webkit-filter: none !important;
     background: rgb(0, 0, 0); /* IE Fallback (Solid Colour) */
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGDYDMRkA8ZRAxhGw4BhNAyA+WAYpAMAIFgLQfO9BoEAAAAASUVORK5CYII=);
     background: rgba(0, 0, 0, 0.7); }
-.rebox *{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; -ms-box-sizing: border-box; -o-box-sizing: border-box; box-sizing: border-box; padding: 0; margin: 0; }
-.rebox-contents { position: absolute; top: 5%; left: 5%; text-align: center; width: 90%; height: 90%; }
-.rebox-contents .rebox-content { border: 5px solid #fff; box-shadow: 0 0 20px #000; border-radius: 1px; max-width: 100%; max-height: 100%; }
-.rebox-loading { width: 31px; height: 31px; margin: -16px 0 0 -16px; position: absolute; top: 48%; left: 50%; }
-.rebox-caption { display: none; position: absolute; left: 0; bottom: 0; width: 100%; text-align: center; z-index: 1000; background: #000; background: rgba(0,0,0,0.7); }
-.rebox-caption p { margin: 0 auto; max-width: 70%; display: inline-block; *display: inline; *zoom: 1; padding: 10px; color: #fff; font-size: 12px; line-height: 18px; }
+.rongcloud-rebox *{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; -ms-box-sizing: border-box; -o-box-sizing: border-box; box-sizing: border-box; padding: 0; margin: 0; }
+.rongcloud-rebox-contents { position: absolute; top: 5%; left: 5%; text-align: center; width: 90%; height: 90%; }
+.rongcloud-rebox-contents .rongcloud-rebox-content { border: 5px solid #fff; box-shadow: 0 0 20px #000; border-radius: 1px; max-width: 100%; max-height: 100%; }
+.rongcloud-rebox-loading { width: 31px; height: 31px; margin: -16px 0 0 -16px; position: absolute; top: 48%; left: 50%; }
+.rongcloud-rebox-caption { display: none; position: absolute; left: 0; bottom: 0; width: 100%; text-align: center; z-index: 1000; background: #000; background: rgba(0,0,0,0.7); }
+.rongcloud-rebox-caption p { margin: 0 auto; max-width: 70%; display: inline-block; *display: inline; *zoom: 1; padding: 10px; color: #fff; font-size: 12px; line-height: 18px; }
 
-.rebox-button { position: absolute; z-index: 9999; min-width: 40px; height: 40px; line-height: 40px; background: rgb(0, 0, 0); opacity:0.4; 
+.rongcloud-rebox-button { position: absolute; z-index: 9999; min-width: 40px; height: 40px; line-height: 40px; background: rgb(0, 0, 0); opacity:0.4;
     text-decoration: none; font-size: 24px; color: #fff; text-align: center; vertical-align: middle;
     -webkit-border-radius: 32px; -moz-border-radius: 32px; -ms-border-radius: 32px; border-radius: 32px;
     -webkit-transition: all 0.3s; -moz-transition: all 0.3s; -ms-transition: all 0.3s; transition: all 0.3s; }
-.rebox-button:hover,
-.rebox-button:focus { opacity: 1; -webkit-transform: scale(1.4); -moz-transform: scale(1.4); -ms-transform: scale(1.4); transform: scale(1.4); }
-.rebox-close { right: 10px; top: 10px; }
-.rebox-next { right: 10px; top: 48%; }
-.rebox-prev { left: 10px; top: 48%; }
-.rebox-loading { left: 50%; top: 48%;
+.rongcloud-rebox-button:hover,
+.rongcloud-rebox-button:focus { opacity: 1; -webkit-transform: scale(1.4); -moz-transform: scale(1.4); -ms-transform: scale(1.4); transform: scale(1.4); }
+.rongcloud-rebox-close { right: 10px; top: 10px; }
+.rongcloud-rebox-next { right: 10px; top: 48%; }
+.rongcloud-rebox-prev { left: 10px; top: 48%; }
+.rongcloud-rebox-loading { left: 50%; top: 48%;
     -webkit-animation-name: spin; -webkit-animation-duration: 2000ms; -webkit-animation-iteration-count: infinite; -webkit-animation-timing-function: linear;
     -moz-animation-name: spin; -moz-animation-duration: 2000ms; -moz-animation-iteration-count: infinite; -moz-animation-timing-function: linear;
-    -ms-animation-name: spin; -ms-animation-duration: 2000ms; -ms-animation-iteration-count: infinite; -ms-animation-timing-function: linear;    
+    -ms-animation-name: spin; -ms-animation-duration: 2000ms; -ms-animation-iteration-count: infinite; -ms-animation-timing-function: linear;
     animation-name: spin; animation-duration: 2000ms; animation-iteration-count: infinite; animation-timing-function: linear;
 }
 
@@ -41,6 +41,7 @@
     from { transform:rotate(0deg); }
     to { transform:rotate(360deg); }
 }
+
 .rongcloud-container *,.rongcloud-container *:before,.rongcloud-container *:after {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -53,6 +54,8 @@
 .rongcloud-container * {
     padding: 0;
     margin: 0;
+    font-size: 14px;
+    font-weight: 400;
 }
 
 /*body,h1,h2,h3,h4,html,img,li,p,pre,ul {
@@ -151,6 +154,11 @@ ul {
     background: url("../images/icon.png") 0 0/50px auto no-repeat;
     display: inline-block;
 }
+.rongcloud-sprite-kefu{
+    background: url("../images/kefuicon.png") 0 0/50px auto no-repeat;
+    background-size: 20px 20px;
+    margin-right: 4px;
+}
 .rongcloud-blueBg{
     background: url(../images/webBg.png) 0 0/10px auto repeat;
 }
@@ -158,8 +166,11 @@ ul {
     /*position: fixed;*/
     z-index: 999;
     box-sizing: border-box;
-    height: 50px;
-    width: 195px;
+    /*height: 50px;
+    width: 195px;*/
+    height: 43px;
+    width:143px;
+
     bottom: 0px;
     text-align: center;
     border-radius: 4px 4px 0px 0px;
@@ -179,7 +190,8 @@ ul {
     margin: 0;
     padding: 0;
     border: none;
-    line-height: 49px;
+    /*line-height: 49px;*/
+    line-height: 41px;
     float: none;
     text-decoration: none !important;
 }
@@ -216,6 +228,8 @@ ul {
     /*transition: all 0.3s ease-in-out 0.1s;*/
     /*position: fixed;*/
     background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 2px;
+    border-radius: 5px;
 }
 #zhichiBtnBox .rongcloud-people{
     background-position: 0 -411px;
@@ -227,7 +241,7 @@ ul {
 }
 
 .rongcloud-kefuListBox .rongcloud-kefuList{
-    border: 1px solid #cdd7db;
+    /*border: 1px solid #cdd7db;*/
     /*border-bottom: none;*/
     /*border-radius: 5px 5px 0px 0px;*/
     overflow: hidden;
@@ -631,6 +645,7 @@ ul {
     opacity: 1;
     overflow: hidden;
     z-index: 99999;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 2px;
 }
 .rongcloud-kefuChatBox.rongcloud-fullScreen{
     width: 100%!important;
@@ -647,13 +662,14 @@ ul {
     transform: translateX(-45px);
 }
 .rongcloud-kefuChat{
-    border: 1px solid #cdd7db;
+    /*border: 1px solid #cdd7db;*/
     position: absolute;
     top:0px;
     left: 0px;
     right: 0px;
     bottom: 0px;
     border-radius: 5px 5px 5px 5px;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 2px;
 }
 .rongcloud-kefuChat .rongcloud-rong-header{
     height: 36px;
@@ -679,7 +695,7 @@ ul {
 }
 .rongcloud-kefuChat .rongcloud-rong-header .rongcloud-kefuName{
     color: #fff;
-    padding-left: 33px;
+    padding-left: 16px;
 }
 .rongcloud-kefuChat .rongcloud-rong-header .rongcloud-toolBar{
     margin-right: 10px;
@@ -702,13 +718,13 @@ ul {
     background-position: 0 -291px;
 }
 #Messages {
-    background-color: #f9fbfd;
     width: 100%;
     overflow: auto;
-    padding: 30px 20px;
+    padding: 8px 16px;
     position: absolute;
     top:36px;
     bottom: 114px;
+    background-color: white;
 }
 
 #Messages.rongcloud-empty .rongcloud-emptyBox {
@@ -810,6 +826,7 @@ ul {
     word-wrap: break-word;
     word-break: break-all;
     border-spacing: 1px;
+    margin-bottom: 20px;
 }
 
 .rongcloud-Message-header {
@@ -1062,7 +1079,7 @@ ul {
     padding:7px 10px;
     background: #e7ecf2;
     border-radius: 3px;
-    font-size: 14px;
+    font-size: 12px;
     color: #8e969f;
 }
 .rongcloud-rong-footer {
@@ -1074,6 +1091,8 @@ ul {
     left:0px;
     right: 0px;
     border-radius: 0px 0px 5px 5px;
+    /*border: 1px solid #cdd7db;
+    border-top: none;*/
 }
 .rongcloud-fullScreen .rongcloud-rong-footer {
     position: fixed;
@@ -1103,6 +1122,7 @@ ul {
 }
 .rongcloud-funcPanel .rongcloud-mode2 a{
     color: #0099ff;
+    font-size: 12px;
 }
 .rongcloud-robotMode {
     display: block;
@@ -1149,6 +1169,7 @@ ul {
     font-size: 9pt;
     color: rgb(255, 255, 255);
     background: #0099ff;
+    outline:0;
 }
 .rongcloud-MessageForm-tool {
     position: relative;
@@ -1168,11 +1189,11 @@ ul {
 }
 .rongcloud-expressionWrap {
     border: 1px solid #D9DADC;
-    width: 382px;
+    width: 304px;
     padding: 5px 8px;
     position: absolute;
     left: -2px;
-    top: -188px;
+    top: -214px;
     background: #fff;
     z-index: 1100;
 }
@@ -1851,6 +1872,7 @@ ul {
     font-size: 0;
     text-align: center;
     border-top: 1px solid #EBEBEB;
+    display: none;
 }
 .rongcloud-layermbtn:before {
     content: '|';
@@ -1925,8 +1947,12 @@ ul {
 .rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-labels a{
     line-height: 27px;
 }
+.rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-labels > span{
+  width: 47%;
+  display: inline-block;
+}
 .rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-rong-btn{
-    width: 47%;
+    width: 100%;
     border-radius: 15px;
     height: 28px;
     line-height: 28px;
@@ -1940,10 +1966,10 @@ ul {
     color: #fff;
     border-color: #0099ff;
 }
-.rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-rong-btn:nth-child(2n+1){
+.rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-labels > span:nth-child(2n+1){
     margin-right: 3%;
 }
-.rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-rong-btn:nth-child(3),.rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-rong-btn:nth-child(4){
+.rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-labels > span:nth-child(3),.rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-labels > span:nth-child(4){
     margin-top: 8px;
 }
 .rongcloud-layermbox .rongcloud-layerPanel2 .rongcloud-suggestBox{

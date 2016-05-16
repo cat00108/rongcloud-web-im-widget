@@ -36,7 +36,7 @@ conversationListDir.directive("conversationItem", ["conversationServer", "conver
         '</p>' +
         '</div>' +
         '<div class="rongcloud-photo">' +
-        '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/20160230163460.jpg" alt="">' +
+        '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png" alt="">' +
         '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
         '</div>' +
         '<div class="rongcloud-info">' +

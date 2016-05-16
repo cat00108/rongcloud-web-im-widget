@@ -11,9 +11,10 @@ demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,Rong
         // kefuId:"KEFU145932387671898",
         reminder:"在线咨询",
         position:RongKefu.KefuPostion.right,
+        displayMinButton:false,
         style:{
           height:500,
-          width:325
+          width:500
         },
         onSuccess:function(e){
           console.log(e);
