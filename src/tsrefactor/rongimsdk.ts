@@ -1,5 +1,4 @@
-namespace rongcloud.webwidget.util {
-
+namespace RongIMWidget {
 
     class RongIMSDKServer {
 

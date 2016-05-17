@@ -527,6 +527,7 @@ conversationController.controller("conversationController", ["$scope",
                 }
                 addCustomService(msg);
                 setTimeout(function () {
+										$scope.$apply();
                     adjustScrollbars();
                 }, 200);
             }
@@ -535,13 +536,13 @@ conversationController.controller("conversationController", ["$scope",
             updateUploadToken();
         };
         function updateUploadToken() {
-            RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
-                onSuccess: function (data) {
-                    conversationServer._uploadToken = data.token;
-                    uploadFileRefresh();
-                }, onError: function () {
-                }
-            });
+            // RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
+            //     onSuccess: function (data) {
+            //         conversationServer._uploadToken = data.token;
+            //         uploadFileRefresh();
+            //     }, onError: function () {
+            //     }
+            // });
         }
         $scope.getHistory = function () {
             var arr = conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId];
@@ -1537,8 +1538,8 @@ kefu.service("RongKefu", ["WebIMWidget", function (WebIMWidget) {
                     };
                 }
             }
-            style.width = defaultconfig.style.width;
-            style.height = defaultconfig.style.height;
+            //style.width = defaultconfig.style.width;
+            //style.height = defaultconfig.style.height;
             defaultconfig.style = style;
             WebIMWidget.init(defaultconfig);
             WebIMWidget.onShow = function () {
