@@ -28,7 +28,7 @@ module RongIMWidget {
     angular.module("RongWebIMWidget",
         [
             "RongWebIMWidget.conversation",
-            "RongWebIMWidget.conversationList",
+            "RongWebIMWidget.conversationlist",
             "RongIMSDKModule",
             "Evaluate"
         ]);

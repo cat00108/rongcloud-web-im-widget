@@ -17,17 +17,19 @@ module RongIMWidget.conversation {
     }
 
     export interface IConversationService {
+
         current: WidgetModule.Conversation
         _customService: CustomerService
-        loginUser: any
-        //_uploadToken: string
         _cacheHistory: any
 
-        onConversationChangged(conversation: WidgetModule.Conversation): void
-        onReceivedMessage(message: WidgetModule.Message): void
-        //_onConnectSuccess(): void
         _getHistoryMessages(targetType: number, targetId: string, number: number): angular.IPromise<any>
         _addHistoryMessages(msg: WidgetModule.Message): void
+
+        ChangeConversation(conversation: WidgetModule.Conversation): void
+        HandleMessage(message: WidgetModule.Message): void
+        closeConversation(): ng.IPromise<any>
+
+        onSendMessage(msg: RongIMWidget.Message): void
     }
 
     class conversationServer implements IConversationService {
@@ -40,10 +42,19 @@ module RongIMWidget.conversation {
         }
 
         current: RongIMWidget.Conversation = new RongIMWidget.Conversation
-        loginUser: { id?: string, name?: string, portraitUri?: string } = {}
         _cacheHistory: Object = {}
         _customService: CustomerService
         _uploadToken: string
+
+        unshiftHistoryMessages(id: string, type: number, item: any) {
+          var arr = this._cacheHistory[type + "_" + id] = this._cacheHistory[type + "_" + id] || [];
+          if (arr[0] && arr[0].sentTime && arr[0].panelType != WidgetModule.PanelType.Time && item.sentTime) {
+            if (!WidgetModule.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
+              arr.unshift(new WidgetModule.TimePanl(arr[0].sentTime));
+            }
+          }
+          arr.unshift(item);
+        }
 
         _getHistoryMessages(targetType: number,
             targetId: string,
@@ -79,16 +90,6 @@ module RongIMWidget.conversation {
             return defer.promise;
         }
 
-        unshiftHistoryMessages(id: string, type: number, item: any) {
-            var arr = this._cacheHistory[type + "_" + id] = this._cacheHistory[type + "_" + id] || [];
-            if (arr[0] && arr[0].sentTime && arr[0].panelType != WidgetModule.PanelType.Time && item.sentTime) {
-                if (!WidgetModule.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
-                    arr.unshift(new WidgetModule.TimePanl(arr[0].sentTime));
-                }
-            }
-            arr.unshift(item);
-        }
-
         _addHistoryMessages(item: WidgetModule.Message) {
             var key = item.conversationType + "_" + item.targetId;
             var arr = this._cacheHistory[key]
@@ -106,9 +107,12 @@ module RongIMWidget.conversation {
             arr.push(item);
         }
 
-        onConversationChangged: (conversation: WidgetModule.Conversation) => void
-        onReceivedMessage: (message: WidgetModule.Message) => void
-        _onConnectSuccess: () => void
+        ChangeConversation: (conversation: WidgetModule.Conversation) => void
+        HandleMessage: (message: WidgetModule.Message) => void
+        closeConversation: () => ng.IPromise<any>
+        //_onConnectSuccess: () => void
+
+        onSendMessage: (msg: RongIMWidget.Message) => void
     }
 
 

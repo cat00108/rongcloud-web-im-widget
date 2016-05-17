@@ -1,6 +1,6 @@
 namespace RongIMWidget {
 
-    class RongIMSDKServer {
+    export class RongIMSDKServer {
 
         static $inject: string[] = ["$q"];
 
@@ -181,6 +181,20 @@ namespace RongIMWidget {
                     }
                 }, null);
             return defer.promise;
+        }
+
+        getConversation:(type: number, targetId: string) => ng.IPromise<RongIMLib.Conversation>
+        = (type: number, targetId: string) => {
+          var defer = this.$q.defer();
+          RongIMLib.RongIMClient.getInstance().getConversation(Number(type), targetId, {
+              onSuccess: function(data) {
+                  defer.resolve(data);
+              },
+              onError: function() {
+                  defer.reject();
+              }
+          });
+          return defer.promise;
         }
 
         removeConversation(type: number, targetId: string) {

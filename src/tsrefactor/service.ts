@@ -9,7 +9,9 @@ namespace RongIMWidget {
         private _cacheUserInfo: RongIMWidget.UserInfo[] = [];
 
         totalUnreadCount: number = 0;
+        connectionState: number = 0;
         voiceSound: boolean = false;
+        currentUserInfo: RongIMWidget.UserInfo
 
         _getCacheUserInfo(id) {
             for (var i = 0, len = this._cacheUserInfo.length; i < len; i++) {
