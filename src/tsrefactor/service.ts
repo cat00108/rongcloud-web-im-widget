@@ -1,5 +1,5 @@
 /// <reference path="../../typings/tsd.d.ts"/>
-module RongIMWidget {
+module RongWebIMWidget {
 
     interface CallBack<T> {
         onSuccess(data: T): void
@@ -7,12 +7,12 @@ module RongIMWidget {
 
     export class ProviderData {
 
-        private _cacheUserInfo: RongIMWidget.UserInfo[] = [];
+        private _cacheUserInfo: RongWebIMWidget.UserInfo[] = [];
 
         totalUnreadCount: number = 0;
         connectionState: number = 0;
         voiceSound: boolean = false;
-        currentUserInfo: RongIMWidget.UserInfo
+        currentUserInfo: RongWebIMWidget.UserInfo
 
         _getCacheUserInfo(id) {
             for (var i = 0, len = this._cacheUserInfo.length; i < len; i++) {
@@ -23,7 +23,7 @@ module RongIMWidget {
             return null;
         }
 
-        _addUserInfo(user: RongIMWidget.UserInfo) {
+        _addUserInfo(user: RongWebIMWidget.UserInfo) {
             var olduser = this._getCacheUserInfo(user.userId);
             if (olduser) {
                 angular.extend(olduser, user);
@@ -33,10 +33,10 @@ module RongIMWidget {
         }
 
         getUserInfo: (targetId: string,
-                callback: CallBack<RongIMWidget.UserInfo>) => void
+                callback: CallBack<RongWebIMWidget.UserInfo>) => void
 
         getGroupInfo: (targetId: string,
-                callback: CallBack<RongIMWidget.GroupInfo>) => void
+                callback: CallBack<RongWebIMWidget.GroupInfo>) => void
 
         getOnlineStatus: (targetId: string[],
                 callback: CallBack<{ id: string, status: boolean }[]>) => void
@@ -46,7 +46,7 @@ module RongIMWidget {
     export class WidgetConfig {
         displayConversationList: boolean = false;
         conversationListPosition: number
-        = RongIMWidget.EnumConversationListPosition.left;
+        = RongWebIMWidget.EnumConversationListPosition.left;
         displayMinButton: boolean = true;
         desktopNotification: boolean = false;
         reminder: string = "最近联系人";

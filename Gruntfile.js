@@ -66,7 +66,8 @@ module.exports = function(grunt) {
 
     typescript: {
       build: {
-        src: ["./src/tsrefactor/**/*.ts"],
+        src: ["./src/tsrefactor/**/*.module.ts",
+          "./src/tsrefactor/**/*.ts"],
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3
@@ -122,7 +123,9 @@ module.exports = function(grunt) {
           {
             src:[
               './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              // './vendor/loadscript/script.min.js',
+              // './vendor/qiniu/qiniu.js'
+            ],
             dest:'./build/main.tidy.js'
           },
           {

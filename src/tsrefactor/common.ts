@@ -1,4 +1,4 @@
-module RongIMWidget {
+module RongWebIMWidget {
 
     export class DirectiveFactory {
         public static GetFactoryFor(classType: any): ng.IDirectiveFactory {

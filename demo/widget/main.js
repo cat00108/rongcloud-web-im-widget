@@ -298,954 +298,207 @@ c.getScrollLeft():z.call(h)},set:function(h,c){var k=f.data(h,"__nicescroll")||!
 this.each=function(d){f.each(c,d);return c};this.push=function(d){c[c.length]=d;c.length++};this.eq=function(d){return c[d]};if(h)for(var k=0;k<h.length;k++){var l=f.data(h[k],"__nicescroll")||!1;l&&(this[this.length]=l,this.length++)}return this};(function(f,c,k){for(var l=0;l<c.length;l++)k(f,c[l])})(E.prototype,"show hide toggle onResize resize remove stop doScrollPos".split(" "),function(f,c){f[c]=function(){var f=arguments;return this.each(function(){this[c].apply(this,f)})}});f.fn.getNiceScroll=
 function(h){return void 0===h?new E(this):this[h]&&f.data(this[h],"__nicescroll")||!1};f.expr[":"].nicescroll=function(h){return void 0!==f.data(h,"__nicescroll")};f.fn.niceScroll=function(h,c){void 0!==c||"object"!=typeof h||"jquery"in h||(c=h,h=!1);c=f.extend({},c);var k=new E;void 0===c&&(c={});h&&(c.doc=f(h),c.win=f(this));var l=!("doc"in c);l||"win"in c||(c.win=f(this));this.each(function(){var d=f(this).data("__nicescroll")||!1;d||(c.doc=l?f(this):c.doc,d=new S(c,f(this)),f(this).data("__nicescroll",
 d));k.push(d)});return 1==k.length?k[0]:k};window.NiceScroll={getjQuery:function(){return f}};f.nicescroll||(f.nicescroll=new E,f.nicescroll.options=K)});
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversation;
+    (function (conversation) {
+        angular.module("RongWebIMWidget.conversation", []);
+    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversationlist;
+    (function (conversationlist) {
+        angular.module("RongWebIMWidget.conversationlist", []);
+    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    angular.module("RongWebIMWidget", [
+        "RongWebIMWidget.conversation",
+        "RongWebIMWidget.conversationlist",
+    ]);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var DirectiveFactory = (function () {
+        function DirectiveFactory() {
+        }
+        DirectiveFactory.GetFactoryFor = function (classType) {
+            var factory = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i - 0] = arguments[_i];
+                }
+                var newInstance = Object.create(classType.prototype);
+                newInstance.constructor.apply(newInstance, args);
+                return newInstance;
+            };
+            factory.$inject = classType.$inject;
+            return factory;
+        };
+        return DirectiveFactory;
+    })();
+    RongWebIMWidget.DirectiveFactory = DirectiveFactory;
+    var errSrc = (function () {
+        function errSrc() {
+        }
+        errSrc.instance = function () {
+            return new errSrc();
+        };
+        errSrc.prototype.link = function (scope, element, attrs) {
+            if (!attrs["ngSrc"]) {
+                attrs.$set('src', attrs["errSrc"]);
+            }
+            element.bind('error', function () {
+                if (attrs["src"] != attrs["errSrc"]) {
+                    attrs.$set('src', attrs["errSrc"]);
+                }
+            });
+        };
+        return errSrc;
+    })();
+    angular.module("RongWebIMWidget")
+        .directive('errSrc', errSrc.instance)
+        .filter('trustHtml', ["$sce", function ($sce) {
+            return function (str) {
+                return $sce.trustAsHtml(str);
+            };
+        }]).filter("historyTime", ["$filter", function ($filter) {
+            return function (time) {
+                var today = new Date();
+                if (time.toDateString() === today.toDateString()) {
+                    return $filter("date")(time, "HH:mm");
+                }
+                else if (time.toDateString() === new Date(today.setTime(today.getTime() - 1)).toDateString()) {
+                    return "昨天" + $filter("date")(time, "HH:mm");
+                }
+                else {
+                    return $filter("date")(time, "yyyy-MM-dd HH:mm");
+                }
+            };
+        }]);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversation;
+    (function (conversation) {
+        var ConversationController = (function () {
+            function ConversationController($scope, conversationServer, WebIMWidget, conversationListServer, widgetConfig, providerdata) {
+                this.$scope = $scope;
+                this.conversationServer = conversationServer;
+                this.WebIMWidget = WebIMWidget;
+                this.conversationListServer = conversationListServer;
+                this.widgetConfig = widgetConfig;
+                this.providerdata = providerdata;
+            }
+            ConversationController.$inject = ["$scope",
+                "conversationServer",
+                "WebIMWidget",
+                "conversationListServer",
+                "widgetConfig",
+                "providerdata",];
+            return ConversationController;
+        })();
+    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../../typings/tsd.d.ts"/>
-var conversationController = angular.module("RongWebIMWidget.conversationController", ["RongWebIMWidget.conversationServer"]);
-conversationController.controller("conversationController", ["$scope",
-    "conversationServer", "WebIMWidget", "conversationListServer", "widgetConfig", "providerdata",
-    function ($scope, conversationServer, WebIMWidget, conversationListServer, widgetConfig, providerdata) {
-        var ImageDomain = "http://7xogjk.com1.z0.glb.clouddn.com/";
-        var notExistConversation = true;
-        function adjustScrollbars() {
-            setTimeout(function () {
-                var ele = document.getElementById("Messages");
-                if (!ele)
-                    return;
-                ele.scrollTop = ele.scrollHeight;
-            }, 0);
-        }
-        $scope.currentConversation = {
-            title: "",
-            targetId: "",
-            targetType: 0
-        };
-        $scope.messageList = [];
-        $scope.messageContent = "";
-        $scope.WebIMWidget = WebIMWidget;
-        $scope.widgetConfig = widgetConfig;
-        $scope.conversationServer = conversationServer;
-        $scope._inputPanelState = WidgetModule.InputPanelType.person;
-        $scope.showSelf = false;
-        //显示表情
-        $scope.showemoji = false;
-        document.addEventListener("click", function (e) {
-            if ($scope.showemoji && e.target.className.indexOf("iconfont-smile") == -1) {
-                $scope.$apply(function () {
-                    $scope.showemoji = false;
-                });
+/// <reference path="../../lib/RongIMLib.d.ts"/>
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversation;
+    (function (conversation_1) {
+        var conversationServer = (function () {
+            function conversationServer($q, providerdata) {
+                this.$q = $q;
+                this.providerdata = providerdata;
+                this.current = new RongWebIMWidget.Conversation;
+                this._cacheHistory = {};
             }
-        });
-        // $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 84);
-        $scope.$watch("showemoji", function (newVal, oldVal) {
-            if (newVal === oldVal)
-                return;
-            if (!$scope.emojiList || $scope.emojiList.length == 0) {
-                $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 77);
-            }
-        });
-        $scope.$watch("currentConversation.messageContent", function (newVal, oldVal) {
-            if (newVal === oldVal)
-                return;
-            if ($scope.currentConversation) {
-                RongIMLib.RongIMClient.getInstance().saveTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, newVal);
-            }
-        });
-        $scope.$watch("showSelf", function (newVal, oldVal) {
-            if (newVal === oldVal)
-                return;
-            if (newVal && conversationServer._uploadToken) {
-                uploadFileRefresh();
-            }
-            else {
-                qiniuuploader && qiniuuploader.destroy();
-            }
-        });
-        $scope.$watch("_inputPanelState", function (newVal, oldVal) {
-            if (newVal === oldVal)
-                return;
-            if (newVal == WidgetModule.InputPanelType.person && conversationServer._uploadToken) {
-                uploadFileRefresh();
-            }
-            else {
-                qiniuuploader && qiniuuploader.destroy();
-            }
-        });
-        conversationServer.onConversationChangged = function (conversation) {
-            setTimeout(function () {
-                $scope.$apply();
-            }, 0);
-            if (widgetConfig.displayConversationList) {
-                $scope.showSelf = true;
-            }
-            else {
-                $scope.showSelf = true;
-                $scope.WebIMWidget.display = true;
-            }
-            if (conversation && conversation.targetType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && (!conversationServer.current || conversationServer.current.targetId != conversation.targetId)) {
-                RongIMLib.RongIMClient.getInstance().startCustomService(conversation.targetId, {
-                    onSuccess: function () {
-                    },
-                    onError: function () {
-                        console.log("连接客服失败");
-                    }
-                });
-            }
-            //会话为空清除页面各项值
-            if (!conversation || !conversation.targetId) {
-                $scope.messageList = [];
-                $scope.currentConversation = null;
-                conversationServer.current = null;
-                setTimeout(function () {
-                    $scope.$apply();
-                });
-                return;
-            }
-            conversationServer.current = conversation;
-            $scope.currentConversation = conversation;
-            conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
-            var currenthis = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId] || [];
-            $scope.messageList = currenthis;
-            if (currenthis.length == 0) {
-                conversationServer._getHistoryMessages(+conversation.targetType, conversation.targetId, 3).then(function (data) {
-                    $scope.messageList = conversationServer._cacheHistory[conversation.targetType + "_" + conversation.targetId];
-                    if ($scope.messageList.length > 0) {
-                        $scope.messageList.unshift(new WidgetModule.TimePanl($scope.messageList[0].sentTime));
-                        if (data.has) {
-                            $scope.messageList.unshift(new WidgetModule.GetMoreMessagePanel());
-                        }
-                        adjustScrollbars();
-                    }
-                });
-            }
-            else {
-                adjustScrollbars();
-            }
-            $scope.currentConversation.messageContent = RongIMLib.RongIMClient.getInstance().getTextMessageDraft(+$scope.currentConversation.targetType, $scope.currentConversation.targetId) || "";
-            setTimeout(function () {
-                $scope.$apply();
-            });
-        };
-        conversationServer.onReceivedMessage = function (msg) {
-            // $scope.messageList.splice(0, $scope.messageList.length);
-            if ($scope.currentConversation && msg.targetId == $scope.currentConversation.targetId && msg.conversationType == $scope.currentConversation.targetType) {
-                $scope.$apply();
-                var systemMsg = null;
-                switch (msg.messageType) {
-                    case WidgetModule.MessageType.HandShakeResponseMessage:
-                        conversationServer._customService.type = msg.content.data.serviceType;
-                        conversationServer._customService.companyName = msg.content.data.companyName;
-                        conversationServer._customService.robotName = msg.content.data.robotName;
-                        conversationServer._customService.robotIcon = msg.content.data.robotIcon;
-                        conversationServer._customService.robotWelcome = msg.content.data.robotWelcome;
-                        conversationServer._customService.humanWelcome = msg.content.data.humanWelcome;
-                        conversationServer._customService.noOneOnlineTip = msg.content.data.noOneOnlineTip;
-                        if (msg.content.data.serviceType == "1") {
-                            changeInputPanelState(WidgetModule.InputPanelType.robot);
-                            msg.content.data.robotWelcome && (systemMsg = packReceiveMessage(RongIMLib.TextMessage.obtain(msg.content.data.robotWelcome), WidgetModule.MessageType.TextMessage));
-                        }
-                        else if (msg.content.data.serviceType == "3") {
-                            msg.content.data.robotWelcome && (systemMsg = packReceiveMessage(RongIMLib.TextMessage.obtain(msg.content.data.robotWelcome), WidgetModule.MessageType.TextMessage));
-                            changeInputPanelState(WidgetModule.InputPanelType.robotSwitchPerson);
-                        }
-                        else {
-                            // msg.content.data.humanWelcome && (systemMsg = packReceiveMessage(RongIMLib.TextMessage.obtain(msg.content.data.humanWelcome), WidgetModule.MessageType.TextMessage));
-                            changeInputPanelState(WidgetModule.InputPanelType.person);
-                        }
-                        $scope.evaluate.valid = false;
-                        setTimeout(function () {
-                            $scope.evaluate.valid = true;
-                        }, 60 * 1000);
-                        break;
-                    case WidgetModule.MessageType.ChangeModeResponseMessage:
-                        switch (msg.content.data.status) {
-                            case 1:
-                                conversationServer._customService.human.name = msg.content.data.name || "客服人员";
-                                conversationServer._customService.human.headimgurl = msg.content.data.headimgurl;
-                                changeInputPanelState(WidgetModule.InputPanelType.person);
-                                break;
-                            case 2:
-                                if (conversationServer._customService.type == "2") {
-                                    changeInputPanelState(WidgetModule.InputPanelType.person);
-                                }
-                                else if (conversationServer._customService.type == "1" || conversationServer._customService.type == "3") {
-                                    changeInputPanelState(WidgetModule.InputPanelType.robotSwitchPerson);
-                                }
-                                break;
-                            case 3:
-                                changeInputPanelState(WidgetModule.InputPanelType.robot);
-                                systemMsg = packReceiveMessage(RongIMLib.InformationNotificationMessage.obtain("你被拉黑了"), WidgetModule.MessageType.InformationNotificationMessage);
-                                break;
-                            case 4:
-                                changeInputPanelState(WidgetModule.InputPanelType.person);
-                                systemMsg = packReceiveMessage(RongIMLib.InformationNotificationMessage.obtain("已经是人工了"), WidgetModule.MessageType.InformationNotificationMessage);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    case WidgetModule.MessageType.TerminateMessage:
-                        //关闭客服
-                        if (msg.content.code == 0) {
-                            $scope.evaluate.valid = true;
-                            $scope.close();
-                        }
-                        else {
-                            if (conversationServer._customService.type == "1") {
-                                changeInputPanelState(WidgetModule.InputPanelType.robot);
-                            }
-                            else {
-                                changeInputPanelState(WidgetModule.InputPanelType.robotSwitchPerson);
-                            }
-                        }
-                        break;
-                    case WidgetModule.MessageType.CustomerStatusUpdateMessage:
-                        switch (Number(msg.content.serviceStatus)) {
-                            case 1:
-                                if (conversationServer._customService.type == "1") {
-                                    changeInputPanelState(WidgetModule.InputPanelType.robot);
-                                }
-                                else {
-                                    changeInputPanelState(WidgetModule.InputPanelType.robotSwitchPerson);
-                                }
-                                break;
-                            case 2:
-                                changeInputPanelState(WidgetModule.InputPanelType.person);
-                                break;
-                            case 3:
-                                changeInputPanelState(WidgetModule.InputPanelType.notService);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                if (systemMsg) {
-                    var wmsg = WidgetModule.Message.convert(systemMsg);
-                    addCustomService(wmsg);
-                    conversationServer._addHistoryMessages(wmsg);
-                }
-                addCustomService(msg);
-                setTimeout(function () {
-										$scope.$apply();
-                    adjustScrollbars();
-                }, 200);
-            }
-        };
-        conversationServer._onConnectSuccess = function () {
-            updateUploadToken();
-        };
-        function updateUploadToken() {
-            // RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
-            //     onSuccess: function (data) {
-            //         conversationServer._uploadToken = data.token;
-            //         uploadFileRefresh();
-            //     }, onError: function () {
-            //     }
-            // });
-        }
-        $scope.getHistory = function () {
-            var arr = conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId];
-            arr.splice(0, arr.length);
-            conversationServer._getHistoryMessages(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, 20).then(function (data) {
-                $scope.messageList = conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId];
-                if (data.has) {
-                    conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId].unshift(new WidgetModule.GetMoreMessagePanel());
-                }
-                // adjustScrollbars();
-            });
-        };
-        $scope.getMoreMessage = function () {
-            conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId].shift();
-            conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId].shift();
-            conversationServer._getHistoryMessages(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, 20).then(function (data) {
-                $scope.messageList = conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId];
-                if (data.has) {
-                    conversationServer._cacheHistory[$scope.currentConversation.targetType + "_" + $scope.currentConversation.targetId].unshift(new WidgetModule.GetMoreMessagePanel());
-                }
-            });
-        };
-        function addCustomService(msg) {
-            if (!msg.content || msg.content.userInfo) {
-                return;
-            }
-            if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.RECEIVE) {
-                if (conversationServer._customService.currentType == "1") {
-                    msg.content.userInfo = {
-                        name: conversationServer._customService.human.name || "客服人员",
-                        portraitUri: conversationServer._customService.human.headimgurl || conversationServer._customService.robotIcon
-                    };
-                }
-                else {
-                    msg.content.userInfo = {
-                        name: conversationServer._customService.robotName,
-                        portraitUri: conversationServer._customService.robotIcon
-                    };
-                }
-            }
-            else if (msg.conversationType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == WidgetModule.MessageDirection.SEND) {
-                msg.content.userInfo = {
-                    name: "我",
-                    portraitUri: conversationServer.loginUser.portraitUri
-                };
-            }
-            return msg;
-        }
-        var changeInputPanelState = function (type) {
-            $scope._inputPanelState = type;
-            if (type == WidgetModule.InputPanelType.person) {
-                $scope.evaluate.type = 1;
-                conversationServer._customService.currentType = "1";
-                conversationServer.current.title = conversationServer._customService.human.name || "客服人员";
-            }
-            else {
-                $scope.evaluate.type = 2;
-                conversationServer._customService.currentType = "2";
-                conversationServer.current.title = conversationServer._customService.robotName;
-            }
-        };
-        function packDisplaySendMessage(msg, messageType) {
-            var ret = new RongIMLib.Message();
-            var userinfo = new RongIMLib.UserInfo(conversationServer.loginUser.id, conversationServer.loginUser.name || "我", conversationServer.loginUser.portraitUri);
-            msg.user = userinfo;
-            ret.content = msg;
-            ret.conversationType = $scope.currentConversation.targetType;
-            ret.targetId = $scope.currentConversation.targetId;
-            ret.senderUserId = conversationServer.loginUser.id;
-            ret.messageDirection = RongIMLib.MessageDirection.SEND;
-            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
-            ret.messageType = messageType;
-            return ret;
-        }
-        function packReceiveMessage(msg, messageType) {
-            var ret = new RongIMLib.Message();
-            var userinfo = null;
-            msg.userInfo = userinfo;
-            ret.content = msg;
-            ret.conversationType = $scope.currentConversation.targetType;
-            ret.targetId = $scope.currentConversation.targetId;
-            ret.senderUserId = $scope.currentConversation.targetId;
-            ret.messageDirection = RongIMLib.MessageDirection.RECEIVE;
-            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
-            ret.messageType = messageType;
-            return ret;
-        }
-        function closeState() {
-            if (WebIMWidget.onClose && typeof WebIMWidget.onClose === "function") {
-                WebIMWidget.onClose($scope.currentConversation);
-            }
-            if (widgetConfig.displayConversationList) {
-                $scope.showSelf = false;
-            }
-            else {
-                $scope.WebIMWidget.display = false;
-            }
-            $scope.messageList = [];
-            $scope.currentConversation = null;
-            conversationServer.current = null;
-        }
-        $scope.evaluate = {
-            type: 1,
-            showevaluate: false,
-            valid: false,
-            onConfirm: function (data) {
-                //发评价
-                if (data) {
-                    if ($scope.value == 1) {
-                        RongIMLib.RongIMClient.getInstance().evaluateHumanCustomService(conversationServer.current.targetId, data.stars, data.describe, {
-                            onSuccess: function () {
-                            }
-                        });
-                    }
-                    else {
-                        RongIMLib.RongIMClient.getInstance().evaluateRebotCustomService(conversationServer.current.targetId, data.value, data.describe, {
-                            onSuccess: function () {
-                            }
-                        });
+            conversationServer.prototype.unshiftHistoryMessages = function (id, type, item) {
+                var arr = this._cacheHistory[type + "_" + id] = this._cacheHistory[type + "_" + id] || [];
+                if (arr[0] && arr[0].sentTime && arr[0].panelType != RongWebIMWidget.PanelType.Time && item.sentTime) {
+                    if (!RongWebIMWidget.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
+                        arr.unshift(new RongWebIMWidget.TimePanl(arr[0].sentTime));
                     }
                 }
-                RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
-                    onSuccess: function () {
-                    },
-                    onError: function () {
-                    }
-                });
-                closeState();
-            },
-            onCancle: function () {
-                RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
-                    onSuccess: function () {
-                    },
-                    onError: function () {
-                    }
-                });
-                closeState();
-            }
-        };
-        $scope.close = function () {
-            if (WebIMWidget.onCloseBefore && typeof WebIMWidget.onCloseBefore === "function") {
-                var isClose = WebIMWidget.onCloseBefore({
-                    close: function (data) {
-                        if (conversationServer.current.targetType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE) {
-                            if ($scope.evaluate.valid) {
-                                $scope.evaluate.showevaluate = true;
-                            }
-                            else {
-                                $scope.evaluate.onCancle();
-                            }
-                        }
-                        else {
-                            closeState();
-                        }
-                    }
-                });
-            }
-            else {
-                if (conversationServer.current.targetType == WidgetModule.EnumConversationType.CUSTOMER_SERVICE) {
-                    if ($scope.evaluate.valid) {
-                        $scope.evaluate.showevaluate = true;
-                    }
-                    else {
-                        $scope.evaluate.onCancle();
-                    }
-                }
-                else {
-                    closeState();
-                }
-            }
-        };
-        $scope.send = function () {
-            if (!$scope.currentConversation.targetId || !$scope.currentConversation.targetType) {
-                alert("请先选择一个会话目标。");
-                return;
-            }
-            if ($scope.currentConversation.messageContent == "") {
-                return;
-            }
-            var con = RongIMLib.RongIMEmoji.symbolToEmoji($scope.currentConversation.messageContent);
-            var msg = RongIMLib.TextMessage.obtain(con);
-            var userinfo = new RongIMLib.UserInfo(conversationServer.loginUser.id, conversationServer.loginUser.name, conversationServer.loginUser.portraitUri);
-            msg.user = userinfo;
-            try {
-                RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.currentConversation.targetType, $scope.currentConversation.targetId, msg, {
-                    onSuccess: function (retMessage) {
-                        conversationListServer.updateConversations().then(function () {
-                        });
-                    },
-                    onError: function (error) {
-                        console.log(error);
-                    }
-                });
-            }
-            catch (e) {
-                console.log(e);
-            }
-            var content = packDisplaySendMessage(msg, WidgetModule.MessageType.TextMessage);
-            var cmsg = WidgetModule.Message.convert(content);
-            conversationServer._addHistoryMessages(cmsg);
-            // $scope.messageList.push();
-            adjustScrollbars();
-            $scope.currentConversation.messageContent = "";
-            var obj = document.getElementById("inputMsg");
-            WidgetModule.Helper.getFocus(obj);
-        };
-        $scope.minimize = function () {
-            WebIMWidget.display = false;
-        };
-        $scope.switchPerson = function () {
-            RongIMLib.RongIMClient.getInstance().switchToHumanMode(conversationServer.current.targetId, {
-                onSuccess: function () {
-                },
-                onError: function () {
-                }
-            });
-        };
-        var qiniuuploader;
-        function uploadFileRefresh() {
-            qiniuuploader && qiniuuploader.destroy();
-            qiniuuploader = Qiniu.uploader({
-                // runtimes: 'html5,flash,html4',
-                runtimes: 'html5,html4',
-                browse_button: 'upload-file',
-                // browse_button: 'upload',
-                container: 'funcPanel',
-                drop_element: 'inputMsg',
-                max_file_size: '100mb',
-                // flash_swf_url: 'js/plupload/Moxie.swf',
-                dragdrop: true,
-                chunk_size: '4mb',
-                // uptoken_url: "http://webim.demo.rong.io/getUploadToken",
-                uptoken: conversationServer._uploadToken,
-                domain: ImageDomain,
-                get_new_uptoken: false,
-                // unique_names: true,
-                filters: {
-                    mime_types: [{ title: "Image files", extensions: "jpg,gif,png,jpeg,bmp" }],
-                    prevent_duplicates: false
-                },
-                multi_selection: false,
-                auto_start: true,
-                init: {
-                    'FilesAdded': function (up, files) {
-                    },
-                    'BeforeUpload': function (up, file) {
-                    },
-                    'UploadProgress': function (up, file) {
-                    },
-                    'UploadComplete': function () {
-                    },
-                    'FileUploaded': function (up, file, info) {
-                        if (!$scope.currentConversation.targetId || !$scope.currentConversation.targetType) {
-                            alert("请先选择一个会话目标。");
-                            return;
-                        }
-                        info = info.replace(/'/g, "\"");
-                        info = JSON.parse(info);
-                        RongIMLib.RongIMClient.getInstance().getFileUrl(RongIMLib.FileType.IMAGE, info.name, {
-                            onSuccess: function (url) {
-                                WidgetModule.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function (obj, data) {
-                                    var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
-                                    var content = packDisplaySendMessage(im, WidgetModule.MessageType.ImageMessage);
-                                    RongIMLib.RongIMClient.getInstance().sendMessage($scope.currentConversation.targetType, $scope.currentConversation.targetId, im, {
-                                        onSuccess: function () {
-                                            conversationListServer.updateConversations().then(function () {
-                                            });
-                                        },
-                                        onError: function () {
+                arr.unshift(item);
+            };
+            conversationServer.prototype._getHistoryMessages = function (targetType, targetId, number, reset) {
+                var defer = this.$q.defer();
+                RongIMLib.RongIMClient.getInstance().getHistoryMessages(targetType, targetId, reset ? 0 : null, number, {
+                    onSuccess: function (data, has) {
+                        var msglen = data.length;
+                        while (msglen--) {
+                            var msg = RongWebIMWidget.Message.convert(data[msglen]);
+                            this.unshiftHistoryMessages(targetId, targetType, msg);
+                            if (msg.content && this.providerdata.getUserInfo) {
+                                (function (msg) {
+                                    this.providerdata.getUserInfo(msg.senderUserId, {
+                                        onSuccess: function (obj) {
+                                            msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
                                         }
                                     });
-                                    conversationServer._addHistoryMessages(WidgetModule.Message.convert(content));
-                                    $scope.$apply(function () {
-                                        adjustScrollbars();
-                                    });
-                                    updateUploadToken();
-                                });
-                            },
-                            onError: function () {
+                                })(msg);
                             }
-                        });
+                        }
+                        defer.resolve({ data: data, has: has });
                     },
-                    'Error': function (up, err, errTip) {
-                        console.log(err);
-                        updateUploadToken();
+                    onError: function (error) {
+                        defer.reject(error);
                     }
-                }
-            });
-        }
-    }]);
-/// <reference path="../../../typings/tsd.d.ts"/>
-var conversationDirective = angular.module("RongWebIMWidget.conversationDirective", ["RongWebIMWidget.conversationController"]);
-conversationDirective.directive("rongConversation", [function () {
-        return {
-            restrict: "E",
-            templateUrl: "./src/ts/conversation/template.tpl.html",
-            controller: "conversationController",
-            link: function (scope, ele) {
-                if (window["jQuery"] && window["jQuery"].nicescroll) {
-                    $("#Messages").niceScroll({
-                        'cursorcolor': "#0099ff",
-                        'cursoropacitymax': 1,
-                        'touchbehavior': false,
-                        'cursorwidth': "8px",
-                        'cursorborder': "0",
-                        'cursorborderradius': "5px"
-                    });
-                }
-            }
-        };
-    }]);
-conversationDirective.directive("emoji", [function () {
-        return {
-            restrict: "E",
-            scope: {
-                item: "=",
-                content: "="
-            },
-            template: '<div style="display:inline-block"></div>',
-            link: function (scope, ele, attr) {
-                ele.find("div").append(scope.item);
-                ele.on("click", function () {
-                    scope.$parent.currentConversation.messageContent = scope.$parent.currentConversation.messageContent || "";
-                    scope.$parent.currentConversation.messageContent = scope.$parent.currentConversation.messageContent.replace(/\n$/, "");
-                    scope.$parent.currentConversation.messageContent = scope.$parent.currentConversation.messageContent + scope.item.children[0].getAttribute("name");
-                    scope.$parent.$apply();
-                    var obj = document.getElementById("inputMsg");
-                    WidgetModule.Helper.getFocus(obj);
                 });
-            }
-        };
-    }]);
-conversationDirective.directive('contenteditableDire', function () {
-    return {
-        restrict: 'A',
-        require: '?ngModel',
-        link: function (scope, element, attrs, ngModel) {
-            function replacemy(e) {
-                return e.replace(new RegExp("<[\\s\\S.]*?>", "ig"), "");
-            }
-            var domElement = element[0];
-            scope.$watch(function () {
-                return ngModel.$modelValue;
-            }, function (newVal) {
-                if (document.activeElement === domElement) {
-                    return;
-                }
-                if (newVal === '' || newVal === attrs["placeholder"]) {
-                    domElement.innerHTML = attrs["placeholder"];
-                    domElement.style.color = "#a9a9a9";
-                }
-            });
-            element.bind('focus', function () {
-                if (domElement.innerHTML == attrs["placeholder"]) {
-                    domElement.innerHTML = '';
-                }
-                domElement.style.color = '';
-            });
-            element.bind('blur', function () {
-                if (domElement.innerHTML === '') {
-                    domElement.innerHTML = attrs["placeholder"];
-                    domElement.style.color = "#a9a9a9";
-                }
-            });
-            if (!ngModel)
-                return;
-            element.bind("paste", function (e) {
-                var that = this, ohtml = that.innerHTML;
-                timeoutid && clearTimeout(timeoutid);
-                var timeoutid = setTimeout(function () {
-                    that.innerHTML = replacemy(that.innerHTML);
-                    ngModel.$setViewValue(that.innerHTML);
-                    timeoutid = null;
-                }, 50);
-            });
-            ngModel.$render = function () {
-                element.html(ngModel.$viewValue || '');
+                return defer.promise;
             };
-            element.bind("keyup paste", read);
-            // element.bind("input", read);
-            function read() {
-                var html = element.html();
-                html = html.replace(/^<br>$/i, "");
-                html = html.replace(/<br>/gi, "\n");
-                if (attrs["stripBr"] && html == '<br>') {
-                    html = '';
-                }
-                ngModel.$setViewValue(html);
-            }
-        }
-    };
-});
-conversationDirective.directive("ctrlEnterKeys", ["$timeout", function ($timeout) {
-        return {
-            restrict: "A",
-            require: '?ngModel',
-            scope: {
-                fun: "&",
-                ctrlenter: "=",
-                content: "="
-            },
-            link: function (scope, element, attrs, ngModel) {
-                scope.ctrlenter = scope.ctrlenter || false;
-                element.bind("keypress", function (e) {
-                    if (scope.ctrlenter) {
-                        if (e.ctrlKey === true && e.keyCode === 13 || e.keyCode === 10) {
-                            scope.fun();
-                            scope.$parent.$apply();
-                            e.preventDefault();
-                        }
+            conversationServer.prototype._addHistoryMessages = function (item) {
+                var key = item.conversationType + "_" + item.targetId;
+                var arr = this._cacheHistory[key]
+                    = this._cacheHistory[key] || [];
+                if (arr[arr.length - 1]
+                    && arr[arr.length - 1].panelType != RongWebIMWidget.PanelType.Time
+                    && arr[arr.length - 1].sentTime
+                    && item.sentTime) {
+                    if (!RongWebIMWidget.Helper.timeCompare(arr[arr.length - 1].sentTime, item.sentTime)) {
+                        arr.push(new RongWebIMWidget.TimePanl(item.sentTime));
                     }
-                    else {
-                        if (e.ctrlKey === false && e.shiftKey === false && (e.keyCode === 13 || e.keyCode === 10)) {
-                            scope.fun();
-                            scope.$parent.$apply();
-                            e.preventDefault();
-                        }
-                        else if (e.ctrlKey === true && e.keyCode === 13 || e.keyCode === 10) {
-                        }
-                    }
-                });
-            }
-        };
-    }]);
-conversationDirective.directive("textmessage", [function () {
-        return {
-            restrict: "E",
-            scope: { msg: "=" },
-            template: '<div class="">' +
-                '<div class="rongcloud-Message-text"><pre class="rongcloud-Message-entry" ng-bind-html="msg.content|trustHtml"><br></pre></div>' +
-                '</div>'
-        };
-    }]);
-conversationDirective.directive("includinglinkmessage", [function () {
-        return {
-            restrict: "E",
-            scope: { msg: "=" },
-            template: '<div class="">' +
-                '<div class="rongcloud-Message-text">' +
-                '<pre class="rongcloud-Message-entry" style="">' +
-                '维护中 由于我们的服务商出现故障，融云官网及相关服务也受到影响，给各位用户带来的不便，还请谅解。  您可以通过 <a href="#">【官方微博】</a>了解</pre>' +
-                '</div>' +
-                '</div>'
-        };
-    }]);
-conversationDirective.directive("imagemessage", [function () {
-        return {
-            restrict: "E",
-            scope: { msg: "=" },
-            template: '<div class="">' +
-                '<div class="rongcloud-Message-img">' +
-                '<span id="{{\'rebox_\'+$id}}"  class="rongcloud-Message-entry" style="">' +
-                // '<p>发给您一张示意图</p>' +
-                // '<img ng-src="{{msg.content}}" alt="">' +
-                '<a href="{{msg.imageUri}}" target="_black"><img ng-src="{{msg.content}}"  data-image="{{msg.imageUri}}" alt=""/></a>' +
-                '</span>' +
-                '</div>' +
-                '</div>',
-            link: function (scope, ele, attr) {
-                var img = new Image();
-                img.src = scope.msg.imageUri;
-                setTimeout(function () {
-                    if (window["jQuery"] && window["jQuery"].rebox) {
-                        $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rongcloud-rebox" }).bind("rebox:open", function () {
-                            //jQuery rebox 点击空白关闭
-                            var rebox = document.getElementsByClassName("rongcloud-rebox")[0];
-                            rebox.onclick = function (e) {
-                                if (e.target.tagName.toLowerCase() != "img") {
-                                    var rebox_close = document.getElementsByClassName("rongcloud-rebox-close")[0];
-                                    rebox_close.click();
-                                    rebox = null;
-                                    rebox_close = null;
-                                }
-                            };
-                        });
-                    }
-                });
-                img.onload = function () {
-                    //scope.isLoaded = true;
-                    scope.$apply(function () {
-                        scope.msg.content = scope.msg.imageUri;
-                    });
-                };
-                // setTimeout(function() {
-                //     Intense(ele.find("img")[0]);
-                // }, 0);
-                scope.showBigImage = function () {
-                };
-            }
-        };
-    }]);
-conversationDirective.directive("voicemessage", ["$timeout", function ($timeout) {
-        return {
-            restrict: "E",
-            scope: { msg: "=" },
-            template: '<div class="">' +
-                '<div class="rongcloud-Message-audio">' +
-                '<span class="rongcloud-Message-entry" style="">' +
-                '<span class="rongcloud-audioBox rongcloud-clearfix " ng-click="play()" ng-class="{\'animate\':isplaying}" ><i></i><i></i><i></i></span>' +
-                '<div style="display: inline-block;" ><span class="rongcloud-audioTimer">{{msg.duration}}”</span><span class="rongcloud-audioState" ng-show="msg.isUnReade"></span></div>' +
-                '</span>' +
-                '</div>' +
-                '</div>',
-            link: function (scope, ele, attr) {
-                scope.msg.duration = parseInt(scope.msg.duration || scope.msg.content.length / 1024);
-                RongIMLib.RongIMVoice.preLoaded(scope.msg.content);
-                scope.play = function () {
-                    RongIMLib.RongIMVoice.stop(scope.msg.content);
-                    if (!scope.isplaying) {
-                        scope.msg.isUnReade = false;
-                        RongIMLib.RongIMVoice.play(scope.msg.content, scope.msg.duration);
-                        scope.isplaying = true;
-                        if (scope.timeoutid) {
-                            $timeout.cancel(scope.timeoutid);
-                        }
-                        scope.timeoutid = $timeout(function () {
-                            scope.isplaying = false;
-                        }, scope.msg.duration * 1000);
-                    }
-                    else {
-                        scope.isplaying = false;
-                        $timeout.cancel(scope.timeoutid);
-                    }
-                };
-            }
-        };
-    }]);
-conversationDirective.directive("locationmessage", [function () {
-        return {
-            restrict: "E",
-            scope: { msg: "=" },
-            template: '<div class="">' +
-                '<div class="rongcloud-Message-map">' +
-                '<span class="rongcloud-Message-entry" style="">' +
-                '<div class="rongcloud-mapBox">' +
-                '<img ng-src="{{msg.content}}" alt="">' +
-                '<span>{{msg.poi}}</span>' +
-                '</div>' +
-                '</span>' +
-                '</div>' +
-                '</div>'
-        };
-    }]);
-conversationDirective.directive("richcontentmessage", [function () {
-        return {
-            restrict: "E",
-            scope: { msg: "=" },
-            template: '<div class="">' +
-                '<div class="rongcloud-Message-image-text">' +
-                '<span class="rongcloud-Message-entry" style="">' +
-                '<div class="rongcloud-image-textBox">' +
-                '<h4>{{msg.title}}</h4>' +
-                '<div class="rongcloud-cont rongcloud-clearfix">' +
-                '<img ng-src="{{msg.imageUri}}" alt="">' +
-                '<div>{{msg.content}}</div>' +
-                '</div>' +
-                '</div>' +
-                '</span>' +
-                '</div>' +
-                '</div>'
-        };
-    }]);
-/// <reference path="../../../typings/tsd.d.ts"/>
-var conversationServer = angular.module("RongWebIMWidget.conversationServer", ["RongWebIMWidget.conversationDirective"]);
-conversationServer.factory("conversationServer", ["$q", "providerdata", function ($q, providerdata) {
-        var conversationServer = {};
-        conversationServer.current = {
-            targetId: "",
-            targetType: 0,
-            title: "",
-            portraitUri: "",
-            onLine: false
-        };
-        conversationServer.loginUser = {
-            id: "",
-            name: "",
-            portraitUri: ""
-        };
-        conversationServer._cacheHistory = {};
-        conversationServer._getHistoryMessages = function (targetType, targetId, number, reset) {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().getHistoryMessages(targetType, targetId, reset ? 0 : null, number, {
-                onSuccess: function (data, has) {
-                    var msglen = data.length;
-                    while (msglen--) {
-                        var msg = WidgetModule.Message.convert(data[msglen]);
-                        unshiftHistoryMessages(targetId, targetType, msg);
-                        if (msg.content && providerdata.getUserInfo) {
-                            (function (msg) {
-                                providerdata.getUserInfo(msg.senderUserId, {
-                                    onSuccess: function (obj) {
-                                        msg.content.userInfo = new WidgetModule.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                    }
-                                });
-                            })(msg);
-                        }
-                    }
-                    defer.resolve({ data: data, has: has });
-                },
-                onError: function (error) {
-                    defer.reject(error);
                 }
-            });
-            return defer.promise;
-        };
-        function adduserinfo() {
-        }
-        function unshiftHistoryMessages(id, type, item) {
-            var arr = conversationServer._cacheHistory[type + "_" + id] = conversationServer._cacheHistory[type + "_" + id] || [];
-            if (arr[0] && arr[0].sentTime && arr[0].panelType != WidgetModule.PanelType.Time && item.sentTime) {
-                if (!WidgetModule.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
-                    arr.unshift(new WidgetModule.TimePanl(arr[0].sentTime));
-                }
+                arr.push(item);
+            };
+            conversationServer.$inject = ["$q", "ProviderData"];
+            return conversationServer;
+        })();
+        angular.module("RongWebIMWidget.conversation")
+            .service("conversationServer", conversationServer);
+    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversationlist;
+    (function (conversationlist) {
+        var conversationListController = (function () {
+            function conversationListController() {
             }
-            arr.unshift(item);
-        }
-        conversationServer._addHistoryMessages = function (item) {
-            var arr = conversationServer._cacheHistory[item.conversationType + "_" + item.targetId] = conversationServer._cacheHistory[item.conversationType + "_" + item.targetId] || [];
-            if (arr[arr.length - 1] && arr[arr.length - 1].panelType != WidgetModule.PanelType.Time && arr[arr.length - 1].sentTime && item.sentTime) {
-                if (!WidgetModule.Helper.timeCompare(arr[arr.length - 1].sentTime, item.sentTime)) {
-                    arr.push(new WidgetModule.TimePanl(item.sentTime));
-                }
+            return conversationListController;
+        })();
+        angular.module("RongWebIMWidget.conversationlist")
+            .controller("conversationListController", conversationListController);
+    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+/// <reference path="../../lib/window.d.ts"/>
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversationlist;
+    (function (conversationlist) {
+        var rongConversationList = (function () {
+            function rongConversationList() {
+                this.restrict = "E";
+                this.templateUrl = "./src/ts/conversationlist/conversationList.tpl.html";
+                this.controller = "conversationListController";
             }
-            arr.push(item);
-        };
-        conversationServer.onConversationChangged = function () {
-            //提供接口由conversation controller实现具体操作
-        };
-        conversationServer.onReceivedMessage = function () {
-            //提供接口由coversation controller实现具体操作
-        };
-        conversationServer._customService = {
-            human: {}
-        };
-        return conversationServer;
-    }]);
-/// <reference path="../../../typings/tsd.d.ts"/>
-var conversationListCtr = angular.module("RongWebIMWidget.conversationListController", []);
-conversationListCtr.controller("conversationListController", ["$scope", "conversationListServer", "WebIMWidget", "widgetConfig", "providerdata",
-    function ($scope, conversationListServer, WebIMWidget, widgetConfig, providerdata) {
-        $scope.conversationListServer = conversationListServer;
-        $scope.WebIMWidget = WebIMWidget;
-        conversationListServer.refreshConversationList = function () {
-            setTimeout(function () {
-                $scope.$apply();
-            });
-        };
-        $scope.minbtn = function () {
-            WebIMWidget.display = false;
-        };
-        var checkOnlieStatus;
-        var voicecookie = WidgetModule.Helper.CookieHelper.getCookie("voiceSound");
-        providerdata.voiceSound = voicecookie ? (voicecookie == "true") : true;
-        $scope.data = providerdata;
-        $scope.config = widgetConfig;
-        $scope.$watch("data.voiceSound", function (newVal, oldVal) {
-            if (newVal === oldVal) {
-                return;
-            }
-            WidgetModule.Helper.CookieHelper.setCookie("voiceSound", newVal);
-        });
-        function refreshOnlineStatus() {
-            var arr = conversationListServer.conversationList.map(function (item) { return item.targetId; });
-            providerdata.getOnlineStatus(arr, {
-                onSuccess: function (data) {
-                    conversationListServer._onlineStatus = data;
-                    conversationListServer.updateConversations();
-                }
-            });
-        }
-        function startCheckOnline() {
-            checkOnlieStatus = setInterval(function () {
-                refreshOnlineStatus();
-            }, 10 * 1000);
-        }
-        function stopCeckOnline() {
-            clearInterval(checkOnlieStatus);
-        }
-        $scope.connected = true;
-        conversationListServer._onConnectStatusChange = function (status) {
-            if (status == RongIMLib.ConnectionStatus.CONNECTED) {
-                $scope.connected = true;
-                if (widgetConfig.displayConversationList && providerdata.getOnlineStatus) {
-                    refreshOnlineStatus();
-                    startCheckOnline();
-                }
-            }
-            else {
-                $scope.connected = false;
-            }
-            setTimeout(function () {
-                $scope.$apply();
-            });
-        };
-    }]);
-/// <reference path="../../../typings/tsd.d.ts"/>
-var conversationListDir = angular.module("RongWebIMWidget.conversationListDirective", ["RongWebIMWidget.conversationListController"]);
-conversationListDir.directive("rongConversationList", [function () {
-        return {
-            restrict: "E",
-            templateUrl: "./src/ts/conversationlist/conversationList.tpl.html",
-            controller: "conversationListController",
-            link: function (scope, ele) {
+            rongConversationList.instance = function () {
+                return new rongConversationList;
+            };
+            rongConversationList.prototype.link = function (scope, ele) {
                 if (window["jQuery"] && window["jQuery"].nicescroll) {
                     $(ele).find(".rongcloud-content").niceScroll({
                         'cursorcolor': "#0099ff",
@@ -1256,315 +509,219 @@ conversationListDir.directive("rongConversationList", [function () {
                         'cursorborderradius': "5px"
                     });
                 }
+            };
+            return rongConversationList;
+        })();
+        var conversationItem = (function () {
+            function conversationItem(conversationServer, conversationListServer, RongIMSDKServer) {
+                this.conversationServer = conversationServer;
+                this.conversationListServer = conversationListServer;
+                this.RongIMSDKServer = RongIMSDKServer;
+                this.restrict = "E";
+                this.scope = { item: "=" };
+                this.template = '<div class="rongcloud-chatList">' +
+                    '<div class="rongcloud-chat_item " ng-class="{\'online\':item.onLine}">' +
+                    '<div class="rongcloud-ext">' +
+                    '<p class="rongcloud-attr clearfix">' +
+                    '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
+                    '<i class="rongcloud-sprite rongcloud-no-remind" ng-click="remove($event)"></i>' +
+                    '</p>' +
+                    '</div>' +
+                    '<div class="rongcloud-photo">' +
+                    '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png" alt="">' +
+                    '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
+                    '</div>' +
+                    '<div class="rongcloud-info">' +
+                    '<h3 class="rongcloud-nickname">' +
+                    '<span class="rongcloud-nickname_text" title="{{item.title}}">{{item.title}}</span>' +
+                    '</h3>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
             }
-        };
-    }]);
-conversationListDir.directive("conversationItem", ["conversationServer", "conversationListServer", "RongIMSDKServer", function (conversationServer, conversationListServer, RongIMSDKServer) {
-        return {
-            restrict: "E",
-            scope: { item: "=" },
-            template: '<div class="rongcloud-chatList">' +
-                '<div class="rongcloud-chat_item " ng-class="{\'online\':item.onLine}">' +
-                '<div class="rongcloud-ext">' +
-                '<p class="rongcloud-attr clearfix">' +
-                '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
-                '<i class="rongcloud-sprite rongcloud-no-remind" ng-click="remove($event)"></i>' +
-                '</p>' +
-                '</div>' +
-                '<div class="rongcloud-photo">' +
-                '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png" alt="">' +
-                '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
-                '</div>' +
-                '<div class="rongcloud-info">' +
-                '<h3 class="rongcloud-nickname">' +
-                '<span class="rongcloud-nickname_text" title="{{item.title}}">{{item.title}}</span>' +
-                '</h3>' +
-                '</div>' +
-                '</div>' +
-                '</div>',
-            link: function (scope, ele, attr) {
+            conversationItem.prototype.link = function (scope, ele, attr) {
+                var that = this;
                 ele.on("click", function () {
-                    conversationServer.onConversationChangged(new WidgetModule.Conversation(scope.item.targetType, scope.item.targetId, scope.item.title));
+                    that.conversationServer
+                        .ChangeConversation(new RongWebIMWidget.Conversation(scope.item.targetType, scope.item.targetId, scope.item.title));
                     if (scope.item.unreadMessageCount > 0) {
-                        RongIMLib.RongIMClient.getInstance().clearUnreadCount(scope.item.targetType, scope.item.targetId, {
-                            onSuccess: function () {
-                            },
-                            onError: function () {
-                            }
-                        });
-                        RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
-                        conversationListServer.updateConversations();
+                        that.RongIMSDKServer.clearUnreadCount(scope.item.targetType, scope.item.targetId);
+                        that.RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
+                        that.conversationListServer.updateConversations();
                     }
                 });
                 scope.remove = function (e) {
                     e.stopPropagation();
-                    RongIMLib.RongIMClient.getInstance().removeConversation(scope.item.targetType, scope.item.targetId, {
-                        onSuccess: function () {
-                            if (conversationServer.current.targetType == scope.item.targetType && conversationServer.current.targetId == scope.item.targetId) {
-                            }
-                            conversationListServer.updateConversations();
-                        },
-                        onError: function (error) {
-                            console.log(error);
+                    that.RongIMSDKServer.removeConversation(scope.item.targetType, scope.item.targetId).then(function () {
+                        if (that.conversationServer.current.targetType == scope.item.targetType
+                            && that.conversationServer.current.targetId == scope.item.targetId) {
                         }
+                        that.conversationListServer.updateConversations();
+                    }, function (error) {
+                        console.log(error);
                     });
                 };
+            };
+            conversationItem.$inject = ["conversationServer",
+                "conversationListServer",
+                "RongIMSDKServer"];
+            return conversationItem;
+        })();
+        angular.module("RongWebIMWidget.conversationlist")
+            .directive("rongConversationList", rongConversationList.instance)
+            .directive("conversationItem", RongWebIMWidget.DirectiveFactory.GetFactoryFor(conversationItem));
+    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversationlist;
+    (function (conversationlist) {
+        var ConversationListServer = (function () {
+            function ConversationListServer($q, providerdata, widgetConfig, RongIMSDKServer, conversationServer) {
+                this.$q = $q;
+                this.providerdata = providerdata;
+                this.widgetConfig = widgetConfig;
+                this.RongIMSDKServer = RongIMSDKServer;
+                this.conversationServer = conversationServer;
+                this._conversationList = [];
+                this._onlineStatus = [];
             }
-        };
-    }]);
-/// <reference path="../../../typings/tsd.d.ts"/>
-var conversationListSer = angular.module("RongWebIMWidget.conversationListServer", ["RongWebIMWidget.conversationListDirective", "RongWebIMWidget"]);
-conversationListSer.factory("conversationListServer", ["$q", "providerdata", "widgetConfig", "RongIMSDKServer", "conversationServer",
-    function ($q, providerdata, widgetConfig, RongIMSDKServer, conversationServer) {
-        var server = {};
-        server.conversationList = [];
-        server._onlineStatus = [];
-        server.updateConversations = function () {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().getConversationList({
-                onSuccess: function (data) {
-                    server.conversationList.splice(0, server.conversationList.length);
-                    for (var i = 0, len = data.length; i < len; i++) {
-                        var con = WidgetModule.Conversation.onvert(data[i]);
-                        switch (con.targetType) {
-                            case RongIMLib.ConversationType.PRIVATE:
-                                if (WidgetModule.Helper.checkType(providerdata.getUserInfo) == "function") {
-                                    (function (a, b) {
-                                        providerdata.getUserInfo(a.targetId, {
-                                            onSuccess: function (data) {
-                                                a.title = data.name;
-                                                a.portraitUri = data.portraitUri;
-                                                b.conversationTitle = data.name;
-                                                b.portraitUri = data.portraitUri;
-                                            }
-                                        });
-                                    }(con, data[i]));
-                                }
-                                break;
-                            case RongIMLib.ConversationType.GROUP:
-                                if (WidgetModule.Helper.checkType(providerdata.getGroupInfo) == "function") {
-                                    (function (a, b) {
-                                        providerdata.getGroupInfo(a.targetId, {
-                                            onSuccess: function (data) {
-                                                a.title = data.name;
-                                                a.portraitUri = data.portraitUri;
-                                                b.conversationTitle = data.name;
-                                                b.portraitUri = data.portraitUri;
-                                            }
-                                        });
-                                    }(con, data[i]));
-                                }
-                                break;
-                            case RongIMLib.ConversationType.CHATROOM:
-                                break;
+            ConversationListServer.prototype.updateConversations = function () {
+                var defer = this.$q.defer();
+                var _this = this;
+                RongIMLib.RongIMClient.getInstance().getConversationList({
+                    onSuccess: function (data) {
+                        _this._conversationList.splice(0, _this._conversationList.length);
+                        for (var i = 0, len = data.length; i < len; i++) {
+                            var con = RongWebIMWidget.Conversation.onvert(data[i]);
+                            switch (con.targetType) {
+                                case RongIMLib.ConversationType.PRIVATE:
+                                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
+                                        (function (a, b) {
+                                            _this.providerdata.getUserInfo(a.targetId, {
+                                                onSuccess: function (data) {
+                                                    a.title = data.name;
+                                                    a.portraitUri = data.portraitUri;
+                                                    b.conversationTitle = data.name;
+                                                    b.portraitUri = data.portraitUri;
+                                                }
+                                            });
+                                        }(con, data[i]));
+                                    }
+                                    break;
+                                case RongIMLib.ConversationType.GROUP:
+                                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getGroupInfo) == "function") {
+                                        (function (a, b) {
+                                            _this.providerdata.getGroupInfo(a.targetId, {
+                                                onSuccess: function (data) {
+                                                    a.title = data.name;
+                                                    a.portraitUri = data.portraitUri;
+                                                    b.conversationTitle = data.name;
+                                                    b.portraitUri = data.portraitUri;
+                                                }
+                                            });
+                                        }(con, data[i]));
+                                    }
+                                    break;
+                                case RongIMLib.ConversationType.CHATROOM:
+                                    break;
+                            }
+                            _this._conversationList.push(con);
                         }
-                        server.conversationList.push(con);
-                    }
-                    server._onlineStatus.forEach(function (item) {
-                        var conv = server.getConversation(WidgetModule.EnumConversationType.PRIVATE, item.id);
-                        conv && (conv.onLine = item.status);
-                    });
-                    if (widgetConfig.displayConversationList) {
-                        RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
-                            onSuccess: function (num) {
-                                providerdata.totalUnreadCount = num || 0;
-                                defer.resolve();
-                                server.refreshConversationList();
-                            },
-                            onError: function () {
-                            }
+                        _this._onlineStatus.forEach(function (item) {
+                            var conv = this.getConversation(RongWebIMWidget.EnumConversationType.PRIVATE, item.id);
+                            conv && (conv.onLine = item.status);
                         });
-                    }
-                    else {
-                        conversationServer.current && RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function (conv) {
-                            if (conv && conv.unreadMessageCount) {
-                                providerdata.totalUnreadCount = conv.unreadMessageCount || 0;
-                                defer.resolve();
-                                server.refreshConversationList();
-                            }
-                            else {
-                                providerdata.totalUnreadCount = 0;
-                                defer.resolve();
-                                server.refreshConversationList();
-                            }
-                        });
-                    }
-                },
-                onError: function (error) {
-                    defer.reject(error);
-                }
-            }, null);
-            return defer.promise;
-        };
-        server.refreshConversationList = function () {
-            //在controller里刷新页面。
-        };
-        server.getConversation = function (type, id) {
-            for (var i = 0, len = server.conversationList.length; i < len; i++) {
-                if (server.conversationList[i].targetType == type && server.conversationList[i].targetId == id) {
-                    return server.conversationList[i];
-                }
-            }
-            return null;
-        };
-        server.addConversation = function (conversation) {
-            server.conversationList.unshift(conversation);
-        };
-        server._onConnectStatusChange = function () { };
-        return server;
-    }]);
-/// <reference path="../../../typings/tsd.d.ts"/>
-var evaluate = angular.module("Evaluate", []);
-evaluate.directive("evaluatedir", ["$timeout", function ($timeout) {
-        return {
-            restrict: "E",
-            scope: {
-                type: "=",
-                display: "=",
-                enter: "&confirm",
-                dcancle: "&cancle"
-            },
-            templateUrl: './src/ts/evaluate/evaluate.tpl.html',
-            link: function (scope, ele) {
-                var stars = [false, false, false, false, false];
-                var labels = ["答非所问", "理解能力差", "一问三不知", "不礼貌"];
-                var enterStars = false;
-                scope.stars = stars.concat();
-                scope.labels = labels.concat();
-                scope.end = false;
-                scope.displayDescribe = false;
-                scope.data = {
-                    stars: 0,
-                    value: 0,
-                    describe: "",
-                    label: ""
-                };
-                scope.$watch("display", function (newVal, oldVal) {
-                    if (newVal === oldVal) {
-                        return;
-                    }
-                    else {
-                        enterStars = false;
-                        scope.displayDescribe = false;
-                        scope.data = {
-                            stars: 0,
-                            value: 0,
-                            describe: "",
-                            label: ""
-                        };
-                    }
-                });
-                scope.mousehover = function (data) {
-                    !enterStars && (scope.data.stars = data);
-                };
-                scope.confirm = function (data) {
-                    if (data != undefined) {
-                        enterStars = true;
-                        if (scope.type == 1) {
-                            scope.data.stars = data;
-                            if (scope.data.stars != 5) {
-                                scope.displayDescribe = true;
-                            }
-                            else {
-                                confirm(scope.data);
-                            }
+                        if (_this.widgetConfig.displayConversationList) {
+                            RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
+                                onSuccess: function (num) {
+                                    _this.providerdata.totalUnreadCount = num || 0;
+                                    defer.resolve();
+                                    _this._refreshConversationList();
+                                },
+                                onError: function () {
+                                }
+                            });
                         }
                         else {
-                            scope.data.value = data;
-                            if (scope.data.value === false) {
-                                scope.displayDescribe = true;
-                            }
-                            else {
-                                confirm(scope.data);
-                            }
+                            var cu = _this.conversationServer.current;
+                            cu && _this.RongIMSDKServer.getConversation(cu.targetType, cu.targetId).then(function (conv) {
+                                if (conv && conv.unreadMessageCount) {
+                                    _this.providerdata.totalUnreadCount = conv.unreadMessageCount || 0;
+                                    defer.resolve();
+                                    _this._refreshConversationList();
+                                }
+                                else {
+                                    _this.providerdata.totalUnreadCount = 0;
+                                    defer.resolve();
+                                    _this._refreshConversationList();
+                                }
+                            });
                         }
+                    },
+                    onError: function (error) {
+                        defer.reject(error);
                     }
-                    else {
-                        confirm(null);
-                    }
-                };
-                scope.commit = function () {
-                    confirm(scope.data);
-                };
-                scope.cancle = function () {
-                    scope.display = false;
-                    scope.dcancle();
-                };
-                function confirm(data) {
-                    scope.end = true;
-                    if (data) {
-                        $timeout(function () {
-                            scope.display = false;
-                            scope.end = false;
-                            scope.enter({ data: data });
-                        }, 800);
-                    }
-                    else {
-                        scope.display = false;
-                        scope.end = false;
-                        scope.enter({ data: data });
-                    }
-                }
-            }
-        };
-    }]);
-/// <reference path="../../typings/tsd.d.ts"/>
-/// <reference path="../../vendor/loadscript/script.d.ts"/>
-var kefu = angular.module("RongCloudkefu", ["RongWebIMWidget"]);
-kefu.service("RongKefu", ["WebIMWidget", function (WebIMWidget) {
-        var kefuServer = {};
-        var defaultconfig = {
-            __isKefu: true
-        };
-        kefuServer.init = function (config) {
-            angular.extend(defaultconfig, config);
-            kefuServer._config = config;
-            var style = {
-                right: 20
+                }, null);
+                return defer.promise;
             };
-            if (config.position) {
-                if (config.position == KefuPostion.left) {
-                    style = {
-                        left: 20,
-                        width: 325,
-                        positionFixed: true
-                    };
-                }
-                else {
-                    style = {
-                        right: 20,
-                        width: 325,
-                        positionFixed: true
-                    };
-                }
-            }
-            //style.width = defaultconfig.style.width;
-            //style.height = defaultconfig.style.height;
-            defaultconfig.style = style;
-            WebIMWidget.init(defaultconfig);
-            WebIMWidget.onShow = function () {
-                WebIMWidget.setConversation(WidgetModule.EnumConversationType.CUSTOMER_SERVICE, config.kefuId, "客服");
+            ConversationListServer.prototype._refreshConversationList = function () {
+                //TODO: 暂时不实现 updateConversation 时不改变数据源
             };
+            ConversationListServer.prototype._getConversation = function (type, id) {
+                for (var i = 0, len = this._conversationList.length; i < len; i++) {
+                    if (this._conversationList[i].targetType == type && this._conversationList[i].targetId == id) {
+                        return this._conversationList[i];
+                    }
+                }
+                return null;
+            };
+            ConversationListServer.$inject = ["$q",
+                "ProviderData",
+                "WidgetConfig",
+                "RongIMSDKServer",
+                "conversationServer"];
+            return ConversationListServer;
+        })();
+        angular.module("RongWebIMWidget.conversationlist")
+            .service("ConversationListServer", ConversationListServer);
+    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    // var eleConversationListWidth = 195,
+    //     eleminbtnHeight = 50,
+    //     eleminbtnWidth = 195,
+    //     spacing = 3;
+    var WebIMWidget = (function () {
+        function WebIMWidget() {
+            // static $inject: string[] = ["$q",
+            //     // "conversationServer",
+            //     // "conversationListServer",
+            //     // "ProviderData",
+            //     // "WidgetConfig",
+            //     "RongIMSDKServer"];
+            this.display = false;
+            this.EnumConversationListPosition = RongWebIMWidget.EnumConversationListPosition;
+        }
+        // constructor(private $q:ng.IQService,
+        //   private conversationServer:conversationServer) {
+        //
+        // }
+        WebIMWidget.prototype.init = function (config) {
         };
-        kefuServer.show = function () {
-            WebIMWidget.show();
-        };
-        kefuServer.hidden = function () {
-            WebIMWidget.hidden();
-        };
-        kefuServer.KefuPostion = KefuPostion;
-        return kefuServer;
-    }]);
-var KefuPostion;
-(function (KefuPostion) {
-    KefuPostion[KefuPostion["left"] = 1] = "left";
-    KefuPostion[KefuPostion["right"] = 2] = "right";
-})(KefuPostion || (KefuPostion = {}));
+        return WebIMWidget;
+    })();
+    RongWebIMWidget.WebIMWidget = WebIMWidget;
+    angular.module("RongWebIMWidget")
+        .service("WebIMWidget", WebIMWidget);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../typings/tsd.d.ts"/>
-/// <reference path="../../vendor/loadscript/script.d.ts"/>
-var widget = angular.module("RongWebIMWidget", ["RongWebIMWidget.conversationServer",
-    "RongWebIMWidget.conversationListServer", "RongIMSDKModule", "Evaluate"]);
-widget.run(["$http", "WebIMWidget", "widgetConfig", function ($http, WebIMWidget, widgetConfig) {
+/// <reference path="../lib/window.d.ts"/>
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig"];
+    function runApp($http, WebIMWidget, WidgetConfig) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
         $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.0.15.min.js", function () {
@@ -1573,428 +730,27 @@ widget.run(["$http", "WebIMWidget", "widgetConfig", function ($http, WebIMWidget
             $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.0.15.min.js", function () {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
-            if (widgetConfig.config) {
-                WebIMWidget.init(widgetConfig.config);
+            if (WidgetConfig._config) {
+                WebIMWidget.init(WidgetConfig._config);
             }
         });
         $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function () { });
-    }]);
-widget.factory("providerdata", [function () {
-        var obj = {
-            _cacheUserInfo: [],
-            getCacheUserInfo: function (id) {
-                for (var i = 0, len = obj._cacheUserInfo.length; i < len; i++) {
-                    if (obj._cacheUserInfo[i].userId == id) {
-                        return obj._cacheUserInfo[i];
-                    }
-                }
-                return null;
-            },
-            addUserInfo: function (user) {
-                var olduser = obj.getCacheUserInfo(user.userId);
-                if (olduser) {
-                    angular.extend(olduser, user);
-                }
-                else {
-                    obj._cacheUserInfo.push(user);
-                }
-            }
-        };
-        return obj;
-    }]);
-widget.factory("widgetConfig", [function () {
-        return {};
-    }]);
-widget.factory("WebIMWidget", ["$q", "conversationServer",
-    "conversationListServer", "providerdata", "widgetConfig", "RongIMSDKServer",
-    function ($q, conversationServer, conversationListServer, providerdata, widgetConfig, RongIMSDKServer) {
-        var WebIMWidget = {};
-        var messageList = {};
-        var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195, spacing = 3;
-        var defaultconfig = {
-            displayMinButton: true,
-            conversationListPosition: WidgetModule.EnumConversationListPosition.left,
-            desktopNotification: true,
-            voiceNotification: true,
-            style: {
-                positionFixed: false,
-                width: 450,
-                height: 470,
-                bottom: 0,
-                right: 0
-            }
-        };
-        var eleplaysound = null;
-        WebIMWidget.display = false;
-        WebIMWidget.init = function (config) {
-            if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
-                widgetConfig.config = config;
-                return;
-            }
-            if (defaultconfig.desktopNotification) {
-                WidgetModule.NotificationHelper.requestPermission();
-            }
-            var defaultStyle = defaultconfig.style;
-            angular.extend(defaultconfig, config);
-            angular.extend(defaultStyle, config.style);
-            eleplaysound = document.getElementById("rongcloud-playsound");
-            if (eleplaysound && typeof defaultconfig.voiceUrl === "string") {
-                eleplaysound.src = defaultconfig.voiceUrl;
-            }
-            else {
-                defaultconfig.voiceNotification = false;
-            }
-            widgetConfig.displayConversationList = defaultconfig.displayConversationList;
-            widgetConfig.displayMinButton = defaultconfig.displayMinButton;
-            widgetConfig.reminder = defaultconfig.reminder;
-            widgetConfig.voiceNotification = defaultconfig.voiceNotification;
-            widgetConfig.__isKefu = defaultconfig.__isKefu;
-            var eleconversation = document.getElementById("rong-conversation");
-            var eleconversationlist = document.getElementById("rong-conversation-list");
-            var eleminbtn = document.getElementById("rong-widget-minbtn");
-            if (defaultconfig.__isKefu) {
-                var eleminbtn = document.getElementById("rong-widget-minbtn-kefu");
-            }
-            if (defaultStyle) {
-                eleconversation.style["height"] = defaultStyle.height + "px";
-                eleconversation.style["width"] = defaultStyle.width + "px";
-                eleconversationlist.style["height"] = defaultStyle.height + "px";
-                if (defaultStyle.positionFixed) {
-                    eleconversationlist.style['position'] = "fixed";
-                    eleminbtn.style['position'] = "fixed";
-                    eleconversation.style['position'] = "fixed";
-                }
-                else {
-                    eleconversationlist.style['position'] = "absolute";
-                    eleminbtn.style['position'] = "absolute";
-                    eleconversation.style['position'] = "absolute";
-                }
-                if (defaultconfig.displayConversationList) {
-                    eleminbtn.style["display"] = "inline-block";
-                    eleconversationlist.style["display"] = "inline-block";
-                    if (defaultconfig.conversationListPosition == WidgetModule.EnumConversationListPosition.left) {
-                        if (!isNaN(defaultStyle.left)) {
-                            eleconversationlist.style["left"] = defaultStyle.left + "px";
-                            eleminbtn.style["left"] = defaultStyle.left + "px";
-                            eleconversation.style["left"] = defaultStyle.left + eleConversationListWidth + spacing + "px";
-                        }
-                        if (!isNaN(defaultStyle.right)) {
-                            eleconversationlist.style["right"] = defaultStyle.right + defaultStyle.width + spacing + "px";
-                            eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width + spacing + "px";
-                            eleconversation.style["right"] = defaultStyle.right + "px";
-                        }
-                    }
-                    else if (defaultconfig.conversationListPosition == WidgetModule.EnumConversationListPosition.right) {
-                        if (!isNaN(defaultStyle.left)) {
-                            eleconversationlist.style["left"] = defaultStyle.left + defaultStyle.width + spacing + "px";
-                            eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width + spacing + "px";
-                            eleconversation.style["left"] = defaultStyle.left + "px";
-                        }
-                        if (!isNaN(defaultStyle.right)) {
-                            eleconversationlist.style["right"] = defaultStyle.right + "px";
-                            eleminbtn.style["right"] = defaultStyle.right + "px";
-                            eleconversation.style["right"] = defaultStyle.right + eleConversationListWidth + spacing + "px";
-                        }
-                    }
-                    else {
-                        throw new Error("config conversationListPosition value is invalid");
-                    }
-                    if (!isNaN(defaultStyle["top"])) {
-                        eleconversationlist.style["top"] = defaultStyle.top + "px";
-                        eleminbtn.style["top"] = defaultStyle.top + defaultStyle.height - eleminbtnHeight + "px";
-                        eleconversation.style["top"] = defaultStyle.top + "px";
-                    }
-                    if (!isNaN(defaultStyle["bottom"])) {
-                        eleconversationlist.style["bottom"] = defaultStyle.bottom + "px";
-                        eleminbtn.style["bottom"] = defaultStyle.bottom + "px";
-                        eleconversation.style["bottom"] = defaultStyle.bottom + "px";
-                    }
-                }
-                else {
-                    eleminbtn.style["display"] = "inline-block";
-                    eleconversationlist.style["display"] = "none";
-                    eleconversation.style["left"] = defaultStyle["left"] + "px";
-                    eleconversation.style["right"] = defaultStyle["right"] + "px";
-                    eleconversation.style["top"] = defaultStyle["top"] + "px";
-                    eleconversation.style["bottom"] = defaultStyle["bottom"] + "px";
-                    eleminbtn.style["top"] = defaultStyle.top + defaultStyle.height - eleminbtnHeight + "px";
-                    eleminbtn.style["bottom"] = defaultStyle.bottom + "px";
-                    eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width / 2 - eleminbtnWidth / 2 + "px";
-                    eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width / 2 - eleminbtnWidth / 2 + "px";
-                }
-            }
-            if (defaultconfig.displayMinButton == false) {
-                eleminbtn.style["display"] = "none";
-            }
-            RongIMSDKServer.init(defaultconfig.appkey);
-            RongIMSDKServer.connect(defaultconfig.token).then(function (userId) {
-                conversationListServer.updateConversations();
-                if (WidgetModule.Helper.checkType(defaultconfig.onSuccess) == "function") {
-                    defaultconfig.onSuccess(userId);
-                }
-                if (WidgetModule.Helper.checkType(providerdata.getUserInfo) == "function") {
-                    providerdata.getUserInfo(userId, {
-                        onSuccess: function (data) {
-                            conversationServer.loginUser.id = data.userId;
-                            conversationServer.loginUser.name = data.name;
-                            conversationServer.loginUser.portraitUri = data.portraitUri;
-                        }
-                    });
-                }
-                conversationServer._onConnectSuccess();
-            }, function (err) {
-                if (err.tokenError) {
-                    if (defaultconfig.onError && typeof defaultconfig.onError == "function") {
-                        defaultconfig.onError({ code: 0, info: "token 无效" });
-                    }
-                }
-                else {
-                    if (defaultconfig.onError && typeof defaultconfig.onError == "function") {
-                        defaultconfig.onError({ code: err.errorCode });
-                    }
-                }
-            });
-            RongIMSDKServer.setConnectionStatusListener({
-                onChanged: function (status) {
-                    WebIMWidget.connected = false;
-                    switch (status) {
-                        //链接成功
-                        case RongIMLib.ConnectionStatus.CONNECTED:
-                            console.log('链接成功');
-                            WebIMWidget.connected = true;
-                            break;
-                        //正在链接
-                        case RongIMLib.ConnectionStatus.CONNECTING:
-                            console.log('正在链接');
-                            break;
-                        //其他设备登陆
-                        case RongIMLib.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT:
-                            console.log('其他设备登录');
-                            break;
-                        case RongIMLib.ConnectionStatus.NETWORK_UNAVAILABLE:
-                            console.log("网络不可用");
-                            break;
-                    }
-                    if (WebIMWidget.onConnectStatusChange) {
-                        WebIMWidget.onConnectStatusChange(status);
-                    }
-                    if (conversationListServer._onConnectStatusChange) {
-                        conversationListServer._onConnectStatusChange(status);
-                    }
-                }
-            });
-            RongIMSDKServer.setOnReceiveMessageListener({
-                onReceived: function (data) {
-                    console.log(data);
-                    var msg = WidgetModule.Message.convert(data);
-                    if (WidgetModule.Helper.checkType(providerdata.getUserInfo) == "function" && msg.content) {
-                        providerdata.getUserInfo(msg.senderUserId, {
-                            onSuccess: function (data) {
-                                if (data) {
-                                    msg.content.userInfo = new WidgetModule.UserInfo(data.userId, data.name, data.portraitUri);
-                                }
-                            }
-                        });
-                    }
-                    switch (data.messageType) {
-                        case WidgetModule.MessageType.VoiceMessage:
-                            msg.content.isUnReade = true;
-                        case WidgetModule.MessageType.TextMessage:
-                        case WidgetModule.MessageType.LocationMessage:
-                        case WidgetModule.MessageType.ImageMessage:
-                        case WidgetModule.MessageType.RichContentMessage:
-                            addMessageAndOperation(msg);
-                            var voiceBase = providerdata.voiceSound == true && eleplaysound && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.voiceNotification;
-                            var currentConvversationBase = conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId;
-                            var notificationBase = (document.hidden || !WebIMWidget.display) && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && defaultconfig.desktopNotification;
-                            if ((defaultconfig.displayConversationList && voiceBase) || (!defaultconfig.displayConversationList && voiceBase && currentConvversationBase)) {
-                                eleplaysound.play();
-                            }
-                            if ((notificationBase && defaultconfig.displayConversationList) || (!defaultconfig.displayConversationList && notificationBase && currentConvversationBase)) {
-                                WidgetModule.NotificationHelper.showNotification({
-                                    title: msg.content.userInfo.name,
-                                    icon: "",
-                                    body: WidgetModule.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
-                                });
-                            }
-                            break;
-                        case WidgetModule.MessageType.ContactNotificationMessage:
-                            //好友通知自行处理
-                            break;
-                        case WidgetModule.MessageType.InformationNotificationMessage:
-                            addMessageAndOperation(msg);
-                            break;
-                        case WidgetModule.MessageType.UnknownMessage:
-                            //未知消息自行处理
-                            break;
-                        case WidgetModule.MessageType.ReadReceiptMessage:
-                            if (data.messageDirection == WidgetModule.MessageDirection.SEND) {
-                                RongIMSDKServer.clearUnreadCount(data.conversationType, data.targetId);
-                            }
-                            break;
-                        default:
-                            //未捕获的消息类型
-                            break;
-                    }
-                    if (WebIMWidget.onReceivedMessage) {
-                        WebIMWidget.onReceivedMessage(msg);
-                    }
-                    conversationServer.onReceivedMessage(msg);
-                    if (!document.hidden && WebIMWidget.display && conversationServer.current && conversationServer.current.targetType == msg.conversationType && conversationServer.current.targetId == msg.targetId && data.messageDirection == WidgetModule.MessageDirection.RECEIVE && data.messageType != WidgetModule.MessageType.ReadReceiptMessage) {
-                        RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
-                        RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
-                    }
-                    conversationListServer.updateConversations().then(function () { });
-                }
-            });
-            window.onfocus = function () {
-                if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
-                    RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function (conv) {
-                        if (conv && conv.unreadMessageCount > 0) {
-                            RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
-                            RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
-                            conversationListServer.updateConversations().then(function () { });
-                        }
-                    });
-                }
-            };
-        };
-        function addMessageAndOperation(msg) {
-            var hislist = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] = conversationServer._cacheHistory[msg.conversationType + "_" + msg.targetId] || [];
-            if (hislist.length == 0) {
-                if (msg.conversationType != WidgetModule.EnumConversationType.CUSTOMER_SERVICE) {
-                    hislist.push(new WidgetModule.GetHistoryPanel());
-                }
-                hislist.push(new WidgetModule.TimePanl(msg.sentTime));
-            }
-            conversationServer._addHistoryMessages(msg);
-        }
-        WebIMWidget.setConversation = function (targetType, targetId, title) {
-            conversationServer.onConversationChangged(new WidgetModule.Conversation(targetType, targetId, title));
-        };
-        WebIMWidget.setUserInfoProvider = function (fun) {
-            providerdata.getUserInfo = fun;
-        };
-        WebIMWidget.setGroupInfoProvider = function (fun) {
-            providerdata.getGroupInfo = fun;
-        };
-        WebIMWidget.setOnlineStatusProvider = function (fun) {
-            providerdata.getOnlineStatus = fun;
-        };
-        WebIMWidget.EnumConversationListPosition = WidgetModule.EnumConversationListPosition;
-        WebIMWidget.EnumConversationType = WidgetModule.EnumConversationType;
-        WebIMWidget.show = function () {
-            WebIMWidget.display = true;
-            WebIMWidget.fullScreen = false;
-        };
-        WebIMWidget.hidden = function () {
-            WebIMWidget.display = false;
-        };
-        WebIMWidget.getCurrentConversation = function () {
-            return conversationServer.current;
-        };
-        return WebIMWidget;
-    }]);
-widget.directive("rongWidget", [function () {
-        return {
-            restrict: "E",
-            templateUrl: "./src/ts/main.tpl.html",
-            controller: "rongWidgetController"
-        };
-    }]);
-widget.controller("rongWidgetController", ["$scope", "$interval", "WebIMWidget", "widgetConfig", "providerdata", "conversationServer", "RongIMSDKServer", "conversationListServer",
-    function ($scope, $interval, WebIMWidget, widgetConfig, providerdata, conversationServer, RongIMSDKServer, conversationListServer) {
-        $scope.main = WebIMWidget;
-        $scope.widgetConfig = widgetConfig;
-        $scope.data = providerdata;
-        WebIMWidget.show = function () {
-            WebIMWidget.display = true;
-            WebIMWidget.fullScreen = false;
-            WebIMWidget.onShow && WebIMWidget.onShow();
-            setTimeout(function () {
-                $scope.$apply();
-            });
-        };
-        var interval = null;
-        $scope.$watch("data.totalUnreadCount", function (newVal, oldVal) {
-            if (newVal > 0) {
-                interval && $interval.cancel(interval);
-                interval = $interval(function () {
-                    $scope.twinkle = !$scope.twinkle;
-                }, 1000);
-            }
-            else {
-                $interval.cancel(interval);
-            }
-        });
-        $scope.$watch("main.display", function () {
-            if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
-                RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function (conv) {
-                    if (conv && conv.unreadMessageCount > 0) {
-                        RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
-                        RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
-                        conversationListServer.updateConversations().then(function () { });
-                    }
-                });
-            }
-        });
-        WebIMWidget.hidden = function () {
-            WebIMWidget.display = false;
-            setTimeout(function () {
-                $scope.$apply();
-            });
-        };
-        $scope.showbtn = function () {
-            WebIMWidget.display = true;
-            WebIMWidget.onShow && WebIMWidget.onShow();
-        };
-    }]);
-widget.filter('trustHtml', ["$sce", function ($sce) {
-        return function (str) {
-            return $sce.trustAsHtml(str);
-        };
-    }]);
-widget.filter("historyTime", ["$filter", function ($filter) {
-        return function (time) {
-            var today = new Date();
-            if (time.toDateString() === today.toDateString()) {
-                return $filter("date")(time, "HH:mm");
-            }
-            else if (time.toDateString() === new Date(today.setTime(today.getTime() - 1)).toDateString()) {
-                return "昨天" + $filter("date")(time, "HH:mm");
-            }
-            else {
-                return $filter("date")(time, "yyyy-MM-dd HH:mm");
-            }
-        };
-    }]);
-widget.directive('errSrc', function () {
-    return {
-        link: function (scope, element, attrs) {
-            if (!attrs.ngSrc) {
-                attrs.$set('src', attrs.errSrc);
-            }
-            element.bind('error', function () {
-                if (attrs.src != attrs.errSrc) {
-                    attrs.$set('src', attrs.errSrc);
-                }
-            });
-        }
-    };
-});
-/// <reference path="../../typings/tsd.d.ts"/>
+    }
+    angular.module("RongWebIMWidget").run(runApp);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var WidgetModule;
-(function (WidgetModule) {
+/// <reference path="../../typings/tsd.d.ts"/>
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
     (function (EnumConversationListPosition) {
         EnumConversationListPosition[EnumConversationListPosition["left"] = 0] = "left";
         EnumConversationListPosition[EnumConversationListPosition["right"] = 1] = "right";
-    })(WidgetModule.EnumConversationListPosition || (WidgetModule.EnumConversationListPosition = {}));
-    var EnumConversationListPosition = WidgetModule.EnumConversationListPosition;
+    })(RongWebIMWidget.EnumConversationListPosition || (RongWebIMWidget.EnumConversationListPosition = {}));
+    var EnumConversationListPosition = RongWebIMWidget.EnumConversationListPosition;
     (function (EnumConversationType) {
         EnumConversationType[EnumConversationType["PRIVATE"] = 1] = "PRIVATE";
         EnumConversationType[EnumConversationType["DISCUSSION"] = 2] = "DISCUSSION";
@@ -2004,19 +760,19 @@ var WidgetModule;
         EnumConversationType[EnumConversationType["SYSTEM"] = 6] = "SYSTEM";
         EnumConversationType[EnumConversationType["APP_PUBLIC_SERVICE"] = 7] = "APP_PUBLIC_SERVICE";
         EnumConversationType[EnumConversationType["PUBLIC_SERVICE"] = 8] = "PUBLIC_SERVICE";
-    })(WidgetModule.EnumConversationType || (WidgetModule.EnumConversationType = {}));
-    var EnumConversationType = WidgetModule.EnumConversationType;
+    })(RongWebIMWidget.EnumConversationType || (RongWebIMWidget.EnumConversationType = {}));
+    var EnumConversationType = RongWebIMWidget.EnumConversationType;
     (function (MessageDirection) {
         MessageDirection[MessageDirection["SEND"] = 1] = "SEND";
         MessageDirection[MessageDirection["RECEIVE"] = 2] = "RECEIVE";
-    })(WidgetModule.MessageDirection || (WidgetModule.MessageDirection = {}));
-    var MessageDirection = WidgetModule.MessageDirection;
+    })(RongWebIMWidget.MessageDirection || (RongWebIMWidget.MessageDirection = {}));
+    var MessageDirection = RongWebIMWidget.MessageDirection;
     (function (ReceivedStatus) {
         ReceivedStatus[ReceivedStatus["READ"] = 1] = "READ";
         ReceivedStatus[ReceivedStatus["LISTENED"] = 2] = "LISTENED";
         ReceivedStatus[ReceivedStatus["DOWNLOADED"] = 4] = "DOWNLOADED";
-    })(WidgetModule.ReceivedStatus || (WidgetModule.ReceivedStatus = {}));
-    var ReceivedStatus = WidgetModule.ReceivedStatus;
+    })(RongWebIMWidget.ReceivedStatus || (RongWebIMWidget.ReceivedStatus = {}));
+    var ReceivedStatus = RongWebIMWidget.ReceivedStatus;
     (function (SentStatus) {
         /**
          * 发送中。
@@ -2042,8 +798,8 @@ var WidgetModule;
          * 对方已销毁。
          */
         SentStatus[SentStatus["DESTROYED"] = 60] = "DESTROYED";
-    })(WidgetModule.SentStatus || (WidgetModule.SentStatus = {}));
-    var SentStatus = WidgetModule.SentStatus;
+    })(RongWebIMWidget.SentStatus || (RongWebIMWidget.SentStatus = {}));
+    var SentStatus = RongWebIMWidget.SentStatus;
     var AnimationType;
     (function (AnimationType) {
         AnimationType[AnimationType["left"] = 1] = "left";
@@ -2056,9 +812,9 @@ var WidgetModule;
         InputPanelType[InputPanelType["robot"] = 1] = "robot";
         InputPanelType[InputPanelType["robotSwitchPerson"] = 2] = "robotSwitchPerson";
         InputPanelType[InputPanelType["notService"] = 4] = "notService";
-    })(WidgetModule.InputPanelType || (WidgetModule.InputPanelType = {}));
-    var InputPanelType = WidgetModule.InputPanelType;
-    WidgetModule.MessageType = {
+    })(RongWebIMWidget.InputPanelType || (RongWebIMWidget.InputPanelType = {}));
+    var InputPanelType = RongWebIMWidget.InputPanelType;
+    RongWebIMWidget.MessageType = {
         DiscussionNotificationMessage: "DiscussionNotificationMessage ",
         TextMessage: "TextMessage",
         ImageMessage: "ImageMessage",
@@ -2086,15 +842,15 @@ var WidgetModule;
         PanelType[PanelType["getHistory"] = 105] = "getHistory";
         PanelType[PanelType["getMore"] = 106] = "getMore";
         PanelType[PanelType["Other"] = 0] = "Other";
-    })(WidgetModule.PanelType || (WidgetModule.PanelType = {}));
-    var PanelType = WidgetModule.PanelType;
+    })(RongWebIMWidget.PanelType || (RongWebIMWidget.PanelType = {}));
+    var PanelType = RongWebIMWidget.PanelType;
     var ChatPanel = (function () {
         function ChatPanel(type) {
             this.panelType = type;
         }
         return ChatPanel;
     })();
-    WidgetModule.ChatPanel = ChatPanel;
+    RongWebIMWidget.ChatPanel = ChatPanel;
     var TimePanl = (function (_super) {
         __extends(TimePanl, _super);
         function TimePanl(date) {
@@ -2103,7 +859,7 @@ var WidgetModule;
         }
         return TimePanl;
     })(ChatPanel);
-    WidgetModule.TimePanl = TimePanl;
+    RongWebIMWidget.TimePanl = TimePanl;
     var GetHistoryPanel = (function (_super) {
         __extends(GetHistoryPanel, _super);
         function GetHistoryPanel() {
@@ -2111,7 +867,7 @@ var WidgetModule;
         }
         return GetHistoryPanel;
     })(ChatPanel);
-    WidgetModule.GetHistoryPanel = GetHistoryPanel;
+    RongWebIMWidget.GetHistoryPanel = GetHistoryPanel;
     var GetMoreMessagePanel = (function (_super) {
         __extends(GetMoreMessagePanel, _super);
         function GetMoreMessagePanel() {
@@ -2119,7 +875,7 @@ var WidgetModule;
         }
         return GetMoreMessagePanel;
     })(ChatPanel);
-    WidgetModule.GetMoreMessagePanel = GetMoreMessagePanel;
+    RongWebIMWidget.GetMoreMessagePanel = GetMoreMessagePanel;
     var TimePanel = (function (_super) {
         __extends(TimePanel, _super);
         function TimePanel(time) {
@@ -2128,7 +884,7 @@ var WidgetModule;
         }
         return TimePanel;
     })(ChatPanel);
-    WidgetModule.TimePanel = TimePanel;
+    RongWebIMWidget.TimePanel = TimePanel;
     var Message = (function (_super) {
         __extends(Message, _super);
         function Message(content, conversationType, extra, objectName, messageDirection, messageId, receivedStatus, receivedTime, senderUserId, sentStatus, sentTime, targetId, messageType) {
@@ -2149,7 +905,7 @@ var WidgetModule;
             msg.targetId = SDKmsg.targetId;
             msg.messageType = SDKmsg.messageType;
             switch (msg.messageType) {
-                case WidgetModule.MessageType.TextMessage:
+                case RongWebIMWidget.MessageType.TextMessage:
                     var texmsg = new TextMessage();
                     var content = SDKmsg.content.content;
                     if (RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.emojiToHTML) {
@@ -2158,7 +914,7 @@ var WidgetModule;
                     texmsg.content = content;
                     msg.content = texmsg;
                     break;
-                case WidgetModule.MessageType.ImageMessage:
+                case RongWebIMWidget.MessageType.ImageMessage:
                     var image = new ImageMessage();
                     var content = SDKmsg.content.content || "";
                     if (content.indexOf("base64,") == -1) {
@@ -2168,20 +924,20 @@ var WidgetModule;
                     image.imageUri = SDKmsg.content.imageUri;
                     msg.content = image;
                     break;
-                case WidgetModule.MessageType.VoiceMessage:
+                case RongWebIMWidget.MessageType.VoiceMessage:
                     var voice = new VoiceMessage();
                     voice.content = SDKmsg.content.content;
                     voice.duration = SDKmsg.content.duration;
                     msg.content = voice;
                     break;
-                case WidgetModule.MessageType.RichContentMessage:
+                case RongWebIMWidget.MessageType.RichContentMessage:
                     var rich = new RichContentMessage();
                     rich.content = SDKmsg.content.content;
                     rich.title = SDKmsg.content.title;
                     rich.imageUri = SDKmsg.content.imageUri;
                     msg.content = rich;
                     break;
-                case WidgetModule.MessageType.LocationMessage:
+                case RongWebIMWidget.MessageType.LocationMessage:
                     var location = new LocationMessage();
                     var content = SDKmsg.content.content || "";
                     if (content.indexOf("base64,") == -1) {
@@ -2193,39 +949,39 @@ var WidgetModule;
                     location.poi = SDKmsg.content.poi;
                     msg.content = location;
                     break;
-                case WidgetModule.MessageType.InformationNotificationMessage:
+                case RongWebIMWidget.MessageType.InformationNotificationMessage:
                     var info = new InformationNotificationMessage();
                     msg.panelType = 2; //灰条消息
                     info.content = SDKmsg.content.message;
                     msg.content = info;
                     break;
-                case WidgetModule.MessageType.DiscussionNotificationMessage:
+                case RongWebIMWidget.MessageType.DiscussionNotificationMessage:
                     var discussion = new DiscussionNotificationMessage();
                     discussion.extension = SDKmsg.content.extension;
                     discussion.operation = SDKmsg.content.operation;
                     discussion.type = SDKmsg.content.type;
                     discussion.isHasReceived = SDKmsg.content.isHasReceived;
                     msg.content = discussion;
-                case WidgetModule.MessageType.HandShakeResponseMessage:
+                case RongWebIMWidget.MessageType.HandShakeResponseMessage:
                     var handshak = new HandShakeResponseMessage();
                     handshak.status = SDKmsg.content.status;
                     handshak.msg = SDKmsg.content.msg;
                     handshak.data = SDKmsg.content.data;
                     msg.content = handshak;
                     break;
-                case WidgetModule.MessageType.ChangeModeResponseMessage:
+                case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                     var change = new ChangeModeResponseMessage();
                     change.code = SDKmsg.content.code;
                     change.data = SDKmsg.content.data;
                     change.status = SDKmsg.content.status;
                     msg.content = change;
                     break;
-                case WidgetModule.MessageType.CustomerStatusUpdateMessage:
+                case RongWebIMWidget.MessageType.CustomerStatusUpdateMessage:
                     var up = new CustomerStatusUpdateMessage();
                     up.serviceStatus = SDKmsg.content.serviceStatus;
                     msg.content = up;
                     break;
-                case WidgetModule.MessageType.TerminateMessage:
+                case RongWebIMWidget.MessageType.TerminateMessage:
                     var ter = new TerminateMessage();
                     ter.code = SDKmsg.content.code;
                     msg.content = ter;
@@ -2243,16 +999,16 @@ var WidgetModule;
             if (!msg)
                 return null;
             var msgtype = msg.messageType, msgContent;
-            if (msgtype == WidgetModule.MessageType.ImageMessage) {
+            if (msgtype == RongWebIMWidget.MessageType.ImageMessage) {
                 msgContent = "[图片]";
             }
-            else if (msgtype == WidgetModule.MessageType.LocationMessage) {
+            else if (msgtype == RongWebIMWidget.MessageType.LocationMessage) {
                 msgContent = "[位置]";
             }
-            else if (msgtype == WidgetModule.MessageType.VoiceMessage) {
+            else if (msgtype == RongWebIMWidget.MessageType.VoiceMessage) {
                 msgContent = "[语音]";
             }
-            else if (msgtype == WidgetModule.MessageType.ContactNotificationMessage || msgtype == WidgetModule.MessageType.CommandNotificationMessage) {
+            else if (msgtype == RongWebIMWidget.MessageType.ContactNotificationMessage || msgtype == RongWebIMWidget.MessageType.CommandNotificationMessage) {
                 msgContent = "[通知消息]";
             }
             else if (msg.objectName == "RC:GrpNtf") {
@@ -2291,7 +1047,7 @@ var WidgetModule;
         };
         return Message;
     })(ChatPanel);
-    WidgetModule.Message = Message;
+    RongWebIMWidget.Message = Message;
     var UserInfo = (function () {
         function UserInfo(userId, name, portraitUri) {
             this.userId = userId;
@@ -2300,7 +1056,7 @@ var WidgetModule;
         }
         return UserInfo;
     })();
-    WidgetModule.UserInfo = UserInfo;
+    RongWebIMWidget.UserInfo = UserInfo;
     var GroupInfo = (function () {
         function GroupInfo(userId, name, portraitUri) {
             this.userId = userId;
@@ -2309,7 +1065,7 @@ var WidgetModule;
         }
         return GroupInfo;
     })();
-    WidgetModule.GroupInfo = GroupInfo;
+    RongWebIMWidget.GroupInfo = GroupInfo;
     var TextMessage = (function () {
         function TextMessage(msg) {
             msg = msg || {};
@@ -2318,67 +1074,67 @@ var WidgetModule;
         }
         return TextMessage;
     })();
-    WidgetModule.TextMessage = TextMessage;
+    RongWebIMWidget.TextMessage = TextMessage;
     var HandShakeResponseMessage = (function () {
         function HandShakeResponseMessage() {
         }
         return HandShakeResponseMessage;
     })();
-    WidgetModule.HandShakeResponseMessage = HandShakeResponseMessage;
+    RongWebIMWidget.HandShakeResponseMessage = HandShakeResponseMessage;
     var ChangeModeResponseMessage = (function () {
         function ChangeModeResponseMessage() {
         }
         return ChangeModeResponseMessage;
     })();
-    WidgetModule.ChangeModeResponseMessage = ChangeModeResponseMessage;
+    RongWebIMWidget.ChangeModeResponseMessage = ChangeModeResponseMessage;
     var TerminateMessage = (function () {
         function TerminateMessage() {
         }
         return TerminateMessage;
     })();
-    WidgetModule.TerminateMessage = TerminateMessage;
+    RongWebIMWidget.TerminateMessage = TerminateMessage;
     var CustomerStatusUpdateMessage = (function () {
         function CustomerStatusUpdateMessage() {
         }
         return CustomerStatusUpdateMessage;
     })();
-    WidgetModule.CustomerStatusUpdateMessage = CustomerStatusUpdateMessage;
+    RongWebIMWidget.CustomerStatusUpdateMessage = CustomerStatusUpdateMessage;
     var InformationNotificationMessage = (function () {
         function InformationNotificationMessage() {
         }
         return InformationNotificationMessage;
     })();
-    WidgetModule.InformationNotificationMessage = InformationNotificationMessage;
+    RongWebIMWidget.InformationNotificationMessage = InformationNotificationMessage;
     var ImageMessage = (function () {
         function ImageMessage() {
         }
         return ImageMessage;
     })();
-    WidgetModule.ImageMessage = ImageMessage;
+    RongWebIMWidget.ImageMessage = ImageMessage;
     var VoiceMessage = (function () {
         function VoiceMessage() {
         }
         return VoiceMessage;
     })();
-    WidgetModule.VoiceMessage = VoiceMessage;
+    RongWebIMWidget.VoiceMessage = VoiceMessage;
     var LocationMessage = (function () {
         function LocationMessage() {
         }
         return LocationMessage;
     })();
-    WidgetModule.LocationMessage = LocationMessage;
+    RongWebIMWidget.LocationMessage = LocationMessage;
     var RichContentMessage = (function () {
         function RichContentMessage() {
         }
         return RichContentMessage;
     })();
-    WidgetModule.RichContentMessage = RichContentMessage;
+    RongWebIMWidget.RichContentMessage = RichContentMessage;
     var DiscussionNotificationMessage = (function () {
         function DiscussionNotificationMessage() {
         }
         return DiscussionNotificationMessage;
     })();
-    WidgetModule.DiscussionNotificationMessage = DiscussionNotificationMessage;
+    RongWebIMWidget.DiscussionNotificationMessage = DiscussionNotificationMessage;
     var Conversation = (function () {
         function Conversation(targetType, targetId, title) {
             this.targetType = targetType;
@@ -2396,7 +1152,7 @@ var WidgetModule;
         };
         return Conversation;
     })();
-    WidgetModule.Conversation = Conversation;
+    RongWebIMWidget.Conversation = Conversation;
     var userAgent = window.navigator.userAgent;
     var Helper = (function () {
         function Helper() {
@@ -2432,7 +1188,7 @@ var WidgetModule;
             else if (window.getSelection && obj.lastChild) {
                 var sel = window.getSelection();
                 var tempRange = document.createRange();
-                if (WidgetModule.Helper.browser.msie) {
+                if (Helper.browser.msie) {
                     tempRange.setStart(obj.lastChild, obj.lastChild.length);
                 }
                 else {
@@ -2472,7 +1228,7 @@ var WidgetModule;
                         callback(obj, null);
                     }
                 };
-                img.src = WidgetModule.Helper.ImageHelper.getFullPath(obj);
+                img.src = Helper.ImageHelper.getFullPath(obj);
             },
             getFullPath: function (file) {
                 window.URL = window.URL || window.webkitURL;
@@ -2517,7 +1273,7 @@ var WidgetModule;
         };
         return Helper;
     })();
-    WidgetModule.Helper = Helper;
+    RongWebIMWidget.Helper = Helper;
     var NotificationHelper = (function () {
         function NotificationHelper() {
         }
@@ -2565,16 +1321,34 @@ var WidgetModule;
         NotificationHelper.desktopNotification = true;
         return NotificationHelper;
     })();
-    WidgetModule.NotificationHelper = NotificationHelper;
-})(WidgetModule || (WidgetModule = {}));
-var SDKServer = angular.module("RongIMSDKModule", []);
-SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
-        var RongIMSDKServer = {};
-        RongIMSDKServer.init = function (appkey) {
+    RongWebIMWidget.NotificationHelper = NotificationHelper;
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+/// <reference path="../../typings/tsd.d.ts"/>
+/// <reference path="../lib/RongIMLib.d.ts"/>
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var RongIMSDKServer = (function () {
+        function RongIMSDKServer($q) {
+            var _this = this;
+            this.$q = $q;
+            this.getConversation = function (type, targetId) {
+                var defer = _this.$q.defer();
+                RongIMLib.RongIMClient.getInstance().getConversation(Number(type), targetId, {
+                    onSuccess: function (data) {
+                        defer.resolve(data);
+                    },
+                    onError: function () {
+                        defer.reject();
+                    }
+                });
+                return defer.promise;
+            };
+        }
+        RongIMSDKServer.prototype.init = function (appkey) {
             RongIMLib.RongIMClient.init(appkey);
         };
-        RongIMSDKServer.connect = function (token) {
-            var defer = $q.defer();
+        RongIMSDKServer.prototype.connect = function (token) {
+            var defer = this.$q.defer();
             RongIMLib.RongIMClient.connect(token, {
                 onSuccess: function (data) {
                     defer.resolve(data);
@@ -2619,29 +1393,28 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
             });
             return defer.promise;
         };
-        RongIMSDKServer.getInstance = function () {
-            return RongIMLib.RongIMClient.getInstance();
+        RongIMSDKServer.prototype.setOnReceiveMessageListener = function (option) {
+            RongIMLib.RongIMClient.setOnReceiveMessageListener(option);
         };
-        RongIMSDKServer.sendReadReceiptMessage = function (targetId, type) {
-            RongIMLib.RongIMClient.getInstance().getConversation(Number(type), targetId, {
+        RongIMSDKServer.prototype.setConnectionStatusListener = function (option) {
+            RongIMLib.RongIMClient.setConnectionStatusListener(option);
+        };
+        RongIMSDKServer.prototype.sendReadReceiptMessage = function (targetId, type) {
+            RongIMLib.RongIMClient.getInstance()
+                .getConversation(Number(type), targetId, {
                 onSuccess: function (data) {
                     if (data) {
-                        var read = RongIMLib.ReadReceiptMessage.obtain(data.latestMessage.messageUId, data.latestMessage.sentTime, "1");
-                        RongIMSDKServer.sendMessage(type, targetId, read);
+                        var read = RongIMLib.ReadReceiptMessage
+                            .obtain(data.latestMessage.messageUId, data.latestMessage.sentTime, "1");
+                        this.sendMessage(type, targetId, read);
                     }
                 },
                 onError: function () {
                 }
             });
         };
-        RongIMSDKServer.setOnReceiveMessageListener = function (option) {
-            RongIMLib.RongIMClient.setOnReceiveMessageListener(option);
-        };
-        RongIMSDKServer.setConnectionStatusListener = function (option) {
-            RongIMLib.RongIMClient.setConnectionStatusListener(option);
-        };
-        RongIMSDKServer.sendMessage = function (conver, targetId, content) {
-            var defer = $q.defer();
+        RongIMSDKServer.prototype.sendMessage = function (conver, targetId, content) {
+            var defer = this.$q.defer();
             RongIMLib.RongIMClient.getInstance().sendMessage(+conver, targetId, content, {
                 onSuccess: function (data) {
                     defer.resolve(data);
@@ -2677,12 +1450,21 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
             });
             return defer.promise;
         };
-        RongIMSDKServer.reconnect = function (callback) {
+        RongIMSDKServer.prototype.reconnect = function (callback) {
             RongIMLib.RongIMClient.reconnect(callback);
         };
-        RongIMSDKServer.clearUnreadCount = function (type, targetid) {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().clearUnreadCount(type, targetid, {
+        RongIMSDKServer.prototype.disconnect = function () {
+            RongIMLib.RongIMClient.getInstance().disconnect();
+        };
+        RongIMSDKServer.prototype.logout = function () {
+            if (RongIMLib && RongIMLib.RongIMClient) {
+                RongIMLib.RongIMClient.getInstance().logout();
+            }
+        };
+        RongIMSDKServer.prototype.clearUnreadCount = function (type, targetid) {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance()
+                .clearUnreadCount(type, targetid, {
                 onSuccess: function (data) {
                     defer.resolve(data);
                 },
@@ -2692,9 +1474,10 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
             });
             return defer.promise;
         };
-        RongIMSDKServer.getTotalUnreadCount = function () {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
+        RongIMSDKServer.prototype.getTotalUnreadCount = function () {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance()
+                .getTotalUnreadCount({
                 onSuccess: function (num) {
                     defer.resolve(num);
                 },
@@ -2704,9 +1487,10 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
             });
             return defer.promise;
         };
-        RongIMSDKServer.getConversationList = function () {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().getConversationList({
+        RongIMSDKServer.prototype.getConversationList = function () {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance()
+                .getConversationList({
                 onSuccess: function (data) {
                     defer.resolve(data);
                 },
@@ -2716,13 +1500,10 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
             }, null);
             return defer.promise;
         };
-        // RongIMSDKServer.conversationList = function() {
-        //     return RongIMLib.RongIMClient._memoryStore.conversationList;
-        //     // return RongIMLib.RongIMClient.conversationMap.conversationList;
-        // }
-        RongIMSDKServer.removeConversation = function (type, targetId) {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().removeConversation(type, targetId, {
+        RongIMSDKServer.prototype.removeConversation = function (type, targetId) {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance()
+                .removeConversation(type, targetId, {
                 onSuccess: function (data) {
                     defer.resolve(data);
                 },
@@ -2732,33 +1513,10 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
             });
             return defer.promise;
         };
-        RongIMSDKServer.createConversation = function (type, targetId, title) {
-            RongIMLib.RongIMClient.getInstance().createConversation(type, targetId, title);
-        };
-        RongIMSDKServer.getConversation = function (type, targetId) {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().getConversation(Number(type), targetId, {
-                onSuccess: function (data) {
-                    defer.resolve(data);
-                },
-                onError: function () {
-                    defer.reject();
-                }
-            });
-            return defer.promise;
-        };
-        RongIMSDKServer.getDraft = function (type, targetId) {
-            return RongIMLib.RongIMClient.getInstance().getTextMessageDraft(type, targetId) || "";
-        };
-        RongIMSDKServer.setDraft = function (type, targetId, value) {
-            return RongIMLib.RongIMClient.getInstance().saveTextMessageDraft(type, targetId, value);
-        };
-        RongIMSDKServer.clearDraft = function (type, targetId) {
-            return RongIMLib.RongIMClient.getInstance().clearTextMessageDraft(type, targetId);
-        };
-        RongIMSDKServer.getHistoryMessages = function (type, targetId, num) {
-            var defer = $q.defer();
-            RongIMLib.RongIMClient.getInstance().getHistoryMessages(type, targetId, null, num, {
+        RongIMSDKServer.prototype.getHistoryMessages = function (type, targetId, num) {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance()
+                .getHistoryMessages(type, targetId, null, num, {
                 onSuccess: function (data, has) {
                     defer.resolve({
                         data: data,
@@ -2771,45 +1529,83 @@ SDKServer.factory("RongIMSDKServer", ["$q", function ($q) {
             });
             return defer.promise;
         };
-        RongIMSDKServer.disconnect = function () {
-            RongIMLib.RongIMClient.getInstance().disconnect();
+        RongIMSDKServer.prototype.getDraft = function (type, targetId) {
+            return RongIMLib.RongIMClient.getInstance()
+                .getTextMessageDraft(type, targetId) || "";
         };
-        RongIMSDKServer.logout = function () {
-            if (RongIMLib && RongIMLib.RongIMClient) {
-                RongIMLib.RongIMClient.getInstance().logout();
-            }
+        RongIMSDKServer.prototype.setDraft = function (type, targetId, value) {
+            return RongIMLib.RongIMClient.getInstance()
+                .saveTextMessageDraft(type, targetId, value);
         };
-        RongIMSDKServer.voice = {
-            init: function () {
-                // RongIMLib.voice.init()
-            },
-            play: function (content, time) {
-                RongIMLib.voice.play(content, time);
-            }
+        RongIMSDKServer.prototype.clearDraft = function (type, targetId) {
+            return RongIMLib.RongIMClient.getInstance()
+                .clearTextMessageDraft(type, targetId);
         };
+        RongIMSDKServer.$inject = ["$q"];
         return RongIMSDKServer;
-    }]);
+    })();
+    RongWebIMWidget.RongIMSDKServer = RongIMSDKServer;
+    angular.module("RongWebIMWidget")
+        .service("RongIMSDKServer", RongIMSDKServer);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+/// <reference path="../../typings/tsd.d.ts"/>
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var ProviderData = (function () {
+        function ProviderData() {
+            this._cacheUserInfo = [];
+            this.totalUnreadCount = 0;
+            this.connectionState = 0;
+            this.voiceSound = false;
+        }
+        ProviderData.prototype._getCacheUserInfo = function (id) {
+            for (var i = 0, len = this._cacheUserInfo.length; i < len; i++) {
+                if (this._cacheUserInfo[i].userId == id) {
+                    return this._cacheUserInfo[i];
+                }
+            }
+            return null;
+        };
+        ProviderData.prototype._addUserInfo = function (user) {
+            var olduser = this._getCacheUserInfo(user.userId);
+            if (olduser) {
+                angular.extend(olduser, user);
+            }
+            else {
+                this._cacheUserInfo.push(user);
+            }
+        };
+        return ProviderData;
+    })();
+    RongWebIMWidget.ProviderData = ProviderData;
+    var WidgetConfig = (function () {
+        function WidgetConfig() {
+            this.displayConversationList = false;
+            this.conversationListPosition = RongWebIMWidget.EnumConversationListPosition.left;
+            this.displayMinButton = true;
+            this.desktopNotification = false;
+            this.reminder = "最近联系人";
+            this.voiceNotification = false;
+            this.__isKefu = false;
+        }
+        return WidgetConfig;
+    })();
+    RongWebIMWidget.WidgetConfig = WidgetConfig;
+    angular.module("RongWebIMWidget")
+        .service("ProviderData", ProviderData)
+        .service("WidgetConfig", WidgetConfig);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
 
 angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache) {
   'use strict';
 
-  $templateCache.put('./src/ts/conversation/template.tpl.html',
+  $templateCache.put('./src/tsrefactor/conversation/conversation.tpl.html',
     "<div id=rong-conversation class=\"rongcloud-kefuChatBox rongcloud-both rongcloud-am-fade-and-slide-top\" ng-show=showSelf ng-class=\"{'fullScreen':resoures.fullScreen}\"><evaluatedir type=evaluate.type display=evaluate.showevaluate confirm=evaluate.onConfirm(data) cancle=evaluate.onCancle()></evaluatedir><div class=rongcloud-kefuChat><div id=header class=\"rongcloud-rong-header rongcloud-blueBg rongcloud-online\"><div class=\"rongcloud-infoBar rongcloud-pull-left\"><div class=rongcloud-infoBarTit><span class=rongcloud-kefuName ng-bind=currentConversation.title></span></div></div><div class=\"rongcloud-toolBar rongcloud-headBtn rongcloud-pull-right\"><div ng-show=!widgetConfig.displayConversationList&&widgetConfig.voiceNotification class=rongcloud-voice ng-class=\"{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}\" ng-click=\"data.voiceSound=!data.voiceSound\"></div><a href=javascript:; class=\"rongcloud-kefuChatBoxHide rongcloud-sprite\" style=margin-right:6px ng-show=!widgetConfig.displayConversationList ng-click=minimize() title=隐藏></a> <a href=javascript:; class=\"rongcloud-kefuChatBoxClose rongcloud-sprite\" ng-click=close() title=结束对话></a></div></div><div class=rongcloud-outlineBox ng-hide=connected><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div id=Messages><div class=rongcloud-emptyBox>暂时没有新消息</div><div class=rongcloud-MessagesInner><div ng-repeat=\"item in messageList\" ng-switch=item.panelType><div class=rongcloud-Messages-date ng-switch-when=104><b>{{item.sentTime|historyTime}}</b></div><div class=rongcloud-Messages-history ng-switch-when=105><b ng-click=getHistory()>查看历史消息</b></div><div class=rongcloud-Messages-history ng-switch-when=106><b ng-click=getMoreMessage()>获取更多消息</b></div><div class=rongcloud-sys-tips ng-switch-when=2><span ng-bind-html=item.content.content|trustHtml></span></div><div class=rongcloud-Message ng-switch-when=1><div class=rongcloud-Messages-unreadLine></div><div><div class=rongcloud-Message-header><img class=\"rongcloud-img rongcloud-u-isActionable rongcloud-Message-avatar rongcloud-avatar\" ng-src={{item.content.userInfo.portraitUri||item.content.userInfo.icon}} err-src=http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png errsrcserasdfasdfasdfa alt=\"\"><div class=\"rongcloud-Message-author rongcloud-clearfix\"><a class=\"rongcloud-author rongcloud-u-isActionable\">{{item.content.userInfo.name}}</a></div></div></div><div class=rongcloud-Message-body ng-switch=item.messageType><textmessage ng-switch-when=TextMessage msg=item.content></textmessage><imagemessage ng-switch-when=ImageMessage msg=item.content></imagemessage><voicemessage ng-switch-when=VoiceMessage msg=item.content></voicemessage><locationmessage ng-switch-when=LocationMessage msg=item.content></locationmessage><richcontentmessage ng-switch-when=RichContentMessage msg=item.content></richcontentmessage></div></div></div></div></div><div id=footer class=rongcloud-rong-footer style=\"display: block\"><div class=rongcloud-footer-con><div class=rongcloud-text-layout><div id=funcPanel class=\"rongcloud-funcPanel rongcloud-robotMode\"><div class=rongcloud-mode1 ng-show=\"_inputPanelState==0\"><div class=rongcloud-MessageForm-tool id=expressionWrap><i class=\"rongcloud-sprite rongcloud-iconfont-smile\" ng-click=\"showemoji=!showemoji\"></i><div class=rongcloud-expressionWrap ng-show=showemoji><i class=rongcloud-arrow></i><emoji ng-repeat=\"item in emojiList\" item=item content=msgvalue></emoji></div></div><div class=rongcloud-MessageForm-tool><i class=\"rongcloud-sprite rongcloud-iconfont-upload\" id=upload-file style=\"position: relative; z-index: 1\"></i></div></div><div class=rongcloud-mode2 ng-show=\"_inputPanelState==2\"><a ng-click=switchPerson() id=chatSwitch class=rongcloud-chatSwitch>转人工服务</a></div></div><pre id=inputMsg class=\"rongcloud-text rongcloud-grey\" contenteditable contenteditable-dire ng-focus=\"showemoji=fase\" style=\"background-color: rgba(0,0,0,0);color:black\" ctrl-enter-keys fun=send() ctrlenter=false placeholder=请输入文字... ondrop=\"return false\" ng-model=currentConversation.messageContent></pre></div><div class=rongcloud-powBox><button type=button style=\"background-color: #0099ff\" class=\"rongcloud-rong-btn rongcloud-rong-send-btn\" id=rong-sendBtn ng-click=send()>发送</button></div></div></div></div></div>"
   );
 
 
-  $templateCache.put('./src/ts/conversationlist/conversationList.tpl.html',
+  $templateCache.put('./src/tsrefactor/conversationlist/conversationList.tpl.html',
     "<div id=rong-conversation-list class=\"rongcloud-kefuListBox rongcloud-both\"><div class=rongcloud-kefuList><div class=\"rongcloud-rong-header rongcloud-blueBg\"><div class=\"rongcloud-toolBar rongcloud-headBtn\"><div ng-show=config.voiceNotification class=rongcloud-voice ng-class=\"{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}\" ng-click=\"data.voiceSound=!data.voiceSound\"></div><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent>最近联系人</span><div class=\"rongcloud-sprite rongcloud-arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=rongcloud-content><div class=rongcloud-netStatus ng-hide=connected><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
-  );
-
-
-  $templateCache.put('./src/ts/evaluate/evaluate.tpl.html',
-    "<div class=rongcloud-layermbox ng-show=display><div class=rongcloud-laymshade></div><div class=rongcloud-layermmain><div class=rongcloud-section><div class=rongcloud-layermchild ng-show=!end><div class=rongcloud-layermcont><div class=rongcloud-type1 ng-show=\"type==1\"><h4>&nbsp;评价客服</h4><div class=rongcloud-layerPanel1><div class=rongcloud-star><span ng-repeat=\"item in stars track by $index\"><span ng-class=\"{'rongcloud-star-on':$index<data.stars,'rongcloud-star-off':$index>=data.stars}\" ng-click=confirm($index+1) ng-mouseenter=mousehover($index+1) ng-mouseleave=mousehover(0)></span></span></div></div></div><div class=rongcloud-type2 ng-show=\"type==2\"><h4>&nbsp;&nbsp;机器人是否解决了您的问题 ？</h4><div class=rongcloud-layerPanel1><a class=\"rongcloud-rong-btn rongcloud-btnY\" ng-class=\"{'rongcloud-cur':data.value===true}\" href=javascript:void(0); ng-click=confirm(true)>是</a> <a class=\"rongcloud-rong-btn rongcloud-btnN\" ng-class=\"{'rongcloud-cur':data.value===false}\" href=javascript:void(0); ng-click=confirm(false)>否</a></div></div><div class=rongcloud-layerPanel2 ng-show=displayDescribe><p>是否有以下情况 ？</p><div class=rongcloud-labels><span ng-repeat=\"item in labels\"><a class=rongcloud-rong-btn ng-class=\"{'rongcloud-cur':data.label==item}\" ng-click=\"data.label=item\" href=\"\">{{item}}</a></span></div><div class=rongcloud-suggestBox><textarea name=\"\" placeholder=欢迎给我们的服务提建议~ ng-model=data.describe></textarea></div><div class=rongcloud-subBox><a class=rongcloud-rong-btn href=\"\" ng-click=commit()>提交评价</a></div></div></div><div class=rongcloud-layermbtn><span ng-click=confirm()>跳过</span><span ng-click=cancle()>取消</span></div></div><div class=\"rongcloud-layermchild rongcloud-feedback\" ng-show=end><div class=rongcloud-layermcont>感谢您的反馈 ^ - ^ ！</div></div></div></div></div>"
-  );
-
-
-  $templateCache.put('./src/ts/main.tpl.html',
-    "<div id=rong-widget-box class=rongcloud-container><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent ng-show=\"!data.totalUnreadCount||data.totalUnreadCount==0\">{{widgetConfig.reminder||\"最近联系人\"}}</span> <span class=rongcloud-recent ng-show=\"data.totalUnreadCount>0\"><span ng-show=twinkle>(您有未读消息)</span></span></a></div><div id=rong-widget-minbtn-kefu class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people rongcloud-sprite-kefu\"></div><span class=rongcloud-recent>{{widgetConfig.reminder||\"联系客服\"}}</span></a></div><audio id=rongcloud-playsound style=\"width: 0px;height: 0px;display: none\" src=\"\" controls></audio></div>"
   );
 
 }]);

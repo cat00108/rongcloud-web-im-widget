@@ -1,12 +1,12 @@
 /// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="../lib/window.d.ts"/>
-module RongIMWidget {
+module RongWebIMWidget {
 
-    runApp.$inject = ["$http", "WebIMWidget", "widgetConfig"];
+    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig"];
 
     function runApp($http: ng.IHttpService,
-        WebIMWidget: RongIMWidget.WebIMWidget,
-        WidgetConfig: RongIMWidget.WidgetConfig) {
+        WebIMWidget: RongWebIMWidget.WebIMWidget,
+        WidgetConfig: RongWebIMWidget.WidgetConfig) {
 
         var protocol = location.protocol === "https:" ? "https:" : "http:";
         $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.0.min.js", function() {
@@ -24,13 +24,6 @@ module RongIMWidget {
 
     }
 
-    angular.module("RongWebIMWidget").run(runApp)
+    angular.module("RongWebIMWidget").run(runApp);
 
-    angular.module("RongWebIMWidget",
-        [
-            "RongWebIMWidget.conversation",
-            "RongWebIMWidget.conversationlist",
-            "RongIMSDKModule",
-            "Evaluate"
-        ]);
 }

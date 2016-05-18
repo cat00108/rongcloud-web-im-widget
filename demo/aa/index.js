@@ -1,7 +1,7 @@
 var demo = angular.module("demo", ["RongWebIMWidget"]);
 
-demo.controller("main", ["$scope", "WebIMWidget","$http", function($scope,
-  WebIMWidget,$http) {
+demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMWidget,
+  $http) {
 
   $scope.show = function() {
     WebIMWidget.show();
@@ -73,8 +73,8 @@ demo.controller("main", ["$scope", "WebIMWidget","$http", function($scope,
     WebIMWidget.show();
 
 
-    //设置会话
-    //WebimWidget.setConversation("4", "cc", "呵呵");
+    设置会话
+    WebimWidget.setConversation("4", "cc", "呵呵");
 
 
   });

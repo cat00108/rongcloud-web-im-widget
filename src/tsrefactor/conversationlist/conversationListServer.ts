@@ -1,33 +1,33 @@
-module RongIMWidget.conversationlist {
+module RongWebIMWidget.conversationlist {
 
     export interface IConversationListServer {
-        _conversationList: RongIMWidget.Conversation[]
+        _conversationList: RongWebIMWidget.Conversation[]
         _onlineStatus: any[]
 
         updateConversations(): angular.IPromise<any>
         _refreshConversationList(): void
-        _getConversation(type: number, id: string): RongIMWidget.Conversation
+        _getConversation(type: number, id: string): RongWebIMWidget.Conversation
     }
 
     class ConversationListServer implements IConversationListServer {
 
         static $inject: string[] = ["$q",
-            "providerdata",
-            "widgetConfig",
+            "ProviderData",
+            "WidgetConfig",
             "RongIMSDKServer",
             "conversationServer"];
 
         constructor(private $q: ng.IQService,
-            private providerdata: RongIMWidget.ProviderData,
-            private widgetConfig: RongIMWidget.WidgetConfig,
-            private RongIMSDKServer: RongIMWidget.RongIMSDKServer,
-            private conversationServer: RongIMWidget.conversation.IConversationService
+            private providerdata: RongWebIMWidget.ProviderData,
+            private widgetConfig: RongWebIMWidget.WidgetConfig,
+            private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer,
+            private conversationServer: RongWebIMWidget.conversation.IConversationService
         ) {
 
         }
 
 
-        _conversationList: RongIMWidget.Conversation[] = [];
+        _conversationList: RongWebIMWidget.Conversation[] = [];
         _onlineStatus: any[] = [];
 
         updateConversations() {
@@ -38,11 +38,11 @@ module RongIMWidget.conversationlist {
                 onSuccess: function(data) {
                     _this._conversationList.splice(0, _this._conversationList.length);
                     for (var i = 0, len = data.length; i < len; i++) {
-                        var con = RongIMWidget.Conversation.onvert(data[i]);
+                        var con = RongWebIMWidget.Conversation.onvert(data[i]);
 
                         switch (con.targetType) {
                             case RongIMLib.ConversationType.PRIVATE:
-                                if (RongIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
+                                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
                                     (function(a, b) {
                                         _this.providerdata.getUserInfo(a.targetId, {
                                             onSuccess: function(data) {
@@ -56,7 +56,7 @@ module RongIMWidget.conversationlist {
                                 }
                                 break;
                             case RongIMLib.ConversationType.GROUP:
-                                if (RongIMWidget.Helper.checkType(_this.providerdata.getGroupInfo) == "function") {
+                                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getGroupInfo) == "function") {
                                     (function(a, b) {
                                         _this.providerdata.getGroupInfo(a.targetId, {
                                             onSuccess: function(data) {
@@ -76,7 +76,7 @@ module RongIMWidget.conversationlist {
                         _this._conversationList.push(con);
                     }
                     _this._onlineStatus.forEach(function(item) {
-                        var conv = this.getConversation(RongIMWidget.EnumConversationType.PRIVATE, item.id);
+                        var conv = this.getConversation(RongWebIMWidget.EnumConversationType.PRIVATE, item.id);
                         conv && (conv.onLine = item.status);
                     });
 

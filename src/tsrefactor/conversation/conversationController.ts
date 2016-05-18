@@ -1,4 +1,4 @@
-module RongIMWidget.conversation {
+module RongWebIMWidget.conversation {
 
     class ConversationController {
         static $inject: string[] = ["$scope",
@@ -9,11 +9,11 @@ module RongIMWidget.conversation {
             "providerdata", ]
 
         constructor(private $scope: any,
-            private conversationServer: RongIMWidget.conversation.IConversationService,
-            private WebIMWidget: RongIMWidget.WebIMWidget,
+            private conversationServer: RongWebIMWidget.conversation.IConversationService,
+            private WebIMWidget: RongWebIMWidget.WebIMWidget,
             private conversationListServer: any,
-            private widgetConfig: RongIMWidget.WidgetConfig,
-            private providerdata: RongIMWidget.ProviderData) {
+            private widgetConfig: RongWebIMWidget.WidgetConfig,
+            private providerdata: RongWebIMWidget.ProviderData) {
         }
 
 

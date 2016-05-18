@@ -1,5 +1,5 @@
 /// <reference path="../../typings/tsd.d.ts"/>
-module RongIMWidget {
+module RongWebIMWidget {
 
     export enum EnumConversationListPosition {
         left = 0, right = 1

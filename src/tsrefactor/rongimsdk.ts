@@ -1,5 +1,6 @@
 /// <reference path="../../typings/tsd.d.ts"/>
-module RongIMWidget {
+/// <reference path="../lib/RongIMLib.d.ts"/>
+module RongWebIMWidget {
 
     export class RongIMSDKServer {
 
@@ -246,6 +247,6 @@ module RongIMWidget {
         }
     }
 
-    angular.module("RongIMSDKServer")
+    angular.module("RongWebIMWidget")
         .service("RongIMSDKServer", RongIMSDKServer);
 }

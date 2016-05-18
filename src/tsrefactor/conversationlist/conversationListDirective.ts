@@ -1,5 +1,5 @@
 /// <reference path="../../lib/window.d.ts"/>
-module RongIMWidget.conversationlist {
+module RongWebIMWidget.conversationlist {
 
     class rongConversationList {
 
@@ -31,9 +31,9 @@ module RongIMWidget.conversationlist {
             "conversationListServer",
             "RongIMSDKServer"];
 
-        constructor(private conversationServer: RongIMWidget.conversation.IConversationService,
-            private conversationListServer: RongIMWidget.conversationlist.IConversationListServer,
-            private RongIMSDKServer: RongIMWidget.RongIMSDKServer) {
+        constructor(private conversationServer: RongWebIMWidget.conversation.IConversationService,
+            private conversationListServer: RongWebIMWidget.conversationlist.IConversationListServer,
+            private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer) {
 
         }
 
@@ -62,7 +62,7 @@ module RongIMWidget.conversationlist {
             var that = this;
             ele.on("click", function() {
                 that.conversationServer
-                    .ChangeConversation(new RongIMWidget.Conversation(
+                    .ChangeConversation(new RongWebIMWidget.Conversation(
                         scope.item.targetType,
                         scope.item.targetId,
                         scope.item.title));
@@ -79,7 +79,7 @@ module RongIMWidget.conversationlist {
                 that.RongIMSDKServer.removeConversation(scope.item.targetType, scope.item.targetId).then(function() {
                     if (that.conversationServer.current.targetType == scope.item.targetType
                         && that.conversationServer.current.targetId == scope.item.targetId) {
-                        // conversationServer.onConversationChangged(new RongIMWidget.Conversation());
+                        // conversationServer.onConversationChangged(new RongWebIMWidget.Conversation());
                     }
                     that.conversationListServer.updateConversations();
                 }, function(error) {
@@ -93,6 +93,6 @@ module RongIMWidget.conversationlist {
     angular.module("RongWebIMWidget.conversationlist")
         .directive("rongConversationList", rongConversationList.instance)
         .directive("conversationItem",
-        RongIMWidget.DirectiveFactory.GetFactoryFor(conversationItem));
+        RongWebIMWidget.DirectiveFactory.GetFactoryFor(conversationItem));
 
 }
