@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/tsd.d.ts"/>
+/// <reference path="../../lib/RongIMLib.d.ts"/>
 module RongIMWidget.conversation {
 
     interface CustomerService {
@@ -18,15 +20,15 @@ module RongIMWidget.conversation {
 
     export interface IConversationService {
 
-        current: WidgetModule.Conversation
+        current: RongIMWidget.Conversation
         _customService: CustomerService
         _cacheHistory: any
 
         _getHistoryMessages(targetType: number, targetId: string, number: number): angular.IPromise<any>
-        _addHistoryMessages(msg: WidgetModule.Message): void
+        _addHistoryMessages(msg: RongIMWidget.Message): void
 
-        ChangeConversation(conversation: WidgetModule.Conversation): void
-        HandleMessage(message: WidgetModule.Message): void
+        ChangeConversation(conversation: RongIMWidget.Conversation): void
+        HandleMessage(message: RongIMWidget.Message): void
         closeConversation(): ng.IPromise<any>
 
         onSendMessage(msg: RongIMWidget.Message): void
@@ -47,13 +49,13 @@ module RongIMWidget.conversation {
         _uploadToken: string
 
         unshiftHistoryMessages(id: string, type: number, item: any) {
-          var arr = this._cacheHistory[type + "_" + id] = this._cacheHistory[type + "_" + id] || [];
-          if (arr[0] && arr[0].sentTime && arr[0].panelType != WidgetModule.PanelType.Time && item.sentTime) {
-            if (!WidgetModule.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
-              arr.unshift(new WidgetModule.TimePanl(arr[0].sentTime));
+            var arr = this._cacheHistory[type + "_" + id] = this._cacheHistory[type + "_" + id] || [];
+            if (arr[0] && arr[0].sentTime && arr[0].panelType != RongIMWidget.PanelType.Time && item.sentTime) {
+                if (!RongIMWidget.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
+                    arr.unshift(new RongIMWidget.TimePanl(arr[0].sentTime));
+                }
             }
-          }
-          arr.unshift(item);
+            arr.unshift(item);
         }
 
         _getHistoryMessages(targetType: number,
@@ -67,13 +69,13 @@ module RongIMWidget.conversation {
                 onSuccess: function(data, has) {
                     var msglen = data.length;
                     while (msglen--) {
-                        var msg = WidgetModule.Message.convert(data[msglen]);
+                        var msg = RongIMWidget.Message.convert(data[msglen]);
                         this.unshiftHistoryMessages(targetId, targetType, msg);
                         if (msg.content && this.providerdata.getUserInfo) {
                             (function(msg) {
                                 this.providerdata.getUserInfo(msg.senderUserId, {
                                     onSuccess: function(obj) {
-                                        msg.content.userInfo = new WidgetModule.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                        msg.content.userInfo = new RongIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
                                     }
                                 })
                             })(msg)
@@ -90,25 +92,25 @@ module RongIMWidget.conversation {
             return defer.promise;
         }
 
-        _addHistoryMessages(item: WidgetModule.Message) {
+        _addHistoryMessages(item: RongIMWidget.Message) {
             var key = item.conversationType + "_" + item.targetId;
             var arr = this._cacheHistory[key]
                 = this._cacheHistory[key] || [];
 
             if (arr[arr.length - 1]
-                && arr[arr.length - 1].panelType != WidgetModule.PanelType.Time
+                && arr[arr.length - 1].panelType != RongIMWidget.PanelType.Time
                 && arr[arr.length - 1].sentTime
                 && item.sentTime) {
-                if (!WidgetModule.Helper.timeCompare(arr[arr.length - 1].sentTime,
+                if (!RongIMWidget.Helper.timeCompare(arr[arr.length - 1].sentTime,
                     item.sentTime)) {
-                    arr.push(new WidgetModule.TimePanl(item.sentTime));
+                    arr.push(new RongIMWidget.TimePanl(item.sentTime));
                 }
             }
             arr.push(item);
         }
 
-        ChangeConversation: (conversation: WidgetModule.Conversation) => void
-        HandleMessage: (message: WidgetModule.Message) => void
+        ChangeConversation: (conversation: RongIMWidget.Conversation) => void
+        HandleMessage: (message: RongIMWidget.Message) => void
         closeConversation: () => ng.IPromise<any>
         //_onConnectSuccess: () => void
 

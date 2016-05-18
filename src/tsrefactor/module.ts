@@ -1,3 +1,4 @@
+/// <reference path="../../typings/tsd.d.ts"/>
 module RongIMWidget {
 
     export enum EnumConversationListPosition {
@@ -218,26 +219,26 @@ module RongIMWidget {
                     discussion.isHasReceived = SDKmsg.content.isHasReceived;
 
                     msg.content = discussion;
-                case WidgetModule.MessageType.HandShakeResponseMessage:
+                case MessageType.HandShakeResponseMessage:
                     var handshak = new HandShakeResponseMessage();
                     handshak.status = SDKmsg.content.status;
                     handshak.msg = SDKmsg.content.msg;
                     handshak.data = SDKmsg.content.data;
                     msg.content = handshak;
                     break;
-                case WidgetModule.MessageType.ChangeModeResponseMessage:
+                case MessageType.ChangeModeResponseMessage:
                     var change = new ChangeModeResponseMessage();
                     change.code = SDKmsg.content.code;
                     change.data = SDKmsg.content.data;
                     change.status = SDKmsg.content.status;
                     msg.content = change;
                     break;
-                case WidgetModule.MessageType.CustomerStatusUpdateMessage:
+                case MessageType.CustomerStatusUpdateMessage:
                     var up = new CustomerStatusUpdateMessage();
                     up.serviceStatus = SDKmsg.content.serviceStatus;
                     msg.content = up;
                     break;
-                case WidgetModule.MessageType.TerminateMessage:
+                case MessageType.TerminateMessage:
                     var ter = new TerminateMessage();
                     ter.code = SDKmsg.content.code;
                     msg.content = ter;
@@ -466,7 +467,7 @@ module RongIMWidget {
                 var sel = window.getSelection();
 
                 var tempRange = document.createRange();
-                if (WidgetModule.Helper.browser.msie) {
+                if (Helper.browser.msie) {
                     tempRange.setStart(obj.lastChild, obj.lastChild.length);
                 } else {
                     tempRange.setStart(obj.firstChild, obj.firstChild.length);
@@ -518,7 +519,7 @@ module RongIMWidget {
                     }
 
                 }
-                img.src = WidgetModule.Helper.ImageHelper.getFullPath(obj);
+                img.src = Helper.ImageHelper.getFullPath(obj);
             },
             getFullPath(file: File) {
                 window.URL = window.URL || window.webkitURL;

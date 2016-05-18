@@ -1,5 +1,6 @@
+/// <reference path="../../typings/tsd.d.ts"/>
+/// <reference path="../lib/window.d.ts"/>
 module RongIMWidget {
-
 
     runApp.$inject = ["$http", "WebIMWidget", "widgetConfig"];
 

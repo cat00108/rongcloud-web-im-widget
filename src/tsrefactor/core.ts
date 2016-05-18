@@ -1,3 +1,4 @@
+/// <reference path="../../typings/tsd.d.ts"/>
 module RongIMWidget {
 
     var eleConversationListWidth = 195,

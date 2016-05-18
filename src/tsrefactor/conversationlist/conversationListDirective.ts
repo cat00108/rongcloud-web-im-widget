@@ -1,3 +1,4 @@
+/// <reference path="../../lib/window.d.ts"/>
 module RongIMWidget.conversationlist {
 
     class rongConversationList {
@@ -25,7 +26,7 @@ module RongIMWidget.conversationlist {
     }
 
 
-    class conversationItem {
+    class conversationItem implements ng.IDirective {
         static $inject: string[] = ["conversationServer",
             "conversationListServer",
             "RongIMSDKServer"];
@@ -36,17 +37,62 @@ module RongIMWidget.conversationlist {
 
         }
 
-        static instance(conversationServer: RongIMWidget.conversation.IConversationService,
-            conversationListServer: RongIMWidget.conversationlist.IConversationListServer,
-            RongIMSDKServer: RongIMWidget.RongIMSDKServer) {
-            return new conversationItem(conversationServer, conversationListServer,
-                RongIMSDKServer);
-        }
+        restrict: string = "E";
+        scope: any = { item: "=" };
+        template: string = '<div class="rongcloud-chatList">' +
+        '<div class="rongcloud-chat_item " ng-class="{\'online\':item.onLine}">' +
+        '<div class="rongcloud-ext">' +
+        '<p class="rongcloud-attr clearfix">' +
+        '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
+        '<i class="rongcloud-sprite rongcloud-no-remind" ng-click="remove($event)"></i>' +
+        '</p>' +
+        '</div>' +
+        '<div class="rongcloud-photo">' +
+        '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png" alt="">' +
+        '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
+        '</div>' +
+        '<div class="rongcloud-info">' +
+        '<h3 class="rongcloud-nickname">' +
+        '<span class="rongcloud-nickname_text" title="{{item.title}}">{{item.title}}</span>' +
+        '</h3>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+        link(scope, ele, attr) {
+            var that = this;
+            ele.on("click", function() {
+                that.conversationServer
+                    .ChangeConversation(new RongIMWidget.Conversation(
+                        scope.item.targetType,
+                        scope.item.targetId,
+                        scope.item.title));
+                if (scope.item.unreadMessageCount > 0) {
+                    that.RongIMSDKServer.clearUnreadCount(scope.item.targetType, scope.item.targetId)
+                    that.RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
+                    that.conversationListServer.updateConversations();
+                }
+            });
 
+            scope.remove = function(e) {
+                e.stopPropagation();
+
+                that.RongIMSDKServer.removeConversation(scope.item.targetType, scope.item.targetId).then(function() {
+                    if (that.conversationServer.current.targetType == scope.item.targetType
+                        && that.conversationServer.current.targetId == scope.item.targetId) {
+                        // conversationServer.onConversationChangged(new RongIMWidget.Conversation());
+                    }
+                    that.conversationListServer.updateConversations();
+                }, function(error) {
+                    console.log(error);
+                })
+            }
+        }
     }
-    conversationItem.instance.$inject = conversationItem.$inject;
 
 
     angular.module("RongWebIMWidget.conversationlist")
-        .directive("rongConversationList", rongConversationList.instance);
+        .directive("rongConversationList", rongConversationList.instance)
+        .directive("conversationItem",
+        RongIMWidget.DirectiveFactory.GetFactoryFor(conversationItem));
+
 }

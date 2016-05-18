@@ -28,6 +28,7 @@ interface Window {
     webkitURL: any
     RongIMLib: any
     Notification: Notification
+    $script: any
 }
 interface Notification extends Function {
     title: string;
@@ -50,6 +51,7 @@ declare var Notification: {
     requestPermission(fun: any): void
     permission: any
 }
+declare var $script: any
 interface JQueryStatic {
     rebox: any
     nicescroll: any

@@ -1,4 +1,5 @@
-namespace RongIMWidget {
+/// <reference path="../../typings/tsd.d.ts"/>
+module RongIMWidget {
 
     interface CallBack<T> {
         onSuccess(data: T): void
@@ -22,7 +23,7 @@ namespace RongIMWidget {
             return null;
         }
 
-        _addUserInfo(user: WidgetModule.UserInfo) {
+        _addUserInfo(user: RongIMWidget.UserInfo) {
             var olduser = this._getCacheUserInfo(user.userId);
             if (olduser) {
                 angular.extend(olduser, user);
@@ -32,13 +33,13 @@ namespace RongIMWidget {
         }
 
         getUserInfo: (targetId: string,
-            callback: CallBack<RongIMWidget.UserInfo>) => void
+                callback: CallBack<RongIMWidget.UserInfo>) => void
 
         getGroupInfo: (targetId: string,
-            callback: CallBack<RongIMWidget.GroupInfo>) => void
+                callback: CallBack<RongIMWidget.GroupInfo>) => void
 
         getOnlineStatus: (targetId: string[],
-            callback: CallBack<{ id: string, status: boolean }[]>) => void
+                callback: CallBack<{ id: string, status: boolean }[]>) => void
 
     }
 

@@ -66,7 +66,7 @@ module.exports = function(grunt) {
 
     typescript: {
       build: {
-        src: ["./src/main.ts", "./src/**/*.ts"],
+        src: ["./src/tsrefactor/**/*.ts"],
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3
@@ -104,12 +104,26 @@ module.exports = function(grunt) {
         files:[
           {
             src:[
-              // './bower_components/jquery/dist/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
               './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
               './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
             dest:'./build/main.js'
+          },
+          {
+            src:[
+              './bower_components/jquery/dist/jquery.js',
+              './vendor/jqueryrebox/jquery-rebox.js',
+              './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
+              './temp/main.js','./temp/myAppHTMLCache.js',
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+            dest:'./build/main.full.js'
+          },
+          {
+            src:[
+              './temp/main.js','./temp/myAppHTMLCache.js',
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+            dest:'./build/main.tidy.js'
           },
           {
             src:[
@@ -161,7 +175,7 @@ module.exports = function(grunt) {
     },
     ngtemplates: {
       app: {
-        src: ["./src/ts/**/*.tpl.html"],
+        src: ["./src/tsrefactor/**/*.tpl.html"],
         dest: "./temp/myAppHTMLCache.js",
         options: {
           module: 'RongWebIMWidget', //name of our app

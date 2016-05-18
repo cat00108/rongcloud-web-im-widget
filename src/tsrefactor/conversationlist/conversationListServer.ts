@@ -1,12 +1,12 @@
 module RongIMWidget.conversationlist {
 
     export interface IConversationListServer {
-        _conversationList: WidgetModule.Conversation[]
+        _conversationList: RongIMWidget.Conversation[]
         _onlineStatus: any[]
 
         updateConversations(): angular.IPromise<any>
         _refreshConversationList(): void
-        _getConversation(type: number, id: string): WidgetModule.Conversation
+        _getConversation(type: number, id: string): RongIMWidget.Conversation
     }
 
     class ConversationListServer implements IConversationListServer {
@@ -38,11 +38,11 @@ module RongIMWidget.conversationlist {
                 onSuccess: function(data) {
                     _this._conversationList.splice(0, _this._conversationList.length);
                     for (var i = 0, len = data.length; i < len; i++) {
-                        var con = WidgetModule.Conversation.onvert(data[i]);
+                        var con = RongIMWidget.Conversation.onvert(data[i]);
 
                         switch (con.targetType) {
                             case RongIMLib.ConversationType.PRIVATE:
-                                if (WidgetModule.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
+                                if (RongIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
                                     (function(a, b) {
                                         _this.providerdata.getUserInfo(a.targetId, {
                                             onSuccess: function(data) {
@@ -56,7 +56,7 @@ module RongIMWidget.conversationlist {
                                 }
                                 break;
                             case RongIMLib.ConversationType.GROUP:
-                                if (WidgetModule.Helper.checkType(_this.providerdata.getGroupInfo) == "function") {
+                                if (RongIMWidget.Helper.checkType(_this.providerdata.getGroupInfo) == "function") {
                                     (function(a, b) {
                                         _this.providerdata.getGroupInfo(a.targetId, {
                                             onSuccess: function(data) {
@@ -76,7 +76,7 @@ module RongIMWidget.conversationlist {
                         _this._conversationList.push(con);
                     }
                     _this._onlineStatus.forEach(function(item) {
-                        var conv = this.getConversation(WidgetModule.EnumConversationType.PRIVATE, item.id);
+                        var conv = this.getConversation(RongIMWidget.EnumConversationType.PRIVATE, item.id);
                         conv && (conv.onLine = item.status);
                     });
 

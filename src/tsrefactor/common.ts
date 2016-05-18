@@ -1,5 +1,20 @@
 module RongIMWidget {
 
+    export class DirectiveFactory {
+        public static GetFactoryFor(classType: any): ng.IDirectiveFactory {
+            var factory = (...args: any[]): IDirective => {
+                var newInstance = Object.create(classType.prototype);
+                newInstance.constructor.apply(newInstance, args);
+                return newInstance;
+            }
+            factory.$inject = classType.$inject;
+            return factory;
+        }
+    }
+
+    interface IDirective extends Function, ng.IDirective {
+        DirectiveName: string;
+    }
 
     class errSrc {
 
