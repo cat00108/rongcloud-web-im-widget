@@ -1,103 +1,8 @@
 /// <reference path="../../../typings/tsd.d.ts"/>
+/// <reference path="../../lib/RongIMLib.d.ts"/>
+module RongWebIMWidget.conversation {
 
-var conversationServer = angular.module("RongWebIMWidget.conversationServer", ["RongWebIMWidget.conversationDirective"]);
-
-conversationServer.factory("conversationServer", ["$q", "providerdata", function($q: angular.IQService, providerdata: providerdata) {
-
-    var conversationServer = <ConversationServer>{}
-
-    conversationServer.current = <WidgetModule.Conversation>{
-        targetId: "",
-        targetType: 0,
-        title: "",
-        portraitUri: "",
-        onLine: false
-    }
-
-    conversationServer.loginUser = {
-        id: "",
-        name: "",
-        portraitUri: ""
-    }
-
-    conversationServer._cacheHistory = {};
-
-    conversationServer._getHistoryMessages = function(targetType: number, targetId: string, number: number, reset?: boolean) {
-        var defer = $q.defer();
-
-        RongIMLib.RongIMClient.getInstance().getHistoryMessages(targetType, targetId, reset ? 0 : null, number, {
-            onSuccess: function(data, has) {
-                var msglen = data.length;
-                while (msglen--) {
-                    var msg = WidgetModule.Message.convert(data[msglen]);
-                    unshiftHistoryMessages(targetId, targetType, msg);
-                    if (msg.content && providerdata.getUserInfo) {
-                        (function(msg) {
-                            providerdata.getUserInfo(msg.senderUserId, {
-                                onSuccess: function(obj) {
-                                    msg.content.userInfo = new WidgetModule.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                }
-                            })
-                        })(msg)
-                    }
-                }
-
-                defer.resolve({ data: data, has: has });
-            },
-            onError: function(error) {
-                defer.reject(error);
-            }
-        })
-
-        return defer.promise;
-    }
-
-    function adduserinfo() {
-
-    }
-
-    function unshiftHistoryMessages(id: string, type: number, item: any) {
-        var arr = conversationServer._cacheHistory[type + "_" + id] = conversationServer._cacheHistory[type + "_" + id] || [];
-        if (arr[0] && arr[0].sentTime && arr[0].panelType != WidgetModule.PanelType.Time && item.sentTime) {
-            if (!WidgetModule.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
-                arr.unshift(new WidgetModule.TimePanl(arr[0].sentTime));
-            }
-        }
-        arr.unshift(item);
-    }
-
-    conversationServer._addHistoryMessages = function(item: WidgetModule.Message) {
-        var arr = conversationServer._cacheHistory[item.conversationType + "_" + item.targetId] = conversationServer._cacheHistory[item.conversationType + "_" + item.targetId] || [];
-
-        if (arr[arr.length - 1] && arr[arr.length - 1].panelType != WidgetModule.PanelType.Time && arr[arr.length - 1].sentTime && item.sentTime) {
-            if (!WidgetModule.Helper.timeCompare(arr[arr.length - 1].sentTime, item.sentTime)) {
-                arr.push(new WidgetModule.TimePanl(item.sentTime));
-            }
-        }
-        arr.push(item);
-    }
-
-
-
-    conversationServer.onConversationChangged = function() {
-        //提供接口由conversation controller实现具体操作
-    }
-
-    conversationServer.onReceivedMessage = function() {
-        //提供接口由coversation controller实现具体操作
-    }
-    conversationServer._customService = <any>{
-        human: {}
-    }
-
-
-    return conversationServer;
-
-}]);
-
-interface ConversationServer {
-    current: WidgetModule.Conversation
-    _customService: {
+    interface CustomerService {
         type: string,
         currentType: string,
         companyName: string,
@@ -112,12 +17,108 @@ interface ConversationServer {
             headimgurl: string
         }
     }
-    loginUser: any
-    onConversationChangged(conversation: WidgetModule.Conversation): void
-    onReceivedMessage(message: WidgetModule.Message): void
-    _onConnectSuccess(): void
-    _uploadToken: string
-    _cacheHistory: any
-    _getHistoryMessages(targetType: number, targetId: string, number: number): angular.IPromise<any>
-    _addHistoryMessages(msg: WidgetModule.Message): void
+
+    export interface IConversationService {
+
+        current: RongWebIMWidget.Conversation
+        _customService: CustomerService
+        _cacheHistory: any
+
+        _getHistoryMessages(targetType: number, targetId: string, number: number): angular.IPromise<any>
+        _addHistoryMessages(msg: RongWebIMWidget.Message): void
+
+        changeConversation(conversation: RongWebIMWidget.Conversation): void
+        handleMessage(message: RongWebIMWidget.Message): void
+        closeConversation(): ng.IPromise<any>
+
+        onSendMessage(msg: RongWebIMWidget.Message): void
+    }
+
+    class conversationServer implements IConversationService {
+
+        static $inject: string[] = ["$q", "ProviderData"];
+
+        constructor(private $q: ng.IQService,
+            private providerdata: RongWebIMWidget.ProviderData) {
+
+        }
+
+        current: RongWebIMWidget.Conversation = new RongWebIMWidget.Conversation
+        _cacheHistory: Object = {}
+        _customService: CustomerService
+        _uploadToken: string
+
+        unshiftHistoryMessages(id: string, type: number, item: any) {
+            var key = type + "_" + id;
+            var arr = this._cacheHistory[key] = this._cacheHistory[key] || [];
+            if (arr[0] && arr[0].sentTime && arr[0].panelType != RongWebIMWidget.PanelType.Time && item.sentTime) {
+                if (!RongWebIMWidget.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
+                    arr.unshift(new RongWebIMWidget.TimePanl(arr[0].sentTime));
+                }
+            }
+            arr.unshift(item);
+        }
+
+        _getHistoryMessages(targetType: number,
+            targetId: string,
+            number: number,
+            reset?: boolean) {
+
+            var defer = this.$q.defer();
+
+            RongIMLib.RongIMClient.getInstance().getHistoryMessages(targetType, targetId, reset ? 0 : null, number, {
+                onSuccess: function(data, has) {
+                    var msglen = data.length;
+                    while (msglen--) {
+                        var msg = RongWebIMWidget.Message.convert(data[msglen]);
+                        this.unshiftHistoryMessages(targetId, targetType, msg);
+                        if (msg.content && this.providerdata.getUserInfo) {
+                            (function(msg) {
+                                this.providerdata.getUserInfo(msg.senderUserId, {
+                                    onSuccess: function(obj) {
+                                        msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                    }
+                                })
+                            })(msg)
+                        }
+                    }
+
+                    defer.resolve({ data: data, has: has });
+                },
+                onError: function(error) {
+                    defer.reject(error);
+                }
+            })
+
+            return defer.promise;
+        }
+
+        _addHistoryMessages(item: RongWebIMWidget.Message) {
+            var key = item.conversationType + "_" + item.targetId;
+            var arr = this._cacheHistory[key]
+                = this._cacheHistory[key] || [];
+
+            if (arr[arr.length - 1]
+                && arr[arr.length - 1].panelType != RongWebIMWidget.PanelType.Time
+                && arr[arr.length - 1].sentTime
+                && item.sentTime) {
+                if (!RongWebIMWidget.Helper.timeCompare(arr[arr.length - 1].sentTime,
+                    item.sentTime)) {
+                    arr.push(new RongWebIMWidget.TimePanl(item.sentTime));
+                }
+            }
+            arr.push(item);
+        }
+
+        changeConversation: (conversation: RongWebIMWidget.Conversation) => void
+        handleMessage: (message: RongWebIMWidget.Message) => void
+        closeConversation: () => ng.IPromise<any>
+
+        //_onConnectSuccess: () => void
+
+        onSendMessage: (msg: RongWebIMWidget.Message) => void
+    }
+
+    angular.module("RongWebIMWidget.conversation")
+        .service("ConversationServer", conversationServer)
 }

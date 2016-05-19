@@ -33,14 +33,24 @@ module RongWebIMWidget {
         }
 
         getUserInfo: (targetId: string,
-                callback: CallBack<RongWebIMWidget.UserInfo>) => void
+            callback: CallBack<RongWebIMWidget.UserInfo>) => void
 
         getGroupInfo: (targetId: string,
-                callback: CallBack<RongWebIMWidget.GroupInfo>) => void
+            callback: CallBack<RongWebIMWidget.GroupInfo>) => void
 
         getOnlineStatus: (targetId: string[],
-                callback: CallBack<{ id: string, status: boolean }[]>) => void
+            callback: CallBack<{ id: string, status: boolean }[]>) => void
 
+    }
+
+    class ElementStyle {
+        positionFixed: boolean
+        width: number;
+        height: number;
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
     }
 
     export class WidgetConfig {
@@ -51,6 +61,19 @@ module RongWebIMWidget {
         desktopNotification: boolean = false;
         reminder: string = "最近联系人";
         voiceNotification: boolean = false;
+        style: ElementStyle = <ElementStyle>{
+            positionFixed: false,
+            width: 450,
+            height: 470,
+            bottom: 0,
+            right: 0
+        };
+        voiceUrl: string;
+        appkey: string;
+        token: string;
+        onSuccess: Function;
+        onError: Function;
+        
         _config: Object;
         __isKefu: boolean = false;
     }

@@ -73,8 +73,8 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
     WebIMWidget.show();
 
 
-    设置会话
-    WebimWidget.setConversation("4", "cc", "呵呵");
+    //设置会话
+    //WebimWidget.setConversation("4", "cc", "呵呵");
 
 
   });

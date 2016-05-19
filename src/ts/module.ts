@@ -1,6 +1,5 @@
 /// <reference path="../../typings/tsd.d.ts"/>
-
-module WidgetModule {
+module RongWebIMWidget {
 
     export enum EnumConversationListPosition {
         left = 0, right = 1
@@ -220,26 +219,26 @@ module WidgetModule {
                     discussion.isHasReceived = SDKmsg.content.isHasReceived;
 
                     msg.content = discussion;
-                case WidgetModule.MessageType.HandShakeResponseMessage:
+                case MessageType.HandShakeResponseMessage:
                     var handshak = new HandShakeResponseMessage();
                     handshak.status = SDKmsg.content.status;
                     handshak.msg = SDKmsg.content.msg;
                     handshak.data = SDKmsg.content.data;
                     msg.content = handshak;
                     break;
-                case WidgetModule.MessageType.ChangeModeResponseMessage:
+                case MessageType.ChangeModeResponseMessage:
                     var change = new ChangeModeResponseMessage();
                     change.code = SDKmsg.content.code;
                     change.data = SDKmsg.content.data;
                     change.status = SDKmsg.content.status;
                     msg.content = change;
                     break;
-                case WidgetModule.MessageType.CustomerStatusUpdateMessage:
+                case MessageType.CustomerStatusUpdateMessage:
                     var up = new CustomerStatusUpdateMessage();
                     up.serviceStatus = SDKmsg.content.serviceStatus;
                     msg.content = up;
                     break;
-                case WidgetModule.MessageType.TerminateMessage:
+                case MessageType.TerminateMessage:
                     var ter = new TerminateMessage();
                     ter.code = SDKmsg.content.code;
                     msg.content = ter;
@@ -437,183 +436,5 @@ module WidgetModule {
         }
     }
 
-    var userAgent = window.navigator.userAgent;
-
-    export class Helper {
-        static timeCompare(first: Date, second: Date) {
-            var pre = first.toString();
-            var cur = second.toString();
-            return pre.substring(0, pre.lastIndexOf(":")) == cur.substring(0, cur.lastIndexOf(":"))
-        }
-        static browser = {
-            version: (userAgent.match(/.+(?:rv|it|ra|chrome|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
-            safari: /webkit/.test(userAgent),
-            opera: /opera|opr/.test(userAgent),
-            msie: /msie|trident/.test(userAgent) && !/opera/.test(userAgent),
-            chrome: /chrome/.test(userAgent),
-            mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit|like gecko)/.test(userAgent)
-        }
-        static getFocus = function(obj: any) {
-            obj.focus();
-            if (obj.createTextRange) {//ie
-                var rtextRange = obj.createTextRange();
-                rtextRange.moveStart('character', obj.value.length);
-                rtextRange.collapse(true);
-                rtextRange.select();
-            }
-            else if (obj.selectionStart) {//chrome "<input>"、"<textarea>"
-                obj.selectionStart = obj.value.length;
-            } else if (window.getSelection && obj.lastChild) {
-
-                var sel = window.getSelection();
-
-                var tempRange = document.createRange();
-                if (WidgetModule.Helper.browser.msie) {
-                    tempRange.setStart(obj.lastChild, obj.lastChild.length);
-                } else {
-                    tempRange.setStart(obj.firstChild, obj.firstChild.length);
-                }
-
-                sel.removeAllRanges();
-                sel.addRange(tempRange);
-            }
-        }
-
-        static checkType(obj) {
-            var type = Object.prototype.toString.call(obj);
-            return type.substring(8, type.length - 1).toLowerCase();
-        }
-
-        static ImageHelper = {
-            getThumbnail(obj: any, area: number, callback: any) {
-                var canvas = document.createElement("canvas"),
-                    context = canvas.getContext('2d');
-
-                var img = new Image();
-
-                img.onload = function() {
-                    var target_w: number;
-                    var target_h: number;
-
-                    var imgarea = img.width * img.height;
-                    if (imgarea > area) {
-                        var scale = Math.sqrt(imgarea / area);
-                        scale = Math.ceil(scale * 100) / 100;
-                        target_w = img.width / scale;
-                        target_h = img.height / scale;
-                    } else {
-                        target_w = img.width;
-                        target_h = img.height;
-                    }
-
-                    canvas.width = target_w;
-                    canvas.height = target_h;
-
-                    context.drawImage(img, 0, 0, target_w, target_h);
-
-                    try {
-                        var _canvas = canvas.toDataURL("image/jpeg", 0.5);
-                        _canvas = _canvas.substr(23);
-                        callback(obj, _canvas);
-                    } catch (e) {
-                        callback(obj, null);
-                    }
-
-                }
-                img.src = WidgetModule.Helper.ImageHelper.getFullPath(obj);
-            },
-            getFullPath(file: File) {
-                window.URL = window.URL || window.webkitURL;
-                if (window.URL && window.URL.createObjectURL) {
-                    return window.URL.createObjectURL(file)
-                } else {
-                    return null;
-                }
-            }
-        }
-        static CookieHelper = {
-            setCookie: function(name: string, value: string, exires?: number) {
-                if (exires) {
-                    var date = new Date();
-                    date.setDate(date.getDate() + exires)
-                    document.cookie = name + "=" + encodeURI(value) + ";expires=" + date.toUTCString();
-                } else {
-                    document.cookie = name + "=" + encodeURI(value) + ";";
-                }
-            },
-            getCookie: function(name: string) {
-                var start = document.cookie.indexOf(name + "=");
-                if (start != -1) {
-                    var end = document.cookie.indexOf(";", start);
-                    if (end == -1) {
-                        end = document.cookie.length;
-                    }
-                    return decodeURI(document.cookie.substring(start + name.length + 1, end));
-                } else {
-                    return ""
-                }
-            },
-            removeCookie: function(name: string) {
-                var con = this.getCookie(name);
-                if (con) {
-                    this.setCookie(name, "con", -1);
-                }
-            }
-        }
-    }
-
-    export class NotificationHelper {
-
-        static desktopNotification = true;
-
-        static isNotificationSupported() {
-            return typeof Notification === "function";
-        }
-
-        static requestPermission() {
-            if (!NotificationHelper.isNotificationSupported()) {
-                return;
-            }
-            Notification.requestPermission(function(status: string) {
-            });
-        }
-
-        static onclick(n: Notification) { }
-
-        static showNotification(config: any) {
-            if (!NotificationHelper.isNotificationSupported()) {
-                console.log('the current browser does not support Notification API');
-                return;
-            }
-            if (Notification.permission !== "granted") {
-                console.log('the current page has not been granted for notification');
-                return;
-            }
-            if (!NotificationHelper.desktopNotification) {
-                return;
-            }
-
-            var title = config.title;
-            delete config.title;
-            var n = new Notification(title, config);
-
-            n.onshow = function() {
-                setTimeout(function() {
-                    n.close();
-                }, 5000);
-            };
-
-            n.onclick = function() {
-                window.focus();
-                NotificationHelper.onclick(n);
-                n.close();
-            };
-
-            n.onerror = function() {
-            };
-
-            n.onclose = function() {
-            };
-        }
-    }
+    
 }

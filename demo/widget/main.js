@@ -321,6 +321,175 @@ var RongWebIMWidget;
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
+    var userAgent = window.navigator.userAgent;
+    var Helper = (function () {
+        function Helper() {
+        }
+        Helper.timeCompare = function (first, second) {
+            var pre = first.toString();
+            var cur = second.toString();
+            return pre.substring(0, pre.lastIndexOf(":")) == cur.substring(0, cur.lastIndexOf(":"));
+        };
+        Helper.checkType = function (obj) {
+            var type = Object.prototype.toString.call(obj);
+            return type.substring(8, type.length - 1).toLowerCase();
+        };
+        Helper.browser = {
+            version: (userAgent.match(/.+(?:rv|it|ra|chrome|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
+            safari: /webkit/.test(userAgent),
+            opera: /opera|opr/.test(userAgent),
+            msie: /msie|trident/.test(userAgent) && !/opera/.test(userAgent),
+            chrome: /chrome/.test(userAgent),
+            mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit|like gecko)/.test(userAgent)
+        };
+        Helper.getFocus = function (obj) {
+            obj.focus();
+            if (obj.createTextRange) {
+                var rtextRange = obj.createTextRange();
+                rtextRange.moveStart('character', obj.value.length);
+                rtextRange.collapse(true);
+                rtextRange.select();
+            }
+            else if (obj.selectionStart) {
+                obj.selectionStart = obj.value.length;
+            }
+            else if (window.getSelection && obj.lastChild) {
+                var sel = window.getSelection();
+                var tempRange = document.createRange();
+                if (Helper.browser.msie) {
+                    tempRange.setStart(obj.lastChild, obj.lastChild.length);
+                }
+                else {
+                    tempRange.setStart(obj.firstChild, obj.firstChild.length);
+                }
+                sel.removeAllRanges();
+                sel.addRange(tempRange);
+            }
+        };
+        Helper.ImageHelper = {
+            getThumbnail: function (obj, area, callback) {
+                var canvas = document.createElement("canvas"), context = canvas.getContext('2d');
+                var img = new Image();
+                img.onload = function () {
+                    var target_w;
+                    var target_h;
+                    var imgarea = img.width * img.height;
+                    if (imgarea > area) {
+                        var scale = Math.sqrt(imgarea / area);
+                        scale = Math.ceil(scale * 100) / 100;
+                        target_w = img.width / scale;
+                        target_h = img.height / scale;
+                    }
+                    else {
+                        target_w = img.width;
+                        target_h = img.height;
+                    }
+                    canvas.width = target_w;
+                    canvas.height = target_h;
+                    context.drawImage(img, 0, 0, target_w, target_h);
+                    try {
+                        var _canvas = canvas.toDataURL("image/jpeg", 0.5);
+                        _canvas = _canvas.substr(23);
+                        callback(obj, _canvas);
+                    }
+                    catch (e) {
+                        callback(obj, null);
+                    }
+                };
+                img.src = Helper.ImageHelper.getFullPath(obj);
+            },
+            getFullPath: function (file) {
+                window.URL = window.URL || window.webkitURL;
+                if (window.URL && window.URL.createObjectURL) {
+                    return window.URL.createObjectURL(file);
+                }
+                else {
+                    return null;
+                }
+            }
+        };
+        Helper.CookieHelper = {
+            setCookie: function (name, value, exires) {
+                if (exires) {
+                    var date = new Date();
+                    date.setDate(date.getDate() + exires);
+                    document.cookie = name + "=" + encodeURI(value) + ";expires=" + date.toUTCString();
+                }
+                else {
+                    document.cookie = name + "=" + encodeURI(value) + ";";
+                }
+            },
+            getCookie: function (name) {
+                var start = document.cookie.indexOf(name + "=");
+                if (start != -1) {
+                    var end = document.cookie.indexOf(";", start);
+                    if (end == -1) {
+                        end = document.cookie.length;
+                    }
+                    return decodeURI(document.cookie.substring(start + name.length + 1, end));
+                }
+                else {
+                    return "";
+                }
+            },
+            removeCookie: function (name) {
+                var con = this.getCookie(name);
+                if (con) {
+                    this.setCookie(name, "con", -1);
+                }
+            }
+        };
+        return Helper;
+    })();
+    RongWebIMWidget.Helper = Helper;
+    var NotificationHelper = (function () {
+        function NotificationHelper() {
+        }
+        NotificationHelper.isNotificationSupported = function () {
+            return typeof Notification === "function";
+        };
+        NotificationHelper.requestPermission = function () {
+            if (!NotificationHelper.isNotificationSupported()) {
+                return;
+            }
+            Notification.requestPermission(function (status) {
+            });
+        };
+        NotificationHelper.onclick = function (n) { };
+        NotificationHelper.showNotification = function (config) {
+            if (!NotificationHelper.isNotificationSupported()) {
+                console.log('the current browser does not support Notification API');
+                return;
+            }
+            if (Notification.permission !== "granted") {
+                console.log('the current page has not been granted for notification');
+                return;
+            }
+            if (!NotificationHelper.desktopNotification) {
+                return;
+            }
+            var title = config.title;
+            delete config.title;
+            var n = new Notification(title, config);
+            n.onshow = function () {
+                setTimeout(function () {
+                    n.close();
+                }, 5000);
+            };
+            n.onclick = function () {
+                window.focus();
+                NotificationHelper.onclick(n);
+                n.close();
+            };
+            n.onerror = function () {
+            };
+            n.onclose = function () {
+            };
+        };
+        NotificationHelper.desktopNotification = true;
+        return NotificationHelper;
+    })();
+    RongWebIMWidget.NotificationHelper = NotificationHelper;
     var DirectiveFactory = (function () {
         function DirectiveFactory() {
         }
@@ -393,13 +562,46 @@ var RongWebIMWidget;
                 this.providerdata = providerdata;
             }
             ConversationController.$inject = ["$scope",
-                "conversationServer",
+                "ConversationServer",
                 "WebIMWidget",
-                "conversationListServer",
-                "widgetConfig",
-                "providerdata",];
+                "ConversationListServer",
+                "WidgetConfig",
+                "ProviderData",];
             return ConversationController;
         })();
+    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversation;
+    (function (conversation) {
+        var rongConversation = (function () {
+            function rongConversation() {
+                this.restrict = "E";
+                this.templateUrl = "./src/ts/conversation/template.tpl.html";
+                this.controller = "conversationController";
+            }
+            rongConversation.prototype.link = function (scope, ele) {
+                if (window["jQuery"] && window["jQuery"].nicescroll) {
+                    $("#Messages").niceScroll({
+                        'cursorcolor': "#0099ff",
+                        'cursoropacitymax': 1,
+                        'touchbehavior': false,
+                        'cursorwidth': "8px",
+                        'cursorborder': "0",
+                        'cursorborderradius': "5px"
+                    });
+                }
+            };
+            return rongConversation;
+        })();
+        var emoji = (function () {
+            function emoji() {
+            }
+            return emoji;
+        })();
+        angular.module("RongWebIMWidget.conversation")
+            .directive("rongConversation", RongWebIMWidget.DirectiveFactory.GetFactoryFor(rongConversation));
     })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../../typings/tsd.d.ts"/>
@@ -468,7 +670,7 @@ var RongWebIMWidget;
             return conversationServer;
         })();
         angular.module("RongWebIMWidget.conversation")
-            .service("conversationServer", conversationServer);
+            .service("ConversationServer", conversationServer);
     })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 var RongWebIMWidget;
@@ -562,8 +764,8 @@ var RongWebIMWidget;
                     });
                 };
             };
-            conversationItem.$inject = ["conversationServer",
-                "conversationListServer",
+            conversationItem.$inject = ["ConversationServer",
+                "ConversationListServer",
                 "RongIMSDKServer"];
             return conversationItem;
         })();
@@ -680,7 +882,7 @@ var RongWebIMWidget;
                 "ProviderData",
                 "WidgetConfig",
                 "RongIMSDKServer",
-                "conversationServer"];
+                "ConversationServer"];
             return ConversationListServer;
         })();
         angular.module("RongWebIMWidget.conversationlist")
@@ -689,32 +891,319 @@ var RongWebIMWidget;
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
-    // var eleConversationListWidth = 195,
-    //     eleminbtnHeight = 50,
-    //     eleminbtnWidth = 195,
-    //     spacing = 3;
+    var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195, spacing = 3;
     var WebIMWidget = (function () {
-        function WebIMWidget() {
-            // static $inject: string[] = ["$q",
-            //     // "conversationServer",
-            //     // "conversationListServer",
-            //     // "ProviderData",
-            //     // "WidgetConfig",
-            //     "RongIMSDKServer"];
+        function WebIMWidget($q, conversationServer, conversationListServer, providerdata, widgetConfig, RongIMSDKServer) {
+            this.$q = $q;
+            this.conversationServer = conversationServer;
+            this.conversationListServer = conversationListServer;
+            this.providerdata = providerdata;
+            this.widgetConfig = widgetConfig;
+            this.RongIMSDKServer = RongIMSDKServer;
             this.display = false;
+            this.connected = false;
+            this.EnumConversationType = RongWebIMWidget.EnumConversationType;
             this.EnumConversationListPosition = RongWebIMWidget.EnumConversationListPosition;
         }
-        // constructor(private $q:ng.IQService,
-        //   private conversationServer:conversationServer) {
-        //
-        // }
         WebIMWidget.prototype.init = function (config) {
+            var _this = this;
+            delete config._config;
+            if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
+                _this.widgetConfig._config = config;
+                return;
+            }
+            if (config.desktopNotification) {
+                RongWebIMWidget.NotificationHelper.requestPermission();
+            }
+            var defaultStyle = _this.widgetConfig.style;
+            angular.extend(_this.widgetConfig, config);
+            angular.extend(defaultStyle, config.style);
+            var eleplaysound = document.getElementById("rongcloud-playsound");
+            if (eleplaysound && typeof _this.widgetConfig.voiceUrl === "string") {
+                eleplaysound["src"] = _this.widgetConfig.voiceUrl;
+            }
+            else {
+                _this.widgetConfig.voiceNotification = false;
+            }
+            // _this.widgetConfig.displayConversationList = _this.widgetConfig.displayConversationList;
+            // _this.widgetConfig.displayMinButton = defaultconfig.displayMinButton;
+            // _this.widgetConfig.reminder = defaultconfig.reminder;
+            // _this.widgetConfig.voiceNotification = defaultconfig.voiceNotification;
+            // _this.widgetConfig.__isKefu = defaultconfig.__isKefu;
+            var eleconversation = document.getElementById("rong-conversation");
+            var eleconversationlist = document.getElementById("rong-conversation-list");
+            var eleminbtn = document.getElementById("rong-widget-minbtn");
+            if (_this.widgetConfig.__isKefu) {
+                var eleminbtn = document.getElementById("rong-widget-minbtn-kefu");
+            }
+            if (defaultStyle) {
+                eleconversation.style["height"] = defaultStyle.height + "px";
+                eleconversation.style["width"] = defaultStyle.width + "px";
+                eleconversationlist.style["height"] = defaultStyle.height + "px";
+                if (defaultStyle.positionFixed) {
+                    eleconversationlist.style['position'] = "fixed";
+                    eleminbtn.style['position'] = "fixed";
+                    eleconversation.style['position'] = "fixed";
+                }
+                else {
+                    eleconversationlist.style['position'] = "absolute";
+                    eleminbtn.style['position'] = "absolute";
+                    eleconversation.style['position'] = "absolute";
+                }
+                if (_this.widgetConfig.displayConversationList) {
+                    eleminbtn.style["display"] = "inline-block";
+                    eleconversationlist.style["display"] = "inline-block";
+                    if (_this.widgetConfig.conversationListPosition == RongWebIMWidget.EnumConversationListPosition.left) {
+                        if (!isNaN(defaultStyle.left)) {
+                            eleconversationlist.style["left"] = defaultStyle.left + "px";
+                            eleminbtn.style["left"] = defaultStyle.left + "px";
+                            eleconversation.style["left"] = defaultStyle.left + eleConversationListWidth + spacing + "px";
+                        }
+                        if (!isNaN(defaultStyle.right)) {
+                            eleconversationlist.style["right"] = defaultStyle.right + defaultStyle.width + spacing + "px";
+                            eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width + spacing + "px";
+                            eleconversation.style["right"] = defaultStyle.right + "px";
+                        }
+                    }
+                    else if (_this.widgetConfig.conversationListPosition == RongWebIMWidget.EnumConversationListPosition.right) {
+                        if (!isNaN(defaultStyle.left)) {
+                            eleconversationlist.style["left"] = defaultStyle.left + defaultStyle.width + spacing + "px";
+                            eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width + spacing + "px";
+                            eleconversation.style["left"] = defaultStyle.left + "px";
+                        }
+                        if (!isNaN(defaultStyle.right)) {
+                            eleconversationlist.style["right"] = defaultStyle.right + "px";
+                            eleminbtn.style["right"] = defaultStyle.right + "px";
+                            eleconversation.style["right"] = defaultStyle.right + eleConversationListWidth + spacing + "px";
+                        }
+                    }
+                    else {
+                        throw new Error("config conversationListPosition value is invalid");
+                    }
+                    if (!isNaN(defaultStyle["top"])) {
+                        eleconversationlist.style["top"] = defaultStyle.top + "px";
+                        eleminbtn.style["top"] = defaultStyle.top + defaultStyle.height - eleminbtnHeight + "px";
+                        eleconversation.style["top"] = defaultStyle.top + "px";
+                    }
+                    if (!isNaN(defaultStyle["bottom"])) {
+                        eleconversationlist.style["bottom"] = defaultStyle.bottom + "px";
+                        eleminbtn.style["bottom"] = defaultStyle.bottom + "px";
+                        eleconversation.style["bottom"] = defaultStyle.bottom + "px";
+                    }
+                }
+                else {
+                    eleminbtn.style["display"] = "inline-block";
+                    eleconversationlist.style["display"] = "none";
+                    eleconversation.style["left"] = defaultStyle["left"] + "px";
+                    eleconversation.style["right"] = defaultStyle["right"] + "px";
+                    eleconversation.style["top"] = defaultStyle["top"] + "px";
+                    eleconversation.style["bottom"] = defaultStyle["bottom"] + "px";
+                    eleminbtn.style["top"] = defaultStyle.top + defaultStyle.height - eleminbtnHeight + "px";
+                    eleminbtn.style["bottom"] = defaultStyle.bottom + "px";
+                    eleminbtn.style["left"] = defaultStyle.left + defaultStyle.width / 2 - eleminbtnWidth / 2 + "px";
+                    eleminbtn.style["right"] = defaultStyle.right + defaultStyle.width / 2 - eleminbtnWidth / 2 + "px";
+                }
+            }
+            if (_this.widgetConfig.displayMinButton == false) {
+                eleminbtn.style["display"] = "none";
+            }
+            _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
+            _this.RongIMSDKServer.connect(_this.widgetConfig.token).then(function (userId) {
+                _this.conversationListServer.updateConversations();
+                if (RongWebIMWidget.Helper.checkType(_this.widgetConfig.onSuccess) == "function") {
+                    _this.widgetConfig.onSuccess(userId);
+                }
+                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
+                    _this.providerdata.getUserInfo(userId, {
+                        onSuccess: function (data) {
+                            _this.providerdata.currentUserInfo.userId = data.userId;
+                            _this.providerdata.currentUserInfo.name = data.name;
+                            _this.providerdata.currentUserInfo.portraitUri = data.portraitUri;
+                        }
+                    });
+                }
+                //_this.conversationServer._onConnectSuccess();
+            }, function (err) {
+                if (err.tokenError) {
+                    if (_this.widgetConfig.onError && typeof _this.widgetConfig.onError == "function") {
+                        _this.widgetConfig.onError({ code: 0, info: "token 无效" });
+                    }
+                }
+                else {
+                    if (_this.widgetConfig.onError && typeof _this.widgetConfig.onError == "function") {
+                        _this.widgetConfig.onError({ code: err.errorCode });
+                    }
+                }
+            });
+            _this.RongIMSDKServer.setConnectionStatusListener({
+                onChanged: function (status) {
+                    _this.connected = false;
+                    switch (status) {
+                        //链接成功
+                        case RongIMLib.ConnectionStatus.CONNECTED:
+                            console.log('链接成功');
+                            _this.connected = true;
+                            break;
+                        //正在链接
+                        case RongIMLib.ConnectionStatus.CONNECTING:
+                            console.log('正在链接');
+                            break;
+                        //其他设备登陆
+                        case RongIMLib.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT:
+                            console.log('其他设备登录');
+                            break;
+                        case RongIMLib.ConnectionStatus.NETWORK_UNAVAILABLE:
+                            console.log("网络不可用");
+                            break;
+                    }
+                    // if (_this.onConnectStatusChange) {
+                    //     _this.onConnectStatusChange(status);
+                    // }
+                    // if (_this.conversationListServer._onConnectStatusChange) {
+                    //     _this.conversationListServer._onConnectStatusChange(status);
+                    // }
+                }
+            });
+            _this.RongIMSDKServer.setOnReceiveMessageListener({
+                onReceived: function (data) {
+                    console.log(data);
+                    var msg = RongWebIMWidget.Message.convert(data);
+                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
+                        _this.providerdata.getUserInfo(msg.senderUserId, {
+                            onSuccess: function (data) {
+                                if (data) {
+                                    msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                                }
+                            }
+                        });
+                    }
+                    switch (data.messageType) {
+                        case RongWebIMWidget.MessageType.VoiceMessage:
+                            msg.content.isUnReade = true;
+                        case RongWebIMWidget.MessageType.TextMessage:
+                        case RongWebIMWidget.MessageType.LocationMessage:
+                        case RongWebIMWidget.MessageType.ImageMessage:
+                        case RongWebIMWidget.MessageType.RichContentMessage:
+                            _this.addMessageAndOperation(msg);
+                            var voiceBase = _this.providerdata.voiceSound == true && eleplaysound && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE && _this.widgetConfig.voiceNotification;
+                            var currentConvversationBase = _this.conversationServer.current && _this.conversationServer.current.targetType == msg.conversationType && _this.conversationServer.current.targetId == msg.targetId;
+                            var notificationBase = (document.hidden || !_this.display) && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE && _this.widgetConfig.desktopNotification;
+                            if ((_this.widgetConfig.displayConversationList && voiceBase) || (!_this.widgetConfig.displayConversationList && voiceBase && currentConvversationBase)) {
+                                eleplaysound["play"]();
+                            }
+                            if ((notificationBase && _this.widgetConfig.displayConversationList) || (!_this.widgetConfig.displayConversationList && notificationBase && currentConvversationBase)) {
+                                RongWebIMWidget.NotificationHelper.showNotification({
+                                    title: msg.content.userInfo.name,
+                                    icon: "",
+                                    body: RongWebIMWidget.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                                });
+                            }
+                            break;
+                        case RongWebIMWidget.MessageType.ContactNotificationMessage:
+                            //好友通知自行处理
+                            break;
+                        case RongWebIMWidget.MessageType.InformationNotificationMessage:
+                            _this.addMessageAndOperation(msg);
+                            break;
+                        case RongWebIMWidget.MessageType.UnknownMessage:
+                            //未知消息自行处理
+                            break;
+                        case RongWebIMWidget.MessageType.ReadReceiptMessage:
+                            if (data.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                                _this.RongIMSDKServer.clearUnreadCount(data.conversationType, data.targetId);
+                            }
+                            break;
+                        default:
+                            //未捕获的消息类型
+                            break;
+                    }
+                    if (_this.onReceivedMessage) {
+                        _this.onReceivedMessage(msg);
+                    }
+                    _this.conversationServer.HandleMessage(msg);
+                    if (!document.hidden && _this.display
+                        && _this.conversationServer.current
+                        && _this.conversationServer.current.targetType == msg.conversationType
+                        && _this.conversationServer.current.targetId == msg.targetId
+                        && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
+                        && data.messageType != RongWebIMWidget.MessageType.ReadReceiptMessage) {
+                        _this.RongIMSDKServer.clearUnreadCount(_this.conversationServer.current.targetType, _this.conversationServer.current.targetId);
+                        _this.RongIMSDKServer.sendReadReceiptMessage(_this.conversationServer.current.targetId, _this.conversationServer.current.targetType);
+                    }
+                    _this.conversationListServer.updateConversations().then(function () { });
+                }
+            });
+            window.onfocus = function () {
+                if (_this.conversationServer.current && _this.conversationServer.current.targetId && _this.display) {
+                    _this.RongIMSDKServer.getConversation(_this.conversationServer.current.targetType, _this.conversationServer.current.targetId).then(function (conv) {
+                        if (conv && conv.unreadMessageCount > 0) {
+                            _this.RongIMSDKServer.clearUnreadCount(_this.conversationServer.current.targetType, _this.conversationServer.current.targetId);
+                            _this.RongIMSDKServer.sendReadReceiptMessage(_this.conversationServer.current.targetId, _this.conversationServer.current.targetType);
+                            _this.conversationListServer.updateConversations().then(function () { });
+                        }
+                    });
+                }
+            };
         };
+        WebIMWidget.prototype.addMessageAndOperation = function (msg) {
+            var key = msg.conversationType + "_" + msg.targetId;
+            var hislist = this.conversationServer._cacheHistory[key] = this.conversationServer._cacheHistory[key] || [];
+            if (hislist.length == 0) {
+                if (msg.conversationType != RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
+                    hislist.push(new RongWebIMWidget.GetHistoryPanel());
+                }
+                hislist.push(new RongWebIMWidget.TimePanl(msg.sentTime));
+            }
+            this.conversationServer._addHistoryMessages(msg);
+        };
+        WebIMWidget.prototype.setConversation = function (targetType, targetId, title) {
+            this.conversationServer.ChangeConversation(new RongWebIMWidget.Conversation(targetType, targetId, title));
+        };
+        WebIMWidget.prototype.setUserInfoProvider = function (fun) {
+            this.providerdata.getUserInfo = fun;
+        };
+        WebIMWidget.prototype.setGroupInfoProvider = function (fun) {
+            this.providerdata.getGroupInfo = fun;
+        };
+        WebIMWidget.prototype.setOnlineStatusProvider = function (fun) {
+            this.providerdata.getOnlineStatus = fun;
+        };
+        WebIMWidget.prototype.show = function () {
+            this.display = true;
+            // this.fullScreen = false;
+        };
+        WebIMWidget.prototype.hidden = function () {
+            this.display = false;
+        };
+        WebIMWidget.prototype.getCurrentConversation = function () {
+            return this.conversationServer.current;
+        };
+        WebIMWidget.$inject = ["$q",
+            "ConversationServer",
+            "ConversationListServer",
+            "ProviderData",
+            "WidgetConfig",
+            "RongIMSDKServer"];
         return WebIMWidget;
     })();
     RongWebIMWidget.WebIMWidget = WebIMWidget;
+    var rongWidget = (function () {
+        function rongWidget() {
+            this.restrict = "E";
+            this.templateUrl = "./src/ts/main.tpl.html";
+            this.controller = "rongWidgetController";
+        }
+        return rongWidget;
+    })();
+    var rongWidgetController = (function () {
+        function rongWidgetController() {
+        }
+        return rongWidgetController;
+    })();
     angular.module("RongWebIMWidget")
-        .service("WebIMWidget", WebIMWidget);
+        .service("WebIMWidget", WebIMWidget)
+        .directive("rongWidget", RongWebIMWidget.DirectiveFactory.GetFactoryFor(rongWidget))
+        .controller("rongWidgetController", rongWidgetController);
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="../lib/window.d.ts"/>
@@ -1153,175 +1642,6 @@ var RongWebIMWidget;
         return Conversation;
     })();
     RongWebIMWidget.Conversation = Conversation;
-    var userAgent = window.navigator.userAgent;
-    var Helper = (function () {
-        function Helper() {
-        }
-        Helper.timeCompare = function (first, second) {
-            var pre = first.toString();
-            var cur = second.toString();
-            return pre.substring(0, pre.lastIndexOf(":")) == cur.substring(0, cur.lastIndexOf(":"));
-        };
-        Helper.checkType = function (obj) {
-            var type = Object.prototype.toString.call(obj);
-            return type.substring(8, type.length - 1).toLowerCase();
-        };
-        Helper.browser = {
-            version: (userAgent.match(/.+(?:rv|it|ra|chrome|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
-            safari: /webkit/.test(userAgent),
-            opera: /opera|opr/.test(userAgent),
-            msie: /msie|trident/.test(userAgent) && !/opera/.test(userAgent),
-            chrome: /chrome/.test(userAgent),
-            mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit|like gecko)/.test(userAgent)
-        };
-        Helper.getFocus = function (obj) {
-            obj.focus();
-            if (obj.createTextRange) {
-                var rtextRange = obj.createTextRange();
-                rtextRange.moveStart('character', obj.value.length);
-                rtextRange.collapse(true);
-                rtextRange.select();
-            }
-            else if (obj.selectionStart) {
-                obj.selectionStart = obj.value.length;
-            }
-            else if (window.getSelection && obj.lastChild) {
-                var sel = window.getSelection();
-                var tempRange = document.createRange();
-                if (Helper.browser.msie) {
-                    tempRange.setStart(obj.lastChild, obj.lastChild.length);
-                }
-                else {
-                    tempRange.setStart(obj.firstChild, obj.firstChild.length);
-                }
-                sel.removeAllRanges();
-                sel.addRange(tempRange);
-            }
-        };
-        Helper.ImageHelper = {
-            getThumbnail: function (obj, area, callback) {
-                var canvas = document.createElement("canvas"), context = canvas.getContext('2d');
-                var img = new Image();
-                img.onload = function () {
-                    var target_w;
-                    var target_h;
-                    var imgarea = img.width * img.height;
-                    if (imgarea > area) {
-                        var scale = Math.sqrt(imgarea / area);
-                        scale = Math.ceil(scale * 100) / 100;
-                        target_w = img.width / scale;
-                        target_h = img.height / scale;
-                    }
-                    else {
-                        target_w = img.width;
-                        target_h = img.height;
-                    }
-                    canvas.width = target_w;
-                    canvas.height = target_h;
-                    context.drawImage(img, 0, 0, target_w, target_h);
-                    try {
-                        var _canvas = canvas.toDataURL("image/jpeg", 0.5);
-                        _canvas = _canvas.substr(23);
-                        callback(obj, _canvas);
-                    }
-                    catch (e) {
-                        callback(obj, null);
-                    }
-                };
-                img.src = Helper.ImageHelper.getFullPath(obj);
-            },
-            getFullPath: function (file) {
-                window.URL = window.URL || window.webkitURL;
-                if (window.URL && window.URL.createObjectURL) {
-                    return window.URL.createObjectURL(file);
-                }
-                else {
-                    return null;
-                }
-            }
-        };
-        Helper.CookieHelper = {
-            setCookie: function (name, value, exires) {
-                if (exires) {
-                    var date = new Date();
-                    date.setDate(date.getDate() + exires);
-                    document.cookie = name + "=" + encodeURI(value) + ";expires=" + date.toUTCString();
-                }
-                else {
-                    document.cookie = name + "=" + encodeURI(value) + ";";
-                }
-            },
-            getCookie: function (name) {
-                var start = document.cookie.indexOf(name + "=");
-                if (start != -1) {
-                    var end = document.cookie.indexOf(";", start);
-                    if (end == -1) {
-                        end = document.cookie.length;
-                    }
-                    return decodeURI(document.cookie.substring(start + name.length + 1, end));
-                }
-                else {
-                    return "";
-                }
-            },
-            removeCookie: function (name) {
-                var con = this.getCookie(name);
-                if (con) {
-                    this.setCookie(name, "con", -1);
-                }
-            }
-        };
-        return Helper;
-    })();
-    RongWebIMWidget.Helper = Helper;
-    var NotificationHelper = (function () {
-        function NotificationHelper() {
-        }
-        NotificationHelper.isNotificationSupported = function () {
-            return typeof Notification === "function";
-        };
-        NotificationHelper.requestPermission = function () {
-            if (!NotificationHelper.isNotificationSupported()) {
-                return;
-            }
-            Notification.requestPermission(function (status) {
-            });
-        };
-        NotificationHelper.onclick = function (n) { };
-        NotificationHelper.showNotification = function (config) {
-            if (!NotificationHelper.isNotificationSupported()) {
-                console.log('the current browser does not support Notification API');
-                return;
-            }
-            if (Notification.permission !== "granted") {
-                console.log('the current page has not been granted for notification');
-                return;
-            }
-            if (!NotificationHelper.desktopNotification) {
-                return;
-            }
-            var title = config.title;
-            delete config.title;
-            var n = new Notification(title, config);
-            n.onshow = function () {
-                setTimeout(function () {
-                    n.close();
-                }, 5000);
-            };
-            n.onclick = function () {
-                window.focus();
-                NotificationHelper.onclick(n);
-                n.close();
-            };
-            n.onerror = function () {
-            };
-            n.onclose = function () {
-            };
-        };
-        NotificationHelper.desktopNotification = true;
-        return NotificationHelper;
-    })();
-    RongWebIMWidget.NotificationHelper = NotificationHelper;
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="../lib/RongIMLib.d.ts"/>
@@ -1331,6 +1651,52 @@ var RongWebIMWidget;
         function RongIMSDKServer($q) {
             var _this = this;
             this.$q = $q;
+            this.connect = function (token) {
+                var defer = _this.$q.defer();
+                RongIMLib.RongIMClient.connect(token, {
+                    onSuccess: function (data) {
+                        defer.resolve(data);
+                    },
+                    onTokenIncorrect: function () {
+                        defer.reject({ tokenError: true });
+                    },
+                    onError: function (errorCode) {
+                        defer.reject({ errorCode: errorCode });
+                        var info = '';
+                        switch (errorCode) {
+                            case RongIMLib.ErrorCode.TIMEOUT:
+                                info = '连接超时';
+                                break;
+                            case RongIMLib.ErrorCode.UNKNOWN:
+                                info = '未知错误';
+                                break;
+                            case RongIMLib.ConnectionState.UNACCEPTABLE_PROTOCOL_VERSION:
+                                info = '不可接受的协议版本';
+                                break;
+                            case RongIMLib.ConnectionState.IDENTIFIER_REJECTED:
+                                info = 'appkey不正确';
+                                break;
+                            case RongIMLib.ConnectionState.SERVER_UNAVAILABLE:
+                                info = '服务器不可用';
+                                break;
+                            case RongIMLib.ConnectionState.NOT_AUTHORIZED:
+                                info = '未认证';
+                                break;
+                            case RongIMLib.ConnectionState.REDIRECT:
+                                info = '重新获取导航';
+                                break;
+                            case RongIMLib.ConnectionState.APP_BLOCK_OR_DELETE:
+                                info = '应用已被封禁或已被删除';
+                                break;
+                            case RongIMLib.ConnectionState.BLOCK:
+                                info = '用户被封禁';
+                                break;
+                        }
+                        console.log("失败:" + info);
+                    }
+                });
+                return defer.promise;
+            };
             this.getConversation = function (type, targetId) {
                 var defer = _this.$q.defer();
                 RongIMLib.RongIMClient.getInstance().getConversation(Number(type), targetId, {
@@ -1346,52 +1712,6 @@ var RongWebIMWidget;
         }
         RongIMSDKServer.prototype.init = function (appkey) {
             RongIMLib.RongIMClient.init(appkey);
-        };
-        RongIMSDKServer.prototype.connect = function (token) {
-            var defer = this.$q.defer();
-            RongIMLib.RongIMClient.connect(token, {
-                onSuccess: function (data) {
-                    defer.resolve(data);
-                },
-                onTokenIncorrect: function () {
-                    defer.reject({ tokenError: true });
-                },
-                onError: function (errorCode) {
-                    defer.reject({ errorCode: errorCode });
-                    var info = '';
-                    switch (errorCode) {
-                        case RongIMLib.ErrorCode.TIMEOUT:
-                            info = '连接超时';
-                            break;
-                        case RongIMLib.ErrorCode.UNKNOWN:
-                            info = '未知错误';
-                            break;
-                        case RongIMLib.ConnectionState.UNACCEPTABLE_PROTOCOL_VERSION:
-                            info = '不可接受的协议版本';
-                            break;
-                        case RongIMLib.ConnectionState.IDENTIFIER_REJECTED:
-                            info = 'appkey不正确';
-                            break;
-                        case RongIMLib.ConnectionState.SERVER_UNAVAILABLE:
-                            info = '服务器不可用';
-                            break;
-                        case RongIMLib.ConnectionState.NOT_AUTHORIZED:
-                            info = '未认证';
-                            break;
-                        case RongIMLib.ConnectionState.REDIRECT:
-                            info = '重新获取导航';
-                            break;
-                        case RongIMLib.ConnectionState.APP_BLOCK_OR_DELETE:
-                            info = '应用已被封禁或已被删除';
-                            break;
-                        case RongIMLib.ConnectionState.BLOCK:
-                            info = '用户被封禁';
-                            break;
-                    }
-                    console.log("失败:" + info);
-                }
-            });
-            return defer.promise;
         };
         RongIMSDKServer.prototype.setOnReceiveMessageListener = function (option) {
             RongIMLib.RongIMClient.setOnReceiveMessageListener(option);
@@ -1578,6 +1898,11 @@ var RongWebIMWidget;
         return ProviderData;
     })();
     RongWebIMWidget.ProviderData = ProviderData;
+    var ElementStyle = (function () {
+        function ElementStyle() {
+        }
+        return ElementStyle;
+    })();
     var WidgetConfig = (function () {
         function WidgetConfig() {
             this.displayConversationList = false;
@@ -1586,6 +1911,13 @@ var RongWebIMWidget;
             this.desktopNotification = false;
             this.reminder = "最近联系人";
             this.voiceNotification = false;
+            this.style = {
+                positionFixed: false,
+                width: 450,
+                height: 470,
+                bottom: 0,
+                right: 0
+            };
             this.__isKefu = false;
         }
         return WidgetConfig;
@@ -1599,13 +1931,18 @@ var RongWebIMWidget;
 angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache) {
   'use strict';
 
-  $templateCache.put('./src/tsrefactor/conversation/conversation.tpl.html',
+  $templateCache.put('./src/ts/conversation/conversation.tpl.html',
     "<div id=rong-conversation class=\"rongcloud-kefuChatBox rongcloud-both rongcloud-am-fade-and-slide-top\" ng-show=showSelf ng-class=\"{'fullScreen':resoures.fullScreen}\"><evaluatedir type=evaluate.type display=evaluate.showevaluate confirm=evaluate.onConfirm(data) cancle=evaluate.onCancle()></evaluatedir><div class=rongcloud-kefuChat><div id=header class=\"rongcloud-rong-header rongcloud-blueBg rongcloud-online\"><div class=\"rongcloud-infoBar rongcloud-pull-left\"><div class=rongcloud-infoBarTit><span class=rongcloud-kefuName ng-bind=currentConversation.title></span></div></div><div class=\"rongcloud-toolBar rongcloud-headBtn rongcloud-pull-right\"><div ng-show=!widgetConfig.displayConversationList&&widgetConfig.voiceNotification class=rongcloud-voice ng-class=\"{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}\" ng-click=\"data.voiceSound=!data.voiceSound\"></div><a href=javascript:; class=\"rongcloud-kefuChatBoxHide rongcloud-sprite\" style=margin-right:6px ng-show=!widgetConfig.displayConversationList ng-click=minimize() title=隐藏></a> <a href=javascript:; class=\"rongcloud-kefuChatBoxClose rongcloud-sprite\" ng-click=close() title=结束对话></a></div></div><div class=rongcloud-outlineBox ng-hide=connected><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div id=Messages><div class=rongcloud-emptyBox>暂时没有新消息</div><div class=rongcloud-MessagesInner><div ng-repeat=\"item in messageList\" ng-switch=item.panelType><div class=rongcloud-Messages-date ng-switch-when=104><b>{{item.sentTime|historyTime}}</b></div><div class=rongcloud-Messages-history ng-switch-when=105><b ng-click=getHistory()>查看历史消息</b></div><div class=rongcloud-Messages-history ng-switch-when=106><b ng-click=getMoreMessage()>获取更多消息</b></div><div class=rongcloud-sys-tips ng-switch-when=2><span ng-bind-html=item.content.content|trustHtml></span></div><div class=rongcloud-Message ng-switch-when=1><div class=rongcloud-Messages-unreadLine></div><div><div class=rongcloud-Message-header><img class=\"rongcloud-img rongcloud-u-isActionable rongcloud-Message-avatar rongcloud-avatar\" ng-src={{item.content.userInfo.portraitUri||item.content.userInfo.icon}} err-src=http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png errsrcserasdfasdfasdfa alt=\"\"><div class=\"rongcloud-Message-author rongcloud-clearfix\"><a class=\"rongcloud-author rongcloud-u-isActionable\">{{item.content.userInfo.name}}</a></div></div></div><div class=rongcloud-Message-body ng-switch=item.messageType><textmessage ng-switch-when=TextMessage msg=item.content></textmessage><imagemessage ng-switch-when=ImageMessage msg=item.content></imagemessage><voicemessage ng-switch-when=VoiceMessage msg=item.content></voicemessage><locationmessage ng-switch-when=LocationMessage msg=item.content></locationmessage><richcontentmessage ng-switch-when=RichContentMessage msg=item.content></richcontentmessage></div></div></div></div></div><div id=footer class=rongcloud-rong-footer style=\"display: block\"><div class=rongcloud-footer-con><div class=rongcloud-text-layout><div id=funcPanel class=\"rongcloud-funcPanel rongcloud-robotMode\"><div class=rongcloud-mode1 ng-show=\"_inputPanelState==0\"><div class=rongcloud-MessageForm-tool id=expressionWrap><i class=\"rongcloud-sprite rongcloud-iconfont-smile\" ng-click=\"showemoji=!showemoji\"></i><div class=rongcloud-expressionWrap ng-show=showemoji><i class=rongcloud-arrow></i><emoji ng-repeat=\"item in emojiList\" item=item content=msgvalue></emoji></div></div><div class=rongcloud-MessageForm-tool><i class=\"rongcloud-sprite rongcloud-iconfont-upload\" id=upload-file style=\"position: relative; z-index: 1\"></i></div></div><div class=rongcloud-mode2 ng-show=\"_inputPanelState==2\"><a ng-click=switchPerson() id=chatSwitch class=rongcloud-chatSwitch>转人工服务</a></div></div><pre id=inputMsg class=\"rongcloud-text rongcloud-grey\" contenteditable contenteditable-dire ng-focus=\"showemoji=fase\" style=\"background-color: rgba(0,0,0,0);color:black\" ctrl-enter-keys fun=send() ctrlenter=false placeholder=请输入文字... ondrop=\"return false\" ng-model=currentConversation.messageContent></pre></div><div class=rongcloud-powBox><button type=button style=\"background-color: #0099ff\" class=\"rongcloud-rong-btn rongcloud-rong-send-btn\" id=rong-sendBtn ng-click=send()>发送</button></div></div></div></div></div>"
   );
 
 
-  $templateCache.put('./src/tsrefactor/conversationlist/conversationList.tpl.html',
+  $templateCache.put('./src/ts/conversationlist/conversationList.tpl.html',
     "<div id=rong-conversation-list class=\"rongcloud-kefuListBox rongcloud-both\"><div class=rongcloud-kefuList><div class=\"rongcloud-rong-header rongcloud-blueBg\"><div class=\"rongcloud-toolBar rongcloud-headBtn\"><div ng-show=config.voiceNotification class=rongcloud-voice ng-class=\"{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}\" ng-click=\"data.voiceSound=!data.voiceSound\"></div><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent>最近联系人</span><div class=\"rongcloud-sprite rongcloud-arrow-down\" style=\"cursor: pointer\" ng-click=minbtn()></div></div></div><div class=rongcloud-content><div class=rongcloud-netStatus ng-hide=connected><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div><conversation-item ng-repeat=\"item in conversationListServer.conversationList\" item=item></conversation-item></div></div></div></div>"
+  );
+
+
+  $templateCache.put('./src/ts/main.tpl.html',
+    "<div id=rong-widget-box class=rongcloud-container><div ng-show=main.display><rong-conversation></rong-conversation><rong-conversation-list></rong-conversation-list></div><div id=rong-widget-minbtn class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people\"></div><span class=rongcloud-recent ng-show=\"!data.totalUnreadCount||data.totalUnreadCount==0\">{{widgetConfig.reminder||\"最近联系人\"}}</span> <span class=rongcloud-recent ng-show=\"data.totalUnreadCount>0\"><span ng-show=twinkle>(您有未读消息)</span></span></a></div><div id=rong-widget-minbtn-kefu class=\"rongcloud-kefuBtnBox rongcloud-blueBg\" ng-show=!main.display&&widgetConfig.displayMinButton ng-click=showbtn()><a class=rongcloud-kefuBtn href=\"javascript: void(0);\"><div class=\"rongcloud-sprite rongcloud-people rongcloud-sprite-kefu\"></div><span class=rongcloud-recent>{{widgetConfig.reminder||\"联系客服\"}}</span></a></div><audio id=rongcloud-playsound style=\"width: 0px;height: 0px;display: none\" src=\"\" controls></audio></div>"
   );
 
 }]);

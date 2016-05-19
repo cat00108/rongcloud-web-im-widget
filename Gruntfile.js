@@ -17,7 +17,7 @@ module.exports = function(grunt) {
         src:["./dist/*"]
       },
       temp:{
-        src:['./temp']
+        // src:['./temp']
       }
     },
 
@@ -66,8 +66,8 @@ module.exports = function(grunt) {
 
     typescript: {
       build: {
-        src: ["./src/tsrefactor/**/*.module.ts",
-          "./src/tsrefactor/**/*.ts"],
+        src: ["./src/ts/**/*.module.ts",
+          "./src/ts/**/*.ts"],
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3
@@ -178,7 +178,7 @@ module.exports = function(grunt) {
     },
     ngtemplates: {
       app: {
-        src: ["./src/tsrefactor/**/*.tpl.html"],
+        src: ["./src/ts/**/*.tpl.html"],
         dest: "./temp/myAppHTMLCache.js",
         options: {
           module: 'RongWebIMWidget', //name of our app
