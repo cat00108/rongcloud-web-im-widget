@@ -35,6 +35,34 @@ module RongWebIMWidget.conversationlist {
             private conversationListServer: RongWebIMWidget.conversationlist.IConversationListServer,
             private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer) {
 
+            conversationItem.prototype["link"] = function(scope, ele, attr) {
+                ele.on("click", function() {
+                    conversationServer
+                        .changeConversation(new RongWebIMWidget.Conversation(
+                            scope.item.targetType,
+                            scope.item.targetId,
+                            scope.item.title));
+                    if (scope.item.unreadMessageCount > 0) {
+                        RongIMSDKServer.clearUnreadCount(scope.item.targetType, scope.item.targetId)
+                        RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
+                        conversationListServer.updateConversations();
+                    }
+                });
+
+                scope.remove = function(e) {
+                    e.stopPropagation();
+
+                    RongIMSDKServer.removeConversation(scope.item.targetType, scope.item.targetId).then(function() {
+                        if (conversationServer.current.targetType == scope.item.targetType
+                            && conversationServer.current.targetId == scope.item.targetId) {
+                            // conversationServer.onConversationChangged(new RongWebIMWidget.Conversation());
+                        }
+                        conversationListServer.updateConversations();
+                    }, function(error) {
+                        console.log(error);
+                    })
+                }
+            }
         }
 
         restrict: string = "E";
@@ -58,35 +86,7 @@ module RongWebIMWidget.conversationlist {
         '</div>' +
         '</div>' +
         '</div>';
-        link(scope, ele, attr) {
-            var that = this;
-            ele.on("click", function() {
-                that.conversationServer
-                    .changeConversation(new RongWebIMWidget.Conversation(
-                        scope.item.targetType,
-                        scope.item.targetId,
-                        scope.item.title));
-                if (scope.item.unreadMessageCount > 0) {
-                    that.RongIMSDKServer.clearUnreadCount(scope.item.targetType, scope.item.targetId)
-                    that.RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
-                    that.conversationListServer.updateConversations();
-                }
-            });
 
-            scope.remove = function(e) {
-                e.stopPropagation();
-
-                that.RongIMSDKServer.removeConversation(scope.item.targetType, scope.item.targetId).then(function() {
-                    if (that.conversationServer.current.targetType == scope.item.targetType
-                        && that.conversationServer.current.targetId == scope.item.targetId) {
-                        // conversationServer.onConversationChangged(new RongWebIMWidget.Conversation());
-                    }
-                    that.conversationListServer.updateConversations();
-                }, function(error) {
-                    console.log(error);
-                })
-            }
-        }
     }
 
 

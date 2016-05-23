@@ -84,6 +84,7 @@ module RongWebIMWidget {
         }
 
         sendReadReceiptMessage(targetId: string, type: number) {
+            var that = this;
             RongIMLib.RongIMClient.getInstance()
                 .getConversation(Number(type), targetId, {
                     onSuccess: function(data) {
@@ -92,7 +93,7 @@ module RongWebIMWidget {
                                 .obtain(data.latestMessage.messageUId,
                                 data.latestMessage.sentTime, "1");
 
-                            this.sendMessage(type, targetId, read);
+                            that.sendMessage(type, targetId, read);
                         }
                     },
                     onError: function() {
@@ -257,6 +258,22 @@ module RongWebIMWidget {
         clearDraft(type: number, targetId: string) {
             return RongIMLib.RongIMClient.getInstance()
                 .clearTextMessageDraft(type, targetId);
+        }
+
+        getFileToken: () => ng.IPromise<string> = () => {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
+                onSuccess: function(data) {
+                    if (data) {
+                        defer.resolve(data.token);
+                    } else {
+                        defer.reject();
+                    }
+                }, onError: function() {
+                    defer.reject();
+                }
+            })
+            return defer.promise;
         }
     }
 

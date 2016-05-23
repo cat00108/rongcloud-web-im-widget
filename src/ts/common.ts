@@ -265,7 +265,7 @@ module RongWebIMWidget {
                 element.html(ngModel.$viewValue || '');
             };
 
-            element.bind("keyup paste", read);
+            element.bind("keydown paste", read);
             // element.bind("input", read);
 
             function read() {
@@ -313,6 +313,7 @@ module RongWebIMWidget {
     angular.module("RongWebIMWidget")
         .directive('errSrc', errSrc.instance)
         .directive("contenteditableDire", DirectiveFactory.GetFactoryFor(contenteditableDire))
+        .directive("ctrlEnterKeys", DirectiveFactory.GetFactoryFor(ctrlEnterKeys))
         .filter('trustHtml', ["$sce", function($sce: angular.ISCEService) {
             return function(str: any) {
                 return $sce.trustAsHtml(str);

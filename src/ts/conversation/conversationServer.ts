@@ -23,6 +23,7 @@ module RongWebIMWidget.conversation {
         current: RongWebIMWidget.Conversation
         _customService: CustomerService
         _cacheHistory: any
+        _uploadToken: string
 
         _getHistoryMessages(targetType: number, targetId: string, number: number): angular.IPromise<any>
         _addHistoryMessages(msg: RongWebIMWidget.Message): void
@@ -30,6 +31,8 @@ module RongWebIMWidget.conversation {
         changeConversation(conversation: RongWebIMWidget.Conversation): void
         handleMessage(message: RongWebIMWidget.Message): void
         closeConversation(): ng.IPromise<any>
+
+        _handleConnectSuccess(): void
 
         onSendMessage(msg: RongWebIMWidget.Message): void
     }
@@ -65,16 +68,17 @@ module RongWebIMWidget.conversation {
             reset?: boolean) {
 
             var defer = this.$q.defer();
+            var _this = this;
 
             RongIMLib.RongIMClient.getInstance().getHistoryMessages(targetType, targetId, reset ? 0 : null, number, {
                 onSuccess: function(data, has) {
                     var msglen = data.length;
                     while (msglen--) {
                         var msg = RongWebIMWidget.Message.convert(data[msglen]);
-                        this.unshiftHistoryMessages(targetId, targetType, msg);
-                        if (msg.content && this.providerdata.getUserInfo) {
+                        _this.unshiftHistoryMessages(targetId, targetType, msg);
+                        if (msg.content && _this.providerdata.getUserInfo) {
                             (function(msg) {
-                                this.providerdata.getUserInfo(msg.senderUserId, {
+                                _this.providerdata.getUserInfo(msg.senderUserId, {
                                     onSuccess: function(obj) {
                                         msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
                                     }
@@ -109,12 +113,22 @@ module RongWebIMWidget.conversation {
             }
             arr.push(item);
         }
+        updateUploadToken() {
+            var _this = this;
+            RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
+                onSuccess: function(data) {
+                    _this._uploadToken = data.token;
+                }, onError: function() {
+
+                }
+            })
+        }
 
         changeConversation: (conversation: RongWebIMWidget.Conversation) => void
         handleMessage: (message: RongWebIMWidget.Message) => void
         closeConversation: () => ng.IPromise<any>
 
-        //_onConnectSuccess: () => void
+        _handleConnectSuccess: () => void
 
         onSendMessage: (msg: RongWebIMWidget.Message) => void
     }

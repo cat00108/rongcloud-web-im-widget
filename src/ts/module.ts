@@ -51,7 +51,7 @@ module RongWebIMWidget {
         left = 1, right = 2, top = 3, bottom = 4
     }
 
-    export enum InputPanelType {
+    export enum EnumInputPanelType {
         person = 0, robot = 1, robotSwitchPerson = 2, notService = 4
     }
 
@@ -436,5 +436,5 @@ module RongWebIMWidget {
         }
     }
 
-    
+
 }

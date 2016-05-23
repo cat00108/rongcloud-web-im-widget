@@ -33,6 +33,7 @@
     "src/ts/conversationlist/conversationListDirective.ts",
     "src/ts/conversationlist/conversationListServer.ts",
     "src/ts/core.ts",
+    "src/ts/kefu.ts",
     "src/ts/main.module.ts",
     "src/ts/main.ts",
     "src/ts/module.ts",

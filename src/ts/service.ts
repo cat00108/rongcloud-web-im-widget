@@ -10,7 +10,7 @@ module RongWebIMWidget {
         private _cacheUserInfo: RongWebIMWidget.UserInfo[] = [];
 
         totalUnreadCount: number = 0;
-        connectionState: number = 0;
+        connectionState: boolean = false;
         voiceSound: boolean = false;
         currentUserInfo: RongWebIMWidget.UserInfo
 
@@ -59,7 +59,7 @@ module RongWebIMWidget {
         = RongWebIMWidget.EnumConversationListPosition.left;
         displayMinButton: boolean = true;
         desktopNotification: boolean = false;
-        reminder: string = "最近联系人";
+        reminder: string = "";
         voiceNotification: boolean = false;
         style: ElementStyle = <ElementStyle>{
             positionFixed: false,
@@ -73,7 +73,7 @@ module RongWebIMWidget {
         token: string;
         onSuccess: Function;
         onError: Function;
-        
+
         _config: Object;
         __isKefu: boolean = false;
     }

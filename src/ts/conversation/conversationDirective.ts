@@ -10,7 +10,7 @@ module RongWebIMWidget.conversation {
         }
 
         restrict: string = "E";
-        templateUrl: string = "./src/ts/conversation/template.tpl.html";
+        templateUrl: string = "./src/ts/conversation/conversation.tpl.html";
         controller: string = "conversationController";
         link(scope: any, ele: angular.IRootElementService) {
             if (window["jQuery"] && window["jQuery"].nicescroll) {
@@ -46,12 +46,12 @@ module RongWebIMWidget.conversation {
 
             ele.find("div").append(scope.item);
             ele.on("click", function() {
-                scope.$parent.currentConversation.messageContent = scope.$parent.currentConversation.messageContent || "";
-                scope.$parent.currentConversation.messageContent = scope.$parent.currentConversation.messageContent.replace(/\n$/, "");
-                scope.$parent.currentConversation.messageContent = scope.$parent.currentConversation.messageContent + scope.item.children[0].getAttribute("name");
+                scope.content.messageContent = scope.content.messageContent || "";
+                scope.content.messageContent = scope.content.messageContent.replace(/\n$/, "");
+                scope.content.messageContent = scope.content.messageContent + scope.item.children[0].getAttribute("name");
                 scope.$parent.$apply();
                 var obj = document.getElementById("inputMsg");
-                WidgetModule.Helper.getFocus(obj);
+                RongWebIMWidget.Helper.getFocus(obj);
             })
         }
     }
@@ -201,6 +201,5 @@ module RongWebIMWidget.conversation {
         .directive("imagemessage", factory(imagemessage))
         .directive("voicemessage", factory(voicemessage))
         .directive("locationmessage", factory(locationmessage))
-        .directive("richcontentmessage", factory(richcontentmessage))
-        .directive("textmessage", factory(textmessage));
+        .directive("richcontentmessage", factory(richcontentmessage));
 }

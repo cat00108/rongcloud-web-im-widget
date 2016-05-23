@@ -10,12 +10,12 @@
             </div>
         </div>
         <div class="rongcloud-content">
-            <div class="rongcloud-netStatus" ng-hide="connected"><!--online-->
+            <div class="rongcloud-netStatus" ng-hide="data.connectionState"><!--online-->
                 <div class="rongcloud-sprite"></div>
                 <span>连接断开,请刷新重连</span>
             </div>
             <div class="">
-                <conversation-item ng-repeat="item in conversationListServer.conversationList" item="item"></conversation-item>
+                <conversation-item ng-repeat="item in conversationListServer._conversationList" item="item"></conversation-item>
             </div>
         </div>
     </div>

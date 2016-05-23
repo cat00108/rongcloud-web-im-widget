@@ -66,8 +66,9 @@ module RongWebIMWidget {
 
         init(config: any) {
             var _this = this;
-
-            delete config._config;
+            var defaultStyle = _this.widgetConfig.style;
+            angular.extend(_this.widgetConfig, config);
+            angular.extend(defaultStyle, config.style);
 
             if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
                 _this.widgetConfig._config = config;
@@ -78,13 +79,11 @@ module RongWebIMWidget {
                 RongWebIMWidget.NotificationHelper.requestPermission();
             }
 
-            var defaultStyle = _this.widgetConfig.style;
-            angular.extend(_this.widgetConfig, config);
-            angular.extend(defaultStyle, config.style);
 
             var eleplaysound = document.getElementById("rongcloud-playsound");
             if (eleplaysound && typeof _this.widgetConfig.voiceUrl === "string") {
                 eleplaysound["src"] = _this.widgetConfig.voiceUrl;
+                _this.widgetConfig.voiceNotification = true;
             } else {
                 _this.widgetConfig.voiceNotification = false;
             }
@@ -192,15 +191,18 @@ module RongWebIMWidget {
 
             _this.RongIMSDKServer.connect(_this.widgetConfig.token).then(function(userId) {
                 _this.conversationListServer.updateConversations();
+                _this.conversationServer._handleConnectSuccess && _this.conversationServer._handleConnectSuccess();
                 if (RongWebIMWidget.Helper.checkType(_this.widgetConfig.onSuccess) == "function") {
                     _this.widgetConfig.onSuccess(userId);
                 }
                 if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
                     _this.providerdata.getUserInfo(userId, {
                         onSuccess: function(data) {
-                            _this.providerdata.currentUserInfo.userId = data.userId;
-                            _this.providerdata.currentUserInfo.name = data.name;
-                            _this.providerdata.currentUserInfo.portraitUri = data.portraitUri;
+                            _this.providerdata.currentUserInfo =
+                                new RongWebIMWidget.UserInfo(data.userId,
+                                    data.name,
+                                    data.portraitUri
+                                )
                         }
                     });
                 }
@@ -220,12 +222,12 @@ module RongWebIMWidget {
 
             _this.RongIMSDKServer.setConnectionStatusListener({
                 onChanged: function(status) {
-                    _this.connected = false;
+                    _this.providerdata.connectionState = false;
                     switch (status) {
                         //链接成功
                         case RongIMLib.ConnectionStatus.CONNECTED:
                             console.log('链接成功');
-                            _this.connected = true;
+                            _this.providerdata.connectionState = true;
                             break;
                         //正在链接
                         case RongIMLib.ConnectionStatus.CONNECTING:
@@ -375,7 +377,11 @@ module RongWebIMWidget {
             return this.conversationServer.current;
         }
 
+        fullScreen: boolean
         onReceivedMessage: (msg: any) => void
+        onCloseBefore: (obj: any) => void
+        onClose: (conversation: any) => void
+        onShow: () => void
 
         EnumConversationType: any = RongWebIMWidget.EnumConversationType;
         EnumConversationListPosition: any = RongWebIMWidget.EnumConversationListPosition
@@ -388,6 +394,86 @@ module RongWebIMWidget {
     }
 
     class rongWidgetController {
+        static $inject: string[] = ["$scope",
+            "$interval",
+            "WebIMWidget",
+            "WidgetConfig",
+            "ProviderData",
+            "ConversationServer",
+            "ConversationListServer",
+            "RongIMSDKServer"
+        ]
+
+        constructor(
+            private $scope: any,
+            private $interval: ng.IIntervalService,
+            private WebIMWidget: RongWebIMWidget.WebIMWidget,
+            private WidgetConfig: RongWebIMWidget.WidgetConfig,
+            private providerdata: RongWebIMWidget.ProviderData,
+            private conversationServer: RongWebIMWidget.conversation.IConversationService,
+            private conversationListServer: RongWebIMWidget.conversationlist.IConversationListServer,
+            private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer
+        ) {
+            $scope.main = WebIMWidget;
+            $scope.config = WidgetConfig;
+            $scope.data = providerdata;
+
+
+
+            var voicecookie = RongWebIMWidget.Helper.CookieHelper.getCookie("rongcloud.voiceSound");
+            providerdata.voiceSound = voicecookie ? (voicecookie == "true") : true;
+            $scope.$watch("data.voiceSound", function(newVal, oldVal) {
+                if (newVal === oldVal)
+                    return;
+                RongWebIMWidget.Helper.CookieHelper.setCookie("rongcloud.voiceSound", newVal);
+            })
+
+
+            var interval = null;
+            $scope.$watch("data.totalUnreadCount", function(newVal, oldVal) {
+                if (newVal > 0) {
+                    interval && $interval.cancel(interval);
+                    interval = $interval(function() {
+                        $scope.twinkle = !$scope.twinkle;
+                    }, 1000);
+                } else {
+                    $interval.cancel(interval);
+                }
+            });
+
+            $scope.$watch("main.display", function() {
+                if (conversationServer.current && conversationServer.current.targetId && WebIMWidget.display) {
+                    RongIMSDKServer.getConversation(conversationServer.current.targetType, conversationServer.current.targetId).then(function(conv) {
+                        if (conv && conv.unreadMessageCount > 0) {
+                            RongIMSDKServer.clearUnreadCount(conversationServer.current.targetType, conversationServer.current.targetId);
+                            RongIMSDKServer.sendReadReceiptMessage(conversationServer.current.targetId, conversationServer.current.targetType);
+                            conversationListServer.updateConversations().then(function() { });
+                        }
+                    })
+                }
+            })
+
+            WebIMWidget.show = function() {
+                WebIMWidget.display = true;
+                WebIMWidget.fullScreen = false;
+                WebIMWidget.onShow && WebIMWidget.onShow();
+                setTimeout(function() {
+                    $scope.$apply();
+                });
+            }
+
+            WebIMWidget.hidden = function() {
+                WebIMWidget.display = false;
+                setTimeout(function() {
+                    $scope.$apply();
+                });
+            }
+
+            $scope.showbtn = function() {
+                WebIMWidget.display = true;
+                WebIMWidget.onShow && WebIMWidget.onShow();
+            }
+        }
 
     }
 
