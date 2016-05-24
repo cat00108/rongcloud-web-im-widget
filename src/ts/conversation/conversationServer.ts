@@ -2,20 +2,20 @@
 /// <reference path="../../lib/RongIMLib.d.ts"/>
 module RongWebIMWidget.conversation {
 
-    interface CustomerService {
-        type: string,
-        currentType: string,
-        companyName: string,
-        robotName: string,
-        robotIcon: string,
-        robotWelcome: string,
-        humanWelcome: string,
-        noOneOnlineTip: string,
-        isblack: string,
+    class CustomerService {
+        type: string;
+        currentType: string;
+        companyName: string;
+        robotName: string;
+        robotIcon: string;
+        robotWelcome: string;
+        humanWelcome: string;
+        noOneOnlineTip: string;
+        isblack: string;
         human: {
             name: string,
             headimgurl: string
-        }
+        } = <any>{}
     }
 
     export interface IConversationService {
@@ -48,7 +48,7 @@ module RongWebIMWidget.conversation {
 
         current: RongWebIMWidget.Conversation = new RongWebIMWidget.Conversation
         _cacheHistory: Object = {}
-        _customService: CustomerService
+        _customService: CustomerService = <any>new CustomerService();
         _uploadToken: string
 
         unshiftHistoryMessages(id: string, type: number, item: any) {

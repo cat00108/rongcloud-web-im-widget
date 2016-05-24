@@ -2009,3 +2009,7 @@ ul {
   background:url(../images/star_off.png);
   background-size: 30px 30px;
 }
+/* 上传插件 */
+.moxie-shim.moxie-shim-html5{
+  z-index: 1;
+}

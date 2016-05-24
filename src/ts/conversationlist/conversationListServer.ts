@@ -91,7 +91,7 @@ module RongWebIMWidget.conversationlist {
                         });
                     } else {
                         var cu = _this.conversationServer.current;
-                        cu && _this.RongIMSDKServer.getConversation(cu.targetType, cu.targetId).then(function(conv) {
+                        cu && cu.targetId && _this.RongIMSDKServer.getConversation(cu.targetType, cu.targetId).then(function(conv) {
                             if (conv && conv.unreadMessageCount) {
                                 _this.providerdata.totalUnreadCount = conv.unreadMessageCount || 0;
                                 defer.resolve();
@@ -128,7 +128,7 @@ module RongWebIMWidget.conversationlist {
                     var arr = _this._conversationList.map(function(item) { return item.targetId });
                     _this.providerdata.getOnlineStatus(arr, {
                         onSuccess: function(data) {
-                            this._onlineStatus = data;
+                            _this._onlineStatus = data;
                             _this.updateConversations();
                         }
                     })

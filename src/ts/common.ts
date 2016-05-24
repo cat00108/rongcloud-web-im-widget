@@ -16,6 +16,27 @@ module RongWebIMWidget {
             chrome: /chrome/.test(userAgent),
             mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit|like gecko)/.test(userAgent)
         }
+        static cloneObject(obj: any): any {
+            if (!obj)
+                return null;
+            var ret: any;
+            if (Object.prototype.toString.call(obj) == "[object Array]") {
+                ret = [];
+                var i = obj.length;
+                while (i--) {
+                    ret[i] = Helper.cloneObject(obj[i]);
+                }
+                return ret;
+            } else if (typeof obj === "object") {
+                ret = {}
+                for (let item in obj) {
+                    ret[item] = obj[item];
+                }
+                return ret;
+            } else {
+                return obj;
+            }
+        }
         static getFocus = function(obj: any) {
             obj.focus();
             if (obj.createTextRange) {//ie
@@ -266,7 +287,7 @@ module RongWebIMWidget {
             };
 
             element.bind("keydown paste", read);
-            // element.bind("input", read);
+            element.bind("input", read);
 
             function read() {
                 var html = element.html();

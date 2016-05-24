@@ -121,7 +121,31 @@ module RongWebIMWidget.conversation {
     class voicemessage {
         static $inject: string[] = ["$timeout"];
         constructor(private $timeout: ng.ITimeoutService) {
+            voicemessage.prototype["link"] = function(scope, ele, attr) {
 
+                scope.msg.duration = parseInt(scope.msg.duration || scope.msg.content.length / 1024);
+
+                RongIMLib.RongIMVoice.preLoaded(scope.msg.content);
+
+                scope.play = function() {
+                    RongIMLib.RongIMVoice.stop(scope.msg.content);
+                    if (!scope.isplaying) {
+                        scope.msg.isUnReade = false;
+                        RongIMLib.RongIMVoice.play(scope.msg.content, scope.msg.duration);
+                        scope.isplaying = true;
+                        if (scope.timeoutid) {
+                            $timeout.cancel(scope.timeoutid);
+                        }
+                        scope.timeoutid = $timeout(function() {
+                            scope.isplaying = false;
+                        }, scope.msg.duration * 1000);
+                    } else {
+                        scope.isplaying = false;
+                        $timeout.cancel(scope.timeoutid);
+                    }
+                }
+
+            }
         }
 
         restrict: string = "E";
@@ -129,37 +153,11 @@ module RongWebIMWidget.conversation {
         template: string = '<div class="">' +
         '<div class="rongcloud-Message-audio">' +
         '<span class="rongcloud-Message-entry" style="">' +
-        '<span class="rongcloud-audioBox rongcloud-clearfix " ng-click="play()" ng-class="{\'animate\':isplaying}" ><i></i><i></i><i></i></span>' +
+        '<span class="rongcloud-audioBox rongcloud-clearfix " ng-click="play()" ng-class="{\'rongcloud-animate\':isplaying}" ><i></i><i></i><i></i></span>' +
         '<div style="display: inline-block;" ><span class="rongcloud-audioTimer">{{msg.duration}}”</span><span class="rongcloud-audioState" ng-show="msg.isUnReade"></span></div>' +
         '</span>' +
         '</div>' +
         '</div>';
-        link(scope, ele, attr) {
-            var _this = this;
-
-            scope.msg.duration = parseInt(scope.msg.duration || scope.msg.content.length / 1024);
-
-            RongIMLib.RongIMVoice.preLoaded(scope.msg.content);
-
-            scope.play = function() {
-                RongIMLib.RongIMVoice.stop(scope.msg.content);
-                if (!scope.isplaying) {
-                    scope.msg.isUnReade = false;
-                    RongIMLib.RongIMVoice.play(scope.msg.content, scope.msg.duration);
-                    scope.isplaying = true;
-                    if (scope.timeoutid) {
-                        _this.$timeout.cancel(scope.timeoutid);
-                    }
-                    scope.timeoutid = _this.$timeout(function() {
-                        scope.isplaying = false;
-                    }, scope.msg.duration * 1000);
-                } else {
-                    scope.isplaying = false;
-                    _this.$timeout.cancel(scope.timeoutid);
-                }
-            }
-
-        }
     }
     class locationmessage {
         restrict: string = "E";

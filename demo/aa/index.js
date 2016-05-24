@@ -24,13 +24,16 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
       appkey: "3argexb6r934e",
       // token: "CIbKk/z1AOjB/ForzWFDWpUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcSIX81T5zgZyU5xfoVDjRmdg2Mh5WIasRw==",
       token:"3Y2egzIYQ9g8M76BiwiTcoT92+VsUe7ien9j+5OQOOBXujb945nEL1nDAGUvIP/hzgPI+chetYG4lSO5xHmpaQ==",
+
+      // appkey:"z3v5yqkbv8v30",
+      // token:"O5zgw4LpV15Nn8SmFPPw5kmcbyeYIrXSDa0nFvL2mH845dAfVy9vY+MK2vxL2S46RuZ84Mn0L2b+2o+xf26D4w==",
       style:{
         width:600,
         positionFixed:true,
         bottom:20,
       },
       displayConversationList:true,
-      voiceUrl:'../widget/images/sms-received.mp3',
+      // voiceUrl:'../widget/images/sms-received.mp3',
       conversationListPosition:WebIMWidget.EnumConversationListPosition.right,
       onError:function(error){
         console.log("error:"+error);

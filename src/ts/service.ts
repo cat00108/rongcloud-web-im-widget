@@ -12,7 +12,7 @@ module RongWebIMWidget {
         totalUnreadCount: number = 0;
         connectionState: boolean = false;
         voiceSound: boolean = false;
-        currentUserInfo: RongWebIMWidget.UserInfo
+        currentUserInfo: RongWebIMWidget.UserInfo = <any>{}
 
         _getCacheUserInfo(id) {
             for (var i = 0, len = this._cacheUserInfo.length; i < len; i++) {

@@ -82,6 +82,44 @@ module RongWebIMWidget.conversation {
                 })
             }
 
+            var evaluate = new Evaluate();
+            $scope.evaluate = <any>{
+                type: 1,
+                showevaluate: false,
+                valid: false,
+                onConfirm: function(data) {
+                    //发评价
+                    if (data) {
+                        if ($scope.evaluate.type == 1) {
+                            RongIMLib.RongIMClient.getInstance().evaluateHumanCustomService(conversationServer.current.targetId, data.stars, data.describe, {
+                                onSuccess: function() {
+
+                                }
+                            })
+                        } else {
+                            RongIMLib.RongIMClient.getInstance().evaluateRebotCustomService(conversationServer.current.targetId, data.value, data.describe, {
+                                onSuccess: function() {
+
+                                }
+                            })
+                        }
+                    }
+                    RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
+                        onSuccess: function() {
+
+                        },
+                        onError: function() {
+
+                        }
+                    });
+
+                    closeState();
+                },
+                onCancle: function() {
+                    $scope.evaluate.showSelf = false;
+                }
+            };
+
 
             $scope._inputPanelState = RongWebIMWidget.EnumInputPanelType.person;
             $scope.$watch("showemoji", function(newVal, oldVal) {
@@ -375,11 +413,16 @@ module RongWebIMWidget.conversation {
                             if (data.has) {
                                 _this.$scope.messageList.unshift(new RongWebIMWidget.GetMoreMessagePanel());
                             }
+                            setTimeout(function() {
+                                _this.$scope.$apply();
+                            })
                             _this.$scope.scrollBar();
                         }
                     })
             } else {
-                _this.$scope.$apply();
+                setTimeout(function() {
+                    _this.$scope.$apply();
+                })
                 _this.$scope.scrollBar();
             }
 
@@ -415,13 +458,13 @@ module RongWebIMWidget.conversation {
                                     RongWebIMWidget.MessageType.TextMessage));
                             _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.robotSwitchPerson);
                         } else {
-                            // msg.content.data.humanWelcome && (systemMsg = packReceiveMessage(RongIMLib.TextMessage.obtain(msg.content.data.humanWelcome), RongWebIMWidget.MessageType.TextMessage));
                             _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.person);
                         }
-                        this.$scope.evaluate.valid = false;
-                        setTimeout(function() {
-                            this.$scope.evaluate.valid = true;
-                        }, 60 * 1000);
+                        _this.$scope.evaluate.valid = false;
+                        // setTimeout(function() {
+                        //     _this.$scope.evaluate.valid = true;
+                        // }, 60 * 1000);
+                        _this.$scope.evaluate.valid = true;
                         break;
                     case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                         switch (msg.content.data.status) {
