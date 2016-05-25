@@ -1,5 +1,5 @@
 module RongWebIMWidget.conversation {
-    var ImageDomain = "http://7xogjk.com1.z0.glb.clouddn.com/"
+    var UploadImageDomain = "http://7xogjk.com1.z0.glb.clouddn.com/"
 
     interface ConversationScope extends ng.IScope {
 
@@ -126,7 +126,7 @@ module RongWebIMWidget.conversation {
                 if (newVal === oldVal)
                     return;
                 if (!$scope.emojiList || $scope.emojiList.length == 0) {
-                    $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 77);
+                    $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 66);
                 }
             });
             document.addEventListener("click", function(e: any) {
@@ -222,12 +222,12 @@ module RongWebIMWidget.conversation {
                             });
                         },
                         onError: function(error) {
-                            console.log(error);
+
                         }
                     });
 
                 } catch (e) {
-                    console.log(e);
+
                 }
 
 
@@ -271,7 +271,7 @@ module RongWebIMWidget.conversation {
                     dragdrop: true,
                     chunk_size: '4mb',
                     uptoken: conversationServer._uploadToken,
-                    domain: ImageDomain,
+                    domain: UploadImageDomain,
                     get_new_uptoken: false,
                     filters: {
                         mime_types: [{ title: "Image files", extensions: "jpg,gif,png,jpeg,bmp" }],

@@ -5,6 +5,8 @@ module RongWebIMWidget.conversationlist {
         _onlineStatus: any[]
 
         updateConversations(): angular.IPromise<any>
+        startRefreshOnlineStatus(): void
+        stopRefreshOnlineStatus(): void
         _getConversation(type: number, id: string): RongWebIMWidget.Conversation
     }
 
@@ -28,6 +30,7 @@ module RongWebIMWidget.conversationlist {
 
         _conversationList: RongWebIMWidget.Conversation[] = [];
         _onlineStatus: any[] = [];
+        __intervale: any
 
         updateConversations() {
             var defer = this.$q.defer();
@@ -69,13 +72,14 @@ module RongWebIMWidget.conversationlist {
                                 }
                                 break;
                             case RongIMLib.ConversationType.CHATROOM:
+                                con.title = "聊天室：" + con.targetId;
                                 break;
                         }
 
                         _this._conversationList.push(con);
                     }
                     _this._onlineStatus.forEach(function(item) {
-                        var conv = this.getConversation(RongWebIMWidget.EnumConversationType.PRIVATE, item.id);
+                        var conv = _this._getConversation(RongWebIMWidget.EnumConversationType.PRIVATE, item.id);
                         conv && (conv.onLine = item.status);
                     });
 
@@ -119,21 +123,26 @@ module RongWebIMWidget.conversationlist {
             }
             return null;
         }
-        __intervale: any
+
         startRefreshOnlineStatus() {
             var _this = this;
             if (_this.widgetConfig.displayConversationList && _this.providerdata.getOnlineStatus) {
+                _this._getOnlineStatus();
                 _this.__intervale && clearInterval(this.__intervale);
                 _this.__intervale = setInterval(function() {
-                    var arr = _this._conversationList.map(function(item) { return item.targetId });
-                    _this.providerdata.getOnlineStatus(arr, {
-                        onSuccess: function(data) {
-                            _this._onlineStatus = data;
-                            _this.updateConversations();
-                        }
-                    })
+                    _this._getOnlineStatus();
                 }, 30 * 1000);
             }
+        }
+        _getOnlineStatus() {
+            var _this = this;
+            var arr = _this._conversationList.map(function(item) { return item.targetId });
+            _this.providerdata.getOnlineStatus(arr, {
+                onSuccess: function(data) {
+                    _this._onlineStatus = data;
+                    _this.updateConversations();
+                }
+            })
         }
         stopRefreshOnlineStatus() {
             clearInterval(this.__intervale);

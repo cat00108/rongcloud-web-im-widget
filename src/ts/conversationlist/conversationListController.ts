@@ -3,17 +3,13 @@ module RongWebIMWidget.conversationlist {
         static $inject: string[] = [
             "$scope",
             "ConversationListServer",
-            "WebIMWidget",
-            "WidgetConfig",
-            "ProviderData"
+            "WebIMWidget"
         ]
 
         constructor(
             private $scope: any,
             private conversationListServer: RongWebIMWidget.conversationlist.IConversationListServer,
-            private WebIMWidget: RongWebIMWidget.WebIMWidget,
-            private widgetConfig: RongWebIMWidget.WidgetConfig,
-            private providerdata: RongWebIMWidget.ProviderData
+            private WebIMWidget: RongWebIMWidget.WebIMWidget
         ) {
             $scope.minbtn = function() {
                 WebIMWidget.display = false;

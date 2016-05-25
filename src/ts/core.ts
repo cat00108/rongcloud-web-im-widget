@@ -27,9 +27,9 @@ module RongWebIMWidget {
         getCurrentConversation(): RongWebIMWidget.Conversation
 
 
-        // setUserInfoProvider(fun: UserInfoProvider)
-        // setGroupInfoProvider(fun: GroupInfoProvider)
-        // setOnlineStatusProvider(fun: OnlineStatusProvider)
+        setUserInfoProvider(fun: Function)
+        setGroupInfoProvider(fun: Function)
+        setOnlineStatusProvider(fun: Function)
 
         /**
          * 静态属性
@@ -50,7 +50,8 @@ module RongWebIMWidget {
             "ConversationListServer",
             "ProviderData",
             "WidgetConfig",
-            "RongIMSDKServer"];
+            "RongIMSDKServer",
+            "$log"];
 
         display: boolean = false;
         connected: boolean = false;
@@ -60,7 +61,8 @@ module RongWebIMWidget {
             private conversationListServer: RongWebIMWidget.conversationlist.IConversationListServer,
             private providerdata: RongWebIMWidget.ProviderData,
             private widgetConfig: RongWebIMWidget.WidgetConfig,
-            private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer) {
+            private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer,
+            private $log: ng.ILogService) {
 
         }
 
@@ -94,7 +96,7 @@ module RongWebIMWidget {
 
             var eleminbtn = document.getElementById("rong-widget-minbtn");
             if (_this.widgetConfig.__isKefu) {
-                var eleminbtn = document.getElementById("rong-widget-minbtn-kefu");
+                eleminbtn = document.getElementById("rong-widget-minbtn-kefu");
             }
 
             if (defaultStyle) {
@@ -183,7 +185,9 @@ module RongWebIMWidget {
 
             _this.RongIMSDKServer.connect(_this.widgetConfig.token).then(function(userId) {
                 _this.conversationListServer.updateConversations();
+                _this.conversationListServer.startRefreshOnlineStatus();
                 _this.conversationServer._handleConnectSuccess && _this.conversationServer._handleConnectSuccess();
+
                 if (RongWebIMWidget.Helper.checkType(_this.widgetConfig.onSuccess) == "function") {
                     _this.widgetConfig.onSuccess(userId);
                 }
@@ -218,34 +222,30 @@ module RongWebIMWidget {
                     switch (status) {
                         //链接成功
                         case RongIMLib.ConnectionStatus.CONNECTED:
-                            console.log('链接成功');
+                            _this.$log.debug('链接成功');
                             _this.providerdata.connectionState = true;
                             break;
                         //正在链接
                         case RongIMLib.ConnectionStatus.CONNECTING:
-                            console.log('正在链接');
+                            _this.$log.debug('正在链接');
                             break;
                         //其他设备登陆
                         case RongIMLib.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT:
-                            console.log('其他设备登录');
+                            _this.$log.debug('其他设备登录');
                             break;
                         case RongIMLib.ConnectionStatus.NETWORK_UNAVAILABLE:
-                            console.log("网络不可用");
-
+                            _this.$log.debug("网络不可用");
                             break;
+                        default:
+                            _this.$log.debug(status);
                     }
-                    // if (_this.onConnectStatusChange) {
-                    //     _this.onConnectStatusChange(status);
-                    // }
-                    // if (_this.conversationListServer._onConnectStatusChange) {
-                    //     _this.conversationListServer._onConnectStatusChange(status);
-                    // }
+
                 }
             });
 
             _this.RongIMSDKServer.setOnReceiveMessageListener({
                 onReceived: function(data) {
-                    console.log(data);
+                    _this.$log.debug(data);
                     var msg = RongWebIMWidget.Message.convert(data);
 
                     if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
@@ -266,9 +266,19 @@ module RongWebIMWidget {
                         case RongWebIMWidget.MessageType.ImageMessage:
                         case RongWebIMWidget.MessageType.RichContentMessage:
                             _this.addMessageAndOperation(msg);
-                            var voiceBase = _this.providerdata.voiceSound == true && eleplaysound && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE && _this.widgetConfig.voiceNotification;
-                            var currentConvversationBase = _this.conversationServer.current && _this.conversationServer.current.targetType == msg.conversationType && _this.conversationServer.current.targetId == msg.targetId;
-                            var notificationBase = (document.hidden || !_this.display) && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE && _this.widgetConfig.desktopNotification;
+                            var voiceBase =
+                                _this.providerdata.voiceSound == true
+                                && eleplaysound
+                                && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
+                                && _this.widgetConfig.voiceNotification;
+                            var currentConvversationBase =
+                                _this.conversationServer.current
+                                && _this.conversationServer.current.targetType == msg.conversationType
+                                && _this.conversationServer.current.targetId == msg.targetId;
+                            var notificationBase =
+                                (document.hidden || !_this.display)
+                                && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
+                                && _this.widgetConfig.desktopNotification;
                             if ((_this.widgetConfig.displayConversationList && voiceBase) || (!_this.widgetConfig.displayConversationList && voiceBase && currentConvversationBase)) {
                                 eleplaysound["play"]();
                             }
@@ -360,11 +370,12 @@ module RongWebIMWidget {
 
         show() {
             this.display = true;
-            // this.fullScreen = false;
         }
+
         hidden() {
             this.display = false;
         }
+
         getCurrentConversation() {
             return this.conversationServer.current;
         }

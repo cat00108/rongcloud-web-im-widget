@@ -17,7 +17,7 @@ module RongWebIMWidget.conversation {
                 $("#Messages").niceScroll({
                     'cursorcolor': "#0099ff",
                     'cursoropacitymax': 1,
-                    'touchbehavior': false,
+                    'touchbehavior': true,
                     'cursorwidth': "8px",
                     'cursorborder': "0",
                     'cursorborderradius': "5px"

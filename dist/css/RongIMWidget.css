@@ -197,6 +197,7 @@ ul {
 }
 .rongcloud-kefuBtn .rongcloud-people{
     vertical-align: middle;
+    margin-right: 3px;
     width: 24px;
     border: none;
     height: 24px;
@@ -266,10 +267,11 @@ ul {
 }
 .rongcloud-kefuListBox .rongcloud-kefuList .rongcloud-people {
      vertical-align: middle;
+     margin-right: 10px;
      width: 20px;
      border: none;
      height: 20px;
-    background-size: 45px auto;
+     background-size: 45px auto;
 }
 .rongcloud-kefuListBox .rongcloud-kefuList .rongcloud-voice {
      vertical-align: middle;
@@ -1193,7 +1195,7 @@ ul {
     padding: 5px 8px;
     position: absolute;
     left: -2px;
-    top: -214px;
+    top: -199px;
     background: #fff;
     z-index: 1100;
 }
@@ -2052,4 +2054,8 @@ ul {
   margin: 0 2px 0 0;
   background:url(../images/star_off.png);
   background-size: 30px 30px;
+}
+/* 上传插件 */
+.moxie-shim.moxie-shim-html5{
+  z-index: 1;
 }

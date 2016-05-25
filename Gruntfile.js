@@ -17,7 +17,7 @@ module.exports = function(grunt) {
         src:["./dist/*"]
       },
       temp:{
-        // src:['./temp']
+        src:['./temp']
       }
     },
 
@@ -109,7 +109,7 @@ module.exports = function(grunt) {
               './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
               './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
-            dest:'./build/main.js'
+            dest:'./build/RongIMWidget.js'
           },
           {
             src:[
@@ -118,21 +118,21 @@ module.exports = function(grunt) {
               './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
               './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
-            dest:'./build/main.full.js'
+            dest:'./build/RongIMWidget.full.js'
           },
           {
             src:[
               './temp/main.js','./temp/myAppHTMLCache.js',
-              // './vendor/loadscript/script.min.js',
-              // './vendor/qiniu/qiniu.js'
+              './vendor/loadscript/script.min.js',
+              './vendor/qiniu/qiniu.js'
             ],
-            dest:'./build/main.tidy.js'
+            dest:'./build/RongIMWidget.tidy.js'
           },
           {
             src:[
               './vendor/jqueryrebox/jquery-rebox.css','./src/css/conversation.css',
             ],
-            dest:'./build/css/conversation.css'
+            dest:'./build/css/RongIMWidget.css'
           }
         ]
       },
@@ -140,40 +140,78 @@ module.exports = function(grunt) {
         files:[
           {
             src:[
-              // './bower_components/jquery/dist/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
               './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
-            './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
-            dest:'./dist/main.js'
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+            dest:'./dist/RongIMWidget.js'
+          },
+          {
+            src:[
+              './bower_components/jquery/dist/jquery.js',
+              './vendor/jqueryrebox/jquery-rebox.js',
+              './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
+              './temp/main.js','./temp/myAppHTMLCache.js',
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+            dest:'./dist/RongIMWidget.full.js'
+          },
+          {
+            src:[
+              './temp/main.js','./temp/myAppHTMLCache.js',
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+            dest:'./dist/RongIMWidget.tidy.js'
           },
           {
             src:[
               './vendor/jqueryrebox/jquery-rebox.css','./src/css/conversation.css',
             ],
-            dest:'./dist/css/conversation.css'
+            dest:'./dist/css/RongIMWidget.css'
           }
         ]
       }
     },
     uglify:{
       build:{
-        src:'./build/main.js',
-        dest:'./build/main.min.js'
+        files:[
+          {
+            src:'./build/RongIMWidget.js',
+            dest:'./build/RongIMWidget.min.js'
+          },
+          {
+            src:'./build/RongIMWidget.full.js',
+            dest:'./build/RongIMWidget.full.min.js'
+          },
+          {
+            src:'./build/RongIMWidget.tidy.js',
+            dest:'./build/RongIMWidget.tidy.min.js'
+          }
+        ]
       },
       release:{
-        src:'./dist/main.js',
-        dest:'./dist/main.min.js'
+        files:[
+          {
+            src:'./dist/RongIMWidget.js',
+            dest:'./dist/RongIMWidget.min.js'
+          },
+          {
+            src:'./dist/RongIMWidget.full.js',
+            dest:'./dist/RongIMWidget.full.min.js'
+          },
+          {
+            src:'./dist/RongIMWidget.tidy.js',
+            dest:'./dist/RongIMWidget.tidy.min.js'
+          }
+        ]
       }
     },
     cssmin:{
       build:{
-        src:'./build/css/conversation.css',
-        dest:'./build/css/conversation.min.css'
+        src:'./build/css/RongIMWidget.css',
+        dest:'./build/css/RongIMWidget.min.css'
       },
       release:{
-        src:'./dist/css/conversation.css',
-        dest:'./dist/css/conversation.min.css',
+        src:'./dist/css/RongIMWidget.css',
+        dest:'./dist/css/RongIMWidget.min.css',
       }
     },
     ngtemplates: {
@@ -194,31 +232,7 @@ module.exports = function(grunt) {
           }
         }
       }
-    },
-    css_ownprefix: {
-      css:{
-        options:{
-          prefix:"rongcloud-"
-        },
-        files:[{
-          expand:true,
-          cwd:"./src",
-          src:['css/conversation.css'],
-          dest:'./aaa/'
-        }]
-      },
-      html:{
-        options:{
-          prefix:"rongcloud-"
-        },
-        files:[{
-          expand:true,
-          cwd:"./src",
-          src:['ts/**/*.html'],
-          dest:'./aaa/'
-        }]
-      }
-    },
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -230,7 +244,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-angular-templates');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('css-ownprefix');
 
   grunt.registerTask("default", function() {
     grunt.log.writeln("env" + process.env.path);

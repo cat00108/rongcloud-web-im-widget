@@ -32,9 +32,7 @@ module RongWebIMWidget.conversation {
         handleMessage(message: RongWebIMWidget.Message): void
         closeConversation(): ng.IPromise<any>
 
-        _handleConnectSuccess(): void
-
-        onSendMessage(msg: RongWebIMWidget.Message): void
+        _handleConnectSuccess(): void// 获取上传 token ，并初始化上传控件
     }
 
     class conversationServer implements IConversationService {
@@ -129,8 +127,6 @@ module RongWebIMWidget.conversation {
         closeConversation: () => ng.IPromise<any>
 
         _handleConnectSuccess: () => void
-
-        onSendMessage: (msg: RongWebIMWidget.Message) => void
     }
 
     angular.module("RongWebIMWidget.conversation")

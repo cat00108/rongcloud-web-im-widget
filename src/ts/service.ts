@@ -8,6 +8,7 @@ module RongWebIMWidget {
     export class ProviderData {
 
         private _cacheUserInfo: RongWebIMWidget.UserInfo[] = [];
+        private _cacheGroupInfo: RongWebIMWidget.GroupInfo[] = [];
 
         totalUnreadCount: number = 0;
         connectionState: boolean = false;
@@ -68,6 +69,9 @@ module RongWebIMWidget {
             bottom: 0,
             right: 0
         };
+
+        refershOnlineStateIntercycle: number = 1000 * 20;
+
         voiceUrl: string;
         appkey: string;
         token: string;

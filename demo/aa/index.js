@@ -1,5 +1,9 @@
 var demo = angular.module("demo", ["RongWebIMWidget"]);
 
+demo.config(function($logProvider){
+  // $logProvider.debugEnabled(false);
+})
+
 demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMWidget,
   $http) {
 
@@ -35,6 +39,9 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
       displayConversationList:true,
       // voiceUrl:'../widget/images/sms-received.mp3',
       conversationListPosition:WebIMWidget.EnumConversationListPosition.right,
+      onSuccess:function(id){
+        console.log(id);
+      },
       onError:function(error){
         console.log("error:"+error);
       }

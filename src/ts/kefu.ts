@@ -1,5 +1,8 @@
-module RongWebIMWidget.kefu {
-    var kefu = angular.module("RongCloudkefu", ["RongWebIMWidget"]);
+module RongWebIMWidget {
+
+    enum KefuPostion {
+        left = 1, right = 2
+    }
 
     class RongKefu {
 
@@ -8,6 +11,8 @@ module RongWebIMWidget.kefu {
         defaultconfig: any = {
             __isKefu: true
         }
+
+        KefuPostion: any = KefuPostion
 
         constructor(private WebIMWidget: RongWebIMWidget.WebIMWidget) {
 
@@ -23,14 +28,14 @@ module RongWebIMWidget.kefu {
                 if (config.position == KefuPostion.left) {
                     style = {
                         left: 20,
-                        bottom:0,
+                        bottom: 0,
                         width: 325,
                         positionFixed: true
                     };
                 } else {
                     style = {
                         right: 20,
-                        bottom:0,
+                        bottom: 0,
                         width: 325,
                         positionFixed: true
                     };
@@ -53,14 +58,9 @@ module RongWebIMWidget.kefu {
         hidden() {
             this.WebIMWidget.hidden();
         }
-
-
-        KefuPostion: any = KefuPostion
     }
 
-    kefu.service("RongKefu", RongKefu);
+    angular.module("RongCloudkefu", ["RongWebIMWidget"])
+        .service("RongKefu", RongKefu);
 
-    enum KefuPostion {
-        left = 1, right = 2
-    }
 }

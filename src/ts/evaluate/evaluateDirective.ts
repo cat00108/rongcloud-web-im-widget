@@ -18,7 +18,6 @@ module Evaluate {
                 var labels = [{ display: "答非所问" }, { display: "理解能力差" }, { display: "一问三不知" }, { display: "不礼貌" }]
                 var enterStars = false;//鼠标悬浮样式
 
-
                 scope.stars = stars;
                 scope.labels = RongWebIMWidget.Helper.cloneObject(labels);
                 scope.end = false;

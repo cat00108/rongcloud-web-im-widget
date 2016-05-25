@@ -1,15 +1,13 @@
 /// <reference path="../../lib/window.d.ts"/>
 module RongWebIMWidget.conversationlist {
 
+    var factory = RongWebIMWidget.DirectiveFactory.GetFactoryFor;
+
     class rongConversationList {
 
         restrict: string = "E";
         templateUrl: string = "./src/ts/conversationlist/conversationList.tpl.html";
         controller: string = "conversationListController";
-
-        static instance() {
-            return new rongConversationList;
-        }
 
         link(scope: any, ele: angular.IRootElementService) {
             if (window["jQuery"] && window["jQuery"].nicescroll) {
@@ -59,7 +57,7 @@ module RongWebIMWidget.conversationlist {
                         }
                         conversationListServer.updateConversations();
                     }, function(error) {
-                        console.log(error);
+
                     })
                 }
             }
@@ -68,7 +66,7 @@ module RongWebIMWidget.conversationlist {
         restrict: string = "E";
         scope: any = { item: "=" };
         template: string = '<div class="rongcloud-chatList">' +
-        '<div class="rongcloud-chat_item " ng-class="{\'online\':item.onLine}">' +
+        '<div class="rongcloud-chat_item " ng-class="{\'rongcloud-online\':item.onLine}">' +
         '<div class="rongcloud-ext">' +
         '<p class="rongcloud-attr clearfix">' +
         '<span class="rongcloud-badge" ng-show="item.unreadMessageCount>0">{{item.unreadMessageCount>99?"99+":item.unreadMessageCount}}</span>' +
@@ -77,7 +75,7 @@ module RongWebIMWidget.conversationlist {
         '</div>' +
         '<div class="rongcloud-photo">' +
         '<img class="rongcloud-img" ng-src="{{item.portraitUri}}" err-src="http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png" alt="">' +
-        '<i ng-show="!!$parent.data.getOnlineStatus" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
+        '<i ng-show="!!$parent.data.getOnlineStatus&&item.targetType==1" class="rongcloud-Presence rongcloud-Presence--stacked rongcloud-Presence--mainBox"></i>' +
         '</div>' +
         '<div class="rongcloud-info">' +
         '<h3 class="rongcloud-nickname">' +
@@ -91,8 +89,8 @@ module RongWebIMWidget.conversationlist {
 
 
     angular.module("RongWebIMWidget.conversationlist")
-        .directive("rongConversationList", rongConversationList.instance)
+        .directive("rongConversationList", factory(rongConversationList))
         .directive("conversationItem",
-        RongWebIMWidget.DirectiveFactory.GetFactoryFor(conversationItem));
+        factory(conversationItem));
 
 }

@@ -244,7 +244,7 @@ module RongWebIMWidget {
                     msg.content = ter;
                     break;
                 default:
-                    console.log("未处理消息类型:" + SDKmsg.messageType);
+                    
                     break;
             }
             if (msg.content) {
