@@ -34,18 +34,6 @@ module RongWebIMWidget.conversation {
         minimize(): void
     }
 
-    class Evaluate {
-        type: number = 1;
-        showSelf: boolean = false;
-        valid: boolean = false;
-        onConfirm() {
-
-        }
-        onCancle() {
-
-        }
-    }
-
     class ConversationController {
         static $inject: string[] = ["$scope",
             "ConversationServer",
@@ -82,7 +70,6 @@ module RongWebIMWidget.conversation {
                 })
             }
 
-            var evaluate = new Evaluate();
             $scope.evaluate = <any>{
                 type: 1,
                 showevaluate: false,
@@ -91,17 +78,17 @@ module RongWebIMWidget.conversation {
                     //发评价
                     if (data) {
                         if ($scope.evaluate.type == 1) {
-                            RongIMLib.RongIMClient.getInstance().evaluateHumanCustomService(conversationServer.current.targetId, data.stars, data.describe, {
-                                onSuccess: function() {
+                            RongIMSDKServer.evaluateHumanCustomService(conversationServer.current.targetId, data.stars, data.describe).then(function() {
 
-                                }
-                            })
+                            }, function() {
+
+                            });
                         } else {
-                            RongIMLib.RongIMClient.getInstance().evaluateRebotCustomService(conversationServer.current.targetId, data.value, data.describe, {
-                                onSuccess: function() {
+                            RongIMSDKServer.evaluateHumanCustomService(conversationServer.current.targetId, data.value, data.describe).then(function() {
 
-                                }
-                            })
+                            }, function() {
+
+                            });
                         }
                     }
                     RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
@@ -113,7 +100,7 @@ module RongWebIMWidget.conversation {
                         }
                     });
 
-                    closeState();
+                    _this.closeState();
                 },
                 onCancle: function() {
                     $scope.evaluate.showSelf = false;
@@ -242,20 +229,7 @@ module RongWebIMWidget.conversation {
                 RongWebIMWidget.Helper.getFocus(obj);
             }
 
-            function closeState() {
 
-                if (WebIMWidget.onClose && typeof WebIMWidget.onClose === "function") {
-                    setTimeout(function() { WebIMWidget.onClose($scope.conversation) }, 1);
-                }
-                if (widgetConfig.displayConversationList) {
-                    $scope.showSelf = false;
-                } else {
-                    WebIMWidget.display = false;
-                }
-                $scope.messageList = [];
-                $scope.conversation = null;
-                conversationServer.current = null;
-            }
 
             var qiniuuploader: any
             function uploadFileRefresh() {
@@ -351,7 +325,7 @@ module RongWebIMWidget.conversation {
                                     $scope.evaluate.onCancle();
                                 }
                             } else {
-                                closeState();
+                                _this.closeState();
                             }
                         }
                     });
@@ -363,7 +337,7 @@ module RongWebIMWidget.conversation {
                             $scope.evaluate.onCancle();
                         }
                     } else {
-                        closeState();
+                        _this.closeState();
                     }
                 }
             }
@@ -371,6 +345,21 @@ module RongWebIMWidget.conversation {
             $scope.minimize = function() {
                 WebIMWidget.display = false;
             }
+        }
+
+        closeState() {
+          var _this=this;
+            if (this.WebIMWidget.onClose && typeof this.WebIMWidget.onClose === "function") {
+                setTimeout(function() { _this.WebIMWidget.onClose(_this.$scope.conversation) }, 1);
+            }
+            if (this.widgetConfig.displayConversationList) {
+                this.$scope.showSelf = false;
+            } else {
+                this.WebIMWidget.display = false;
+            }
+            this.$scope.messageList = [];
+            this.$scope.conversation = null;
+            this.conversationServer.current = null;
         }
 
         changeConversation(obj: RongWebIMWidget.Conversation) {
@@ -508,6 +497,11 @@ module RongWebIMWidget.conversation {
                         }
 
                         break;
+                    case RongWebIMWidget.MessageType.SuspendMessage:
+                         if (msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                             _this.closeState();
+                         }
+                         break;
                     case RongWebIMWidget.MessageType.CustomerStatusUpdateMessage:
                         switch (Number(msg.content.serviceStatus)) {
                             case 1:
@@ -540,6 +534,7 @@ module RongWebIMWidget.conversation {
                 _this.addCustomService(msg);
 
                 setTimeout(function() {
+                    _this.$scope.$apply();
                     _this.$scope.scrollBar();
                 }, 200);
             }

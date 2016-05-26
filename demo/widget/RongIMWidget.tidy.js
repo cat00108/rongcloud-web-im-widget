@@ -66,6 +66,18 @@ var RongWebIMWidget;
             chrome: /chrome/.test(userAgent),
             mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit|like gecko)/.test(userAgent)
         };
+        Helper.escapeSymbol = {
+            escapeHtml: function (str) {
+                if (!str)
+                    return '';
+                // str = str.replace(/&/g, '&amp;');
+                str = str.replace(/</g, '&lt;');
+                str = str.replace(/>/g, '&gt;');
+                str = str.replace(/"/g, '&quot;');
+                str = str.replace(/'/g, '&#039;');
+                return str;
+            }
+        };
         Helper.getFocus = function (obj) {
             obj.focus();
             if (obj.createTextRange) {
@@ -373,18 +385,6 @@ var RongWebIMWidget;
     var conversation;
     (function (conversation) {
         var UploadImageDomain = "http://7xogjk.com1.z0.glb.clouddn.com/";
-        var Evaluate = (function () {
-            function Evaluate() {
-                this.type = 1;
-                this.showSelf = false;
-                this.valid = false;
-            }
-            Evaluate.prototype.onConfirm = function () {
-            };
-            Evaluate.prototype.onCancle = function () {
-            };
-            return Evaluate;
-        })();
         var ConversationController = (function () {
             function ConversationController($scope, conversationServer, WebIMWidget, conversationListServer, widgetConfig, providerdata, RongIMSDKServer) {
                 this.$scope = $scope;
@@ -410,7 +410,6 @@ var RongWebIMWidget;
                         uploadFileRefresh();
                     });
                 }
-                var evaluate = new Evaluate();
                 $scope.evaluate = {
                     type: 1,
                     showevaluate: false,
@@ -419,15 +418,13 @@ var RongWebIMWidget;
                         //发评价
                         if (data) {
                             if ($scope.evaluate.type == 1) {
-                                RongIMLib.RongIMClient.getInstance().evaluateHumanCustomService(conversationServer.current.targetId, data.stars, data.describe, {
-                                    onSuccess: function () {
-                                    }
+                                RongIMSDKServer.evaluateHumanCustomService(conversationServer.current.targetId, data.stars, data.describe).then(function () {
+                                }, function () {
                                 });
                             }
                             else {
-                                RongIMLib.RongIMClient.getInstance().evaluateRebotCustomService(conversationServer.current.targetId, data.value, data.describe, {
-                                    onSuccess: function () {
-                                    }
+                                RongIMSDKServer.evaluateHumanCustomService(conversationServer.current.targetId, data.value, data.describe).then(function () {
+                                }, function () {
                                 });
                             }
                         }
@@ -437,7 +434,7 @@ var RongWebIMWidget;
                             onError: function () {
                             }
                         });
-                        closeState();
+                        _this.closeState();
                     },
                     onCancle: function () {
                         $scope.evaluate.showSelf = false;
@@ -545,20 +542,6 @@ var RongWebIMWidget;
                     var obj = document.getElementById("inputMsg");
                     RongWebIMWidget.Helper.getFocus(obj);
                 };
-                function closeState() {
-                    if (WebIMWidget.onClose && typeof WebIMWidget.onClose === "function") {
-                        setTimeout(function () { WebIMWidget.onClose($scope.conversation); }, 1);
-                    }
-                    if (widgetConfig.displayConversationList) {
-                        $scope.showSelf = false;
-                    }
-                    else {
-                        WebIMWidget.display = false;
-                    }
-                    $scope.messageList = [];
-                    $scope.conversation = null;
-                    conversationServer.current = null;
-                }
                 var qiniuuploader;
                 function uploadFileRefresh() {
                     qiniuuploader && qiniuuploader.destroy();
@@ -642,7 +625,7 @@ var RongWebIMWidget;
                                     }
                                 }
                                 else {
-                                    closeState();
+                                    _this.closeState();
                                 }
                             }
                         });
@@ -657,7 +640,7 @@ var RongWebIMWidget;
                             }
                         }
                         else {
-                            closeState();
+                            _this.closeState();
                         }
                     }
                 };
@@ -665,6 +648,21 @@ var RongWebIMWidget;
                     WebIMWidget.display = false;
                 };
             }
+            ConversationController.prototype.closeState = function () {
+                var _this = this;
+                if (this.WebIMWidget.onClose && typeof this.WebIMWidget.onClose === "function") {
+                    setTimeout(function () { _this.WebIMWidget.onClose(_this.$scope.conversation); }, 1);
+                }
+                if (this.widgetConfig.displayConversationList) {
+                    this.$scope.showSelf = false;
+                }
+                else {
+                    this.WebIMWidget.display = false;
+                }
+                this.$scope.messageList = [];
+                this.$scope.conversation = null;
+                this.conversationServer.current = null;
+            };
             ConversationController.prototype.changeConversation = function (obj) {
                 var _this = this;
                 if (_this.widgetConfig.displayConversationList) {
@@ -791,6 +789,11 @@ var RongWebIMWidget;
                                 }
                             }
                             break;
+                        case RongWebIMWidget.MessageType.SuspendMessage:
+                            if (msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                                _this.closeState();
+                            }
+                            break;
                         case RongWebIMWidget.MessageType.CustomerStatusUpdateMessage:
                             switch (Number(msg.content.serviceStatus)) {
                                 case 1:
@@ -821,6 +824,7 @@ var RongWebIMWidget;
                     }
                     _this.addCustomService(msg);
                     setTimeout(function () {
+                        _this.$scope.$apply();
                         _this.$scope.scrollBar();
                     }, 200);
                 }
@@ -968,6 +972,26 @@ var RongWebIMWidget;
                     '<div class="rongcloud-Message-text"><pre class="rongcloud-Message-entry" ng-bind-html="msg.content|trustHtml"><br></pre></div>' +
                     '</div>';
             }
+            textmessage.prototype.link = function (scope, ele, attr) {
+                var EMailReg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/gi;
+                var EMailArr = [];
+                scope.msg.content = scope.msg.content.replace(EMailReg, function (str) {
+                    EMailArr.push(str);
+                    return '[email`' + (EMailArr.length - 1) + ']';
+                });
+                var URLReg = /(((ht|f)tp(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi;
+                scope.msg.content = scope.msg.content.replace(URLReg, function (str, $1) {
+                    if ($1) {
+                        return '<a target="_blank" href="' + str + '">' + str + '</a>';
+                    }
+                    else {
+                        return '<a target="_blank" href="//' + str + '">' + str + '</a>';
+                    }
+                });
+                for (var i = 0, len = EMailArr.length; i < len; i++) {
+                    scope.content = scope.content.replace('[email`' + i + ']', '<a href="mailto:' + EMailArr[i] + '">' + EMailArr[i] + '<a>');
+                }
+            };
             return textmessage;
         })();
         var includinglinkmessage = (function () {
@@ -2181,6 +2205,7 @@ var RongWebIMWidget;
                 case RongWebIMWidget.MessageType.TextMessage:
                     var texmsg = new TextMessage();
                     var content = SDKmsg.content.content;
+                    content = RongWebIMWidget.Helper.escapeSymbol.escapeHtml(content);
                     if (RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.emojiToHTML) {
                         content = RongIMLib.RongIMEmoji.emojiToHTML(content);
                     }
@@ -2293,7 +2318,6 @@ var RongWebIMWidget;
                         msgContent = data.operatorNickname + " 退出了群组";
                         break;
                     case "Kicked":
-                        //由于之前数据问题
                         msgContent = data.targetUserDisplayNames ? (data.targetUserDisplayNames.join("、") + " 被剔出群组") : "移除群组";
                         break;
                     case "Rename":
@@ -2578,6 +2602,18 @@ var RongWebIMWidget;
                             break;
                     }
                     console.log('发送失败:' + info);
+                }
+            });
+            return defer.promise;
+        };
+        RongIMSDKServer.prototype.evaluateHumanCustomService = function (targetId, value, describe) {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance().evaluateHumanCustomService(targetId, value, describe, {
+                onSuccess: function () {
+                    defer.resolve();
+                },
+                onError: function () {
+                    defer.reject();
                 }
             });
             return defer.promise;

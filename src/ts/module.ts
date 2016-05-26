@@ -156,6 +156,7 @@ module RongWebIMWidget {
                 case MessageType.TextMessage:
                     var texmsg = new TextMessage();
                     var content = SDKmsg.content.content;
+                    content = RongWebIMWidget.Helper.escapeSymbol.escapeHtml(content);
                     if (RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.emojiToHTML) {
                         content = RongIMLib.RongIMEmoji.emojiToHTML(content);
                     }
@@ -244,7 +245,7 @@ module RongWebIMWidget {
                     msg.content = ter;
                     break;
                 default:
-                    
+
                     break;
             }
             if (msg.content) {
@@ -276,7 +277,6 @@ module RongWebIMWidget {
                         msgContent = data.operatorNickname + " 退出了群组";
                         break;
                     case "Kicked":
-                        //由于之前数据问题
                         msgContent = data.targetUserDisplayNames ? (data.targetUserDisplayNames.join("、") + " 被剔出群组") : "移除群组";
                         break;
                     case "Rename":

@@ -142,6 +142,20 @@ module RongWebIMWidget {
             return defer.promise;
         }
 
+        evaluateHumanCustomService(targetId: string, value: any, describe: any) {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance().evaluateHumanCustomService(targetId, value, describe, {
+                onSuccess: function() {
+                    defer.resolve();
+                },
+                onError: function() {
+                    defer.reject();
+                }
+            });
+            return defer.promise;
+        }
+
+
 
         reconnect(callback: any) {
             RongIMLib.RongIMClient.reconnect(callback);

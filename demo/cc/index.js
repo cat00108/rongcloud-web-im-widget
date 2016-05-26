@@ -22,10 +22,8 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
 
     WebIMWidget.init({
       appkey: "3argexb6r934e",
-      // token: "tt8zu08SKMJxrv4Y0ymvoJUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcVjEEwGrOODdblCL+ZfLmCJg2Mh5WIasRw==",
-      token:"97OXpNS6Qh3097Db8bhFb5UnU/cREmEFuMhOJuGv5bPlXUSQuAsZcQYznanerk1j0KCcGO+n3Y+2SPAaFF5a9A==",
+      token: "tt8zu08SKMJxrv4Y0ymvoJUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcVjEEwGrOODdblCL+ZfLmCJg2Mh5WIasRw==",
       voiceUrl:'../widget/images/sms-received.mp3',
-      // desktopNotification:true,
       style:{
           right:10
       },
@@ -42,12 +40,6 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
         obj.onSuccess({name:"陌："+targetId});
     });
 
-    // WebIMWidget.onCloseBefore=function(obj){
-    //   console.log("关闭前");
-    //   setTimeout(function(){
-    //     obj.close();
-    //   },1000)
-    // }
 
     WebIMWidget.onClose=function(){
       console.log("已关闭");

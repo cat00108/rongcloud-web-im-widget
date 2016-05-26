@@ -37,6 +37,17 @@ module RongWebIMWidget {
                 return obj;
             }
         }
+        static escapeSymbol = {
+            escapeHtml: function(str: string): string {
+                if (!str) return '';
+                // str = str.replace(/&/g, '&amp;');
+                str = str.replace(/</g, '&lt;');
+                str = str.replace(/>/g, '&gt;');
+                str = str.replace(/"/g, '&quot;');
+                str = str.replace(/'/g, '&#039;');
+                return str;
+            }
+        }
         static getFocus = function(obj: any) {
             obj.focus();
             if (obj.createTextRange) {//ie
