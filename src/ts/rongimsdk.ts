@@ -142,6 +142,7 @@ module RongWebIMWidget {
             return defer.promise;
         }
 
+
         evaluateHumanCustomService(targetId: string, value: any, describe: any) {
             var defer = this.$q.defer();
             RongIMLib.RongIMClient.getInstance().evaluateHumanCustomService(targetId, value, describe, {
@@ -288,6 +289,19 @@ module RongWebIMWidget {
                 }
             })
             return defer.promise;
+        }
+
+        sendProductInfo(targetId: string, msgContent: any) {
+            var msg = new RongIMLib.RongIMClient.RegisterMessage["ProductMessage"](msgContent);
+            this.sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, targetId, msg);
+        }
+
+        registerMessage() {
+            var messageName = "ProductMessage"; // 消息名称。
+            var objectName = "cs:product"; // 消息内置名称，请按照此格式命名。
+            var mesasgeTag = new RongIMLib.MessageTag(true, true);// 消息是否保存是否计数，true true 保存且计数，false false 不保存不计数。
+            var propertys = ["title", "url", "content", "imageUrl"]; // 消息类中的属性名。
+            RongIMLib.RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
         }
     }
 

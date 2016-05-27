@@ -728,6 +728,7 @@ var RongWebIMWidget;
                                 });
                             }
                         }
+                        _this.conversationServer._customService.connected = true;
                         RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
                             onSuccess: function () {
                             },
@@ -1022,6 +1023,7 @@ var RongWebIMWidget;
                     switch (msg.messageType) {
                         case RongWebIMWidget.MessageType.HandShakeResponseMessage:
                             _this.conversationServer._customService.type = msg.content.data.serviceType;
+                            _this.conversationServer._customService.connected = true;
                             _this.conversationServer._customService.companyName = msg.content.data.companyName;
                             _this.conversationServer._customService.robotName = msg.content.data.robotName;
                             _this.conversationServer._customService.robotIcon = msg.content.data.robotIcon;
@@ -1046,6 +1048,7 @@ var RongWebIMWidget;
                             //     _this.$scope.evaluate.valid = true;
                             // }, 60 * 1000);
                             _this.$scope.evaluate.valid = true;
+                            _this.RongIMSDKServer.sendProductInfo(_this.conversationServer.current.targetId, _this.providerdata._productInfo);
                             break;
                         case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                             switch (msg.content.data.status) {
@@ -1076,6 +1079,7 @@ var RongWebIMWidget;
                             break;
                         case RongWebIMWidget.MessageType.TerminateMessage:
                             //关闭客服
+                            _this.conversationServer._customService.connected = false;
                             if (msg.content.code == 0) {
                                 _this.$scope.evaluate.valid = true;
                                 _this.$scope.close();
@@ -1090,6 +1094,7 @@ var RongWebIMWidget;
                             }
                             break;
                         case RongWebIMWidget.MessageType.SuspendMessage:
+                            _this.conversationServer._customService.connected = true;
                             if (msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
                                 _this.closeState();
                             }
@@ -1769,6 +1774,11 @@ var RongWebIMWidget;
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
+    var ProductInfo = (function () {
+        function ProductInfo() {
+        }
+        return ProductInfo;
+    })();
     var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195, spacing = 3;
     var WebIMWidget = (function () {
         function WebIMWidget($q, conversationServer, conversationListServer, providerdata, widgetConfig, RongIMSDKServer, $log) {
@@ -1882,6 +1892,7 @@ var RongWebIMWidget;
                 eleminbtn.style["display"] = "none";
             }
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
+            _this.RongIMSDKServer.registerMessage();
             _this.RongIMSDKServer.connect(_this.widgetConfig.token).then(function (userId) {
                 _this.conversationListServer.updateConversations();
                 _this.conversationListServer.startRefreshOnlineStatus();
@@ -2045,6 +2056,9 @@ var RongWebIMWidget;
         };
         WebIMWidget.prototype.setOnlineStatusProvider = function (fun) {
             this.providerdata.getOnlineStatus = fun;
+        };
+        WebIMWidget.prototype.setProductInfo = function (obj) {
+            this.providerdata._productInfo = obj;
         };
         WebIMWidget.prototype.show = function () {
             this.display = true;
@@ -2220,6 +2234,9 @@ var RongWebIMWidget;
         RongKefu.prototype.show = function () {
             this.WebIMWidget.show();
         };
+        RongKefu.prototype.setProductInfo = function (obj) {
+            this.WebIMWidget.setProductInfo(obj);
+        };
         RongKefu.prototype.hidden = function () {
             this.WebIMWidget.hidden();
         };
@@ -2236,7 +2253,8 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig"];
     function runApp($http, WebIMWidget, WidgetConfig) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function () {
+        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function() {
+        $script.get("../lib/RongIMLib-kefu.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.1.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
@@ -3008,6 +3026,17 @@ var RongWebIMWidget;
         RongIMSDKServer.prototype.clearDraft = function (type, targetId) {
             return RongIMLib.RongIMClient.getInstance()
                 .clearTextMessageDraft(type, targetId);
+        };
+        RongIMSDKServer.prototype.sendProductInfo = function (targetId, msgContent) {
+            var msg = new RongIMLib.RongIMClient.RegisterMessage["ProductMessage"](msgContent);
+            this.sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, targetId, msg);
+        };
+        RongIMSDKServer.prototype.registerMessage = function () {
+            var messageName = "ProductMessage"; // 消息名称。
+            var objectName = "cs:product"; // 消息内置名称，请按照此格式命名。
+            var mesasgeTag = new RongIMLib.MessageTag(true, true); // 消息是否保存是否计数，true true 保存且计数，false false 不保存不计数。
+            var propertys = ["title", "url", "content", "imageUrl"]; // 消息类中的属性名。
+            RongIMLib.RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
         };
         RongIMSDKServer.$inject = ["$q"];
         return RongIMSDKServer;

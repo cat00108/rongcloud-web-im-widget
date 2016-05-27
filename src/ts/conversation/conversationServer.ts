@@ -12,6 +12,7 @@ module RongWebIMWidget.conversation {
         humanWelcome: string;
         noOneOnlineTip: string;
         isblack: string;
+        connected:boolean;
         human: {
             name: string,
             headimgurl: string

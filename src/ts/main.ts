@@ -9,7 +9,8 @@ module RongWebIMWidget {
         WidgetConfig: RongWebIMWidget.WidgetConfig) {
 
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function() {
+        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function() {
+          $script.get("../lib/RongIMLib-kefu.js", function() {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.1.min.js", function() {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });

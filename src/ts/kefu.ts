@@ -54,6 +54,9 @@ module RongWebIMWidget {
         show() {
             this.WebIMWidget.show();
         }
+        setProductInfo(obj: any) {
+            this.WebIMWidget.setProductInfo(obj);
+        }
 
         hidden() {
             this.WebIMWidget.hidden();

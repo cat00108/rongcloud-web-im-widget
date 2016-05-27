@@ -3,8 +3,8 @@ var demo = angular.module("demo", ["RongWebIMWidget"]);
 demo.controller("main", ["$scope","$http","WebIMWidget", function($scope,$http,WebIMWidget) {
   $scope.title="asdf";
   WebIMWidget.init({
-        appkey:"3argexb6r934e",//selfe
-        token:"I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",//selfe kefu
+        appkey:"e0x9wycfx7flq",//selfe
+        token:"+D+IpcolhuEHfLLCfAVpDKOd4p1PG0cvD2kpyDJu+i1gFt8YZEeLr6gLxTQKbMCAYAYKPvbHrR38rU1cJ+tZeA==",//selfe kefu
         kefuId:"",//selfe
         reminder:"在线咨询",
         __isKefu:true,
