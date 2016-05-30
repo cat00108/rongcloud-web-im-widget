@@ -1155,6 +1155,9 @@ ul {
     background: #fff;
     z-index: 1100;
 }
+.rongcloud-expressionWrap div{
+  cursor: pointer;
+}
 .rongcloud-MessageForm-tool i.rongcloud-iconfont-upload {
     width: 24px;
     background-size: 45px;
