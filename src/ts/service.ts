@@ -79,7 +79,7 @@ module RongWebIMWidget {
         onSuccess: Function;
         onError: Function;
 
-        _config: Object;
+        _config: any;
         __isKefu: boolean = false;
     }
 

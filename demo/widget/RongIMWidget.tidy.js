@@ -617,13 +617,8 @@ var RongWebIMWidget;
                     if (WebIMWidget.onCloseBefore && typeof WebIMWidget.onCloseBefore === "function") {
                         var isClose = WebIMWidget.onCloseBefore({
                             close: function (data) {
-                                if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                                    if ($scope.evaluate.valid) {
-                                        $scope.evaluate.showSelf = true;
-                                    }
-                                    else {
-                                        $scope.evaluate.onCancle();
-                                    }
+                                if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                                    $scope.evaluate.showSelf = true;
                                 }
                                 else {
                                     _this.closeState();
@@ -632,13 +627,8 @@ var RongWebIMWidget;
                         });
                     }
                     else {
-                        if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                            if ($scope.evaluate.valid) {
-                                $scope.evaluate.showSelf = true;
-                            }
-                            else {
-                                $scope.evaluate.onCancle();
-                            }
+                        if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                            $scope.evaluate.showSelf = true;
                         }
                         else {
                             _this.closeState();
@@ -1923,8 +1913,10 @@ var RongWebIMWidget;
                     };
                 }
             }
-            style.width = this.defaultconfig.style.width;
-            style.height = this.defaultconfig.style.height;
+            if (config.style) {
+                config.style.width && (style.width = config.style.width);
+                config.style.height && (style.height = config.style.height);
+            }
             this.defaultconfig.style = style;
             _this.WebIMWidget.init(this.defaultconfig);
             _this.WebIMWidget.onShow = function () {
@@ -1943,15 +1935,16 @@ var RongWebIMWidget;
         RongKefu.$inject = ["WebIMWidget"];
         return RongKefu;
     })();
-    angular.module("RongCloudkefu", ["RongWebIMWidget"])
+    RongWebIMWidget.RongKefu = RongKefu;
+    angular.module("RongWebIMWidget")
         .service("RongKefu", RongKefu);
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="../lib/window.d.ts"/>
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
-    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig"];
-    function runApp($http, WebIMWidget, WidgetConfig) {
+    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
+    function runApp($http, WebIMWidget, WidgetConfig, RongKefu) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
         // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function() {
         $script.get("../lib/RongIMLib-kefu.js", function () {
@@ -1962,7 +1955,12 @@ var RongWebIMWidget;
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {
-                WebIMWidget.init(WidgetConfig._config);
+                if (WidgetConfig._config.__isKefu) {
+                    RongKefu.init(WidgetConfig._config);
+                }
+                else {
+                    WebIMWidget.init(WidgetConfig._config);
+                }
             }
         });
         $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function () { });

@@ -1,4 +1,4 @@
-var demo = angular.module("demo", ["RongCloudkefu"]);
+var demo = angular.module("demo", ["RongWebIMWidget"]);
 
 demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,RongKefu) {
   $scope.title="asdf";
@@ -6,7 +6,7 @@ demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,Rong
         // appkey:"3argexb6r934e",//selfe
         // token:"I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",//selfe kefu
         // kefuId:"KEFU145914839332836",//selfe
-
+        
         appkey:"e0x9wycfx7flq",//selfe
         token:"+D+IpcolhuEHfLLCfAVpDKOd4p1PG0cvD2kpyDJu+i1gFt8YZEeLr6gLxTQKbMCAYAYKPvbHrR38rU1cJ+tZeA==",//selfe kefu
         kefuId:"KEFUxiaoqiaoZhubajie1",
@@ -14,8 +14,8 @@ demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,Rong
         position:RongKefu.KefuPostion.right,
         // displayMinButton:false,
         style:{
-          height:500,
-          width:500
+          // height:500,
+          width:400
         },
         onSuccess:function(e){
           console.log(e);

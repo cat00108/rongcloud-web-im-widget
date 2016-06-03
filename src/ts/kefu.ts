@@ -4,7 +4,7 @@ module RongWebIMWidget {
         left = 1, right = 2
     }
 
-    class RongKefu {
+    export class RongKefu {
 
         static $inject: string[] = ["WebIMWidget"];
 
@@ -41,8 +41,10 @@ module RongWebIMWidget {
                     };
                 }
             }
-            style.width = this.defaultconfig.style.width;
-            style.height = this.defaultconfig.style.height;
+            if (config.style) {
+                config.style.width && (style.width = config.style.width);
+                config.style.height && (style.height = config.style.height);
+            }
             this.defaultconfig.style = style;
 
             _this.WebIMWidget.init(this.defaultconfig);
@@ -63,7 +65,7 @@ module RongWebIMWidget {
         }
     }
 
-    angular.module("RongCloudkefu", ["RongWebIMWidget"])
+    angular.module("RongWebIMWidget")
         .service("RongKefu", RongKefu);
 
 }

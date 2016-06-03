@@ -1915,9 +1915,11 @@ var RongWebIMWidget;
                     };
                 }
             }
-            style.width = this.defaultconfig.style.width;
-            style.height = this.defaultconfig.style.height;
-            this.defaultconfig.style = style;
+            if (config.style) {
+                style.width = config.style.width;
+                style.height = config.style.height;
+                this.defaultconfig.style = style;
+            }
             _this.WebIMWidget.init(this.defaultconfig);
             _this.WebIMWidget.onShow = function () {
                 _this.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.kefuId, "客服");

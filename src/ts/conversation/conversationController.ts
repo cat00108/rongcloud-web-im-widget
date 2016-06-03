@@ -319,24 +319,16 @@ module RongWebIMWidget.conversation {
                 if (WebIMWidget.onCloseBefore && typeof WebIMWidget.onCloseBefore === "function") {
                     var isClose = WebIMWidget.onCloseBefore({
                         close: function(data) {
-                            if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                                if ($scope.evaluate.valid) {
-                                    $scope.evaluate.showSelf = true;
-                                } else {
-                                    $scope.evaluate.onCancle();
-                                }
+                            if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                                $scope.evaluate.showSelf = true;
                             } else {
                                 _this.closeState();
                             }
                         }
                     });
                 } else {
-                    if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                        if ($scope.evaluate.valid) {
-                            $scope.evaluate.showSelf = true;
-                        } else {
-                            $scope.evaluate.onCancle();
-                        }
+                    if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                        $scope.evaluate.showSelf = true;
                     } else {
                         _this.closeState();
                     }

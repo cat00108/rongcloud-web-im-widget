@@ -2,15 +2,16 @@
 /// <reference path="../lib/window.d.ts"/>
 module RongWebIMWidget {
 
-    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig"];
+    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
 
     function runApp($http: ng.IHttpService,
         WebIMWidget: RongWebIMWidget.WebIMWidget,
-        WidgetConfig: RongWebIMWidget.WidgetConfig) {
+        WidgetConfig: RongWebIMWidget.WidgetConfig,
+        RongKefu: RongWebIMWidget.RongKefu) {
 
         var protocol = location.protocol === "https:" ? "https:" : "http:";
         // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function() {
-          $script.get("../lib/RongIMLib-kefu.js", function() {
+        $script.get("../lib/RongIMLib-kefu.js", function() {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.1.min.js", function() {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
@@ -18,7 +19,11 @@ module RongWebIMWidget {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {
-                WebIMWidget.init(WidgetConfig._config);
+                if (WidgetConfig._config.__isKefu) {
+                    RongKefu.init(WidgetConfig._config);
+                } else {
+                    WebIMWidget.init(WidgetConfig._config);
+                }
             }
         });
         $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function() { });
