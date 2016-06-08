@@ -10143,6 +10143,28 @@ function(h){return void 0===h?new E(this):this[h]&&f.data(this[h],"__nicescroll"
 d));k.push(d)});return 1==k.length?k[0]:k};window.NiceScroll={getjQuery:function(){return f}};f.nicescroll||(f.nicescroll=new E,f.nicescroll.options=K)});
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
+    var conversation;
+    (function (conversation) {
+        angular.module("RongWebIMWidget.conversation", []);
+    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversationlist;
+    (function (conversationlist) {
+        angular.module("RongWebIMWidget.conversationlist", []);
+    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    angular.module("RongWebIMWidget", [
+        "RongWebIMWidget.conversation",
+        "RongWebIMWidget.conversationlist",
+        "Evaluate"
+    ]);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
     var userAgent = window.navigator.userAgent;
     var Helper = (function () {
         function Helper() {
@@ -10500,13 +10522,6 @@ var RongWebIMWidget;
                 }
             };
         }]);
-})(RongWebIMWidget || (RongWebIMWidget = {}));
-var RongWebIMWidget;
-(function (RongWebIMWidget) {
-    var conversation;
-    (function (conversation) {
-        angular.module("RongWebIMWidget.conversation", []);
-    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
@@ -11356,13 +11371,6 @@ var RongWebIMWidget;
 (function (RongWebIMWidget) {
     var conversationlist;
     (function (conversationlist) {
-        angular.module("RongWebIMWidget.conversationlist", []);
-    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
-})(RongWebIMWidget || (RongWebIMWidget = {}));
-var RongWebIMWidget;
-(function (RongWebIMWidget) {
-    var conversationlist;
-    (function (conversationlist) {
         var conversationListController = (function () {
             function conversationListController($scope, conversationListServer, WebIMWidget) {
                 this.$scope = $scope;
@@ -12063,14 +12071,6 @@ var RongWebIMWidget;
     })();
     angular.module("RongCloudkefu", ["RongWebIMWidget"])
         .service("RongKefu", RongKefu);
-})(RongWebIMWidget || (RongWebIMWidget = {}));
-var RongWebIMWidget;
-(function (RongWebIMWidget) {
-    angular.module("RongWebIMWidget", [
-        "RongWebIMWidget.conversation",
-        "RongWebIMWidget.conversationlist",
-        "Evaluate"
-    ]);
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="../lib/window.d.ts"/>
