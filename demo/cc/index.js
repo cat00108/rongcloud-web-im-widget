@@ -18,12 +18,11 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
     WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "自定义:"+$scope.targetId);
   }
 
-  angular.element(document).ready(function() {
-
     WebIMWidget.init({
       appkey: "3argexb6r934e",
       token: "tt8zu08SKMJxrv4Y0ymvoJUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcVjEEwGrOODdblCL+ZfLmCJg2Mh5WIasRw==",
       voiceUrl:'../widget/images/sms-received.mp3',
+      // reminder:"qwer",
       style:{
           right:10
       },
@@ -44,9 +43,5 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
     WebIMWidget.onClose=function(){
       console.log("已关闭");
     }
-
-
-
-  });
 
 }]);

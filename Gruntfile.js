@@ -66,8 +66,7 @@ module.exports = function(grunt) {
 
     typescript: {
       build: {
-        src: ["./src/ts/**/*.module.ts",
-          "./src/ts/**/*.ts"],
+        src: ["./src/ts/**/*.module.ts","./src/ts/**/*.ts"],
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3
@@ -78,7 +77,7 @@ module.exports = function(grunt) {
         dest: "./temp/main.js"
       },
       release:{
-        src: ["./src/main.ts", "./src/**/*.ts"],
+        src: ["./src/ts/**/*.module.ts","./src/ts/**/*.ts"],
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3

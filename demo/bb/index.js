@@ -18,8 +18,6 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
     WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "自定义:"+$scope.targetId);
   }
 
-  angular.element(document).ready(function() {
-
     WebIMWidget.init({
       appkey: "3argexb6r934e",
       token: "AgbuB0f1xAujcvfW3YBazIT92+VsUe7ien9j+5OQOOCbT8ZLrGfdaG6Qj1UafWSqx3U4gSBapJG4lSO5xHmpaQ==",
@@ -50,6 +48,5 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
       console.log("已关闭");
     }
 
-  });
 
 }]);

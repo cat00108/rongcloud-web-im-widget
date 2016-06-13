@@ -91,7 +91,7 @@ module RongWebIMWidget.conversation {
                             });
                         }
                     }
-                    _this.conversationServer._customService.connected = true;
+                    _this.conversationServer._customService.connected = false;
                     RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
                         onSuccess: function() {
 
@@ -322,6 +322,7 @@ module RongWebIMWidget.conversation {
                             if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
                                 $scope.evaluate.showSelf = true;
                             } else {
+                                conversationServer._customService.connected = false;
                                 _this.closeState();
                             }
                         }
@@ -330,6 +331,7 @@ module RongWebIMWidget.conversation {
                     if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
                         $scope.evaluate.showSelf = true;
                     } else {
+                        conversationServer._customService.connected = false;
                         _this.closeState();
                     }
                 }
@@ -378,6 +380,7 @@ module RongWebIMWidget.conversation {
 
             if (obj.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE
                 && (!_this.conversationServer.current || _this.conversationServer.current.targetId != obj.targetId)) {
+                _this.conversationServer._customService.connected = false;
                 _this.RongIMSDKServer.startCustomService(obj.targetId);
             }
 
@@ -444,10 +447,9 @@ module RongWebIMWidget.conversation {
                             _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.person);
                         }
                         _this.$scope.evaluate.valid = false;
-                        // setTimeout(function() {
-                        //     _this.$scope.evaluate.valid = true;
-                        // }, 60 * 1000);
-                        _this.$scope.evaluate.valid = true;
+                        setTimeout(function() {
+                            _this.$scope.evaluate.valid = true;
+                        }, 60 * 1000);
                         _this.RongIMSDKServer.sendProductInfo(_this.conversationServer.current.targetId, _this.providerdata._productInfo);
                         break;
                     case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
@@ -494,8 +496,8 @@ module RongWebIMWidget.conversation {
 
                         break;
                     case RongWebIMWidget.MessageType.SuspendMessage:
-                        _this.conversationServer._customService.connected = true;
                         if (msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                            _this.conversationServer._customService.connected = false;
                             _this.closeState();
                         }
                         break;

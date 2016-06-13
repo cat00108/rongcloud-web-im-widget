@@ -78,6 +78,8 @@ module RongWebIMWidget {
         init(config: any) {
             var _this = this;
 
+            config.reminder && (_this.widgetConfig.reminder = config.reminder)
+
             if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
                 _this.widgetConfig._config = config;
                 return;
