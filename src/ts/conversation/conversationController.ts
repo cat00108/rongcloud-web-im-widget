@@ -242,9 +242,9 @@ module RongWebIMWidget.conversation {
                     container: 'funcPanel',
                     drop_element: 'inputMsg',
                     max_file_size: '100mb',
-                    // flash_swf_url: 'js/plupload/Moxie.swf',
                     dragdrop: true,
                     chunk_size: '4mb',
+                    unique_names: true,
                     uptoken: conversationServer._uploadToken,
                     domain: UploadImageDomain,
                     get_new_uptoken: false,
@@ -272,7 +272,7 @@ module RongWebIMWidget.conversation {
                             info = JSON.parse(info);
                             RongIMLib.RongIMClient.getInstance()
                                 .getFileUrl(RongIMLib.FileType.IMAGE,
-                                info.name,
+                                file.target_name,
                                 {
                                     onSuccess: function(url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function(obj: any, data: any) {

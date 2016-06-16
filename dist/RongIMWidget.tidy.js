@@ -1,5 +1,27 @@
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
+    var conversation;
+    (function (conversation) {
+        angular.module("RongWebIMWidget.conversation", []);
+    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var conversationlist;
+    (function (conversationlist) {
+        angular.module("RongWebIMWidget.conversationlist", []);
+    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    angular.module("RongWebIMWidget", [
+        "RongWebIMWidget.conversation",
+        "RongWebIMWidget.conversationlist",
+        "Evaluate"
+    ]);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
     var userAgent = window.navigator.userAgent;
     var Helper = (function () {
         function Helper() {
@@ -192,7 +214,7 @@ var RongWebIMWidget;
             };
             n.onclick = function () {
                 window.focus();
-                NotificationHelper.onclick(n);
+                NotificationHelper.onclick && NotificationHelper.onclick(n);
                 n.close();
             };
             n.onerror = function () {
@@ -260,6 +282,7 @@ var RongWebIMWidget;
                 if (newVal === '' || newVal === attrs["placeholder"]) {
                     domElement.innerHTML = attrs["placeholder"];
                     domElement.style.color = "#a9a9a9";
+                    ngModel.$setViewValue("");
                 }
             });
             element.bind('focus', function () {
@@ -362,13 +385,6 @@ var RongWebIMWidget;
 (function (RongWebIMWidget) {
     var conversation;
     (function (conversation) {
-        angular.module("RongWebIMWidget.conversation", []);
-    })(conversation = RongWebIMWidget.conversation || (RongWebIMWidget.conversation = {}));
-})(RongWebIMWidget || (RongWebIMWidget = {}));
-var RongWebIMWidget;
-(function (RongWebIMWidget) {
-    var conversation;
-    (function (conversation) {
         var UploadImageDomain = "http://7xogjk.com1.z0.glb.clouddn.com/";
         var ConversationController = (function () {
             function ConversationController($scope, conversationServer, WebIMWidget, conversationListServer, widgetConfig, providerdata, RongIMSDKServer) {
@@ -413,7 +429,7 @@ var RongWebIMWidget;
                                 });
                             }
                         }
-                        _this.conversationServer._customService.connected = true;
+                        _this.conversationServer._customService.connected = false;
                         RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
                             onSuccess: function () {
                             },
@@ -537,9 +553,9 @@ var RongWebIMWidget;
                         container: 'funcPanel',
                         drop_element: 'inputMsg',
                         max_file_size: '100mb',
-                        // flash_swf_url: 'js/plupload/Moxie.swf',
                         dragdrop: true,
                         chunk_size: '4mb',
+                        unique_names: true,
                         uptoken: conversationServer._uploadToken,
                         domain: UploadImageDomain,
                         get_new_uptoken: false,
@@ -566,7 +582,7 @@ var RongWebIMWidget;
                                 info = info.replace(/'/g, "\"");
                                 info = JSON.parse(info);
                                 RongIMLib.RongIMClient.getInstance()
-                                    .getFileUrl(RongIMLib.FileType.IMAGE, info.name, {
+                                    .getFileUrl(RongIMLib.FileType.IMAGE, file.target_name, {
                                     onSuccess: function (url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function (obj, data) {
                                             var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
@@ -602,30 +618,22 @@ var RongWebIMWidget;
                     if (WebIMWidget.onCloseBefore && typeof WebIMWidget.onCloseBefore === "function") {
                         var isClose = WebIMWidget.onCloseBefore({
                             close: function (data) {
-                                if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                                    if ($scope.evaluate.valid) {
-                                        $scope.evaluate.showSelf = true;
-                                    }
-                                    else {
-                                        $scope.evaluate.onCancle();
-                                    }
+                                if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                                    $scope.evaluate.showSelf = true;
                                 }
                                 else {
+                                    conversationServer._customService.connected = false;
                                     _this.closeState();
                                 }
                             }
                         });
                     }
                     else {
-                        if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                            if ($scope.evaluate.valid) {
-                                $scope.evaluate.showSelf = true;
-                            }
-                            else {
-                                $scope.evaluate.onCancle();
-                            }
+                        if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                            $scope.evaluate.showSelf = true;
                         }
                         else {
+                            conversationServer._customService.connected = false;
                             _this.closeState();
                         }
                     }
@@ -670,6 +678,7 @@ var RongWebIMWidget;
                 var key = obj.targetType + "_" + obj.targetId;
                 if (obj.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE
                     && (!_this.conversationServer.current || _this.conversationServer.current.targetId != obj.targetId)) {
+                    _this.conversationServer._customService.connected = false;
                     _this.RongIMSDKServer.startCustomService(obj.targetId);
                 }
                 _this.conversationServer.current = obj;
@@ -729,10 +738,9 @@ var RongWebIMWidget;
                                 _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.person);
                             }
                             _this.$scope.evaluate.valid = false;
-                            // setTimeout(function() {
-                            //     _this.$scope.evaluate.valid = true;
-                            // }, 60 * 1000);
-                            _this.$scope.evaluate.valid = true;
+                            setTimeout(function () {
+                                _this.$scope.evaluate.valid = true;
+                            }, 60 * 1000);
                             _this.RongIMSDKServer.sendProductInfo(_this.conversationServer.current.targetId, _this.providerdata._productInfo);
                             break;
                         case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
@@ -779,8 +787,8 @@ var RongWebIMWidget;
                             }
                             break;
                         case RongWebIMWidget.MessageType.SuspendMessage:
-                            _this.conversationServer._customService.connected = true;
                             if (msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                                _this.conversationServer._customService.connected = false;
                                 _this.closeState();
                             }
                             break;
@@ -1218,13 +1226,6 @@ var RongWebIMWidget;
 (function (RongWebIMWidget) {
     var conversationlist;
     (function (conversationlist) {
-        angular.module("RongWebIMWidget.conversationlist", []);
-    })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
-})(RongWebIMWidget || (RongWebIMWidget = {}));
-var RongWebIMWidget;
-(function (RongWebIMWidget) {
-    var conversationlist;
-    (function (conversationlist) {
         var conversationListController = (function () {
             function conversationListController($scope, conversationListServer, WebIMWidget) {
                 this.$scope = $scope;
@@ -1488,6 +1489,7 @@ var RongWebIMWidget;
         }
         WebIMWidget.prototype.init = function (config) {
             var _this = this;
+            config.reminder && (_this.widgetConfig.reminder = config.reminder);
             if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
                 _this.widgetConfig._config = config;
                 return;
@@ -1916,10 +1918,10 @@ var RongWebIMWidget;
                 }
             }
             if (config.style) {
-                style.width = config.style.width;
-                style.height = config.style.height;
-                this.defaultconfig.style = style;
+                config.style.width && (style.width = config.style.width);
+                config.style.height && (style.height = config.style.height);
             }
+            this.defaultconfig.style = style;
             _this.WebIMWidget.init(this.defaultconfig);
             _this.WebIMWidget.onShow = function () {
                 _this.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.kefuId, "客服");
@@ -1937,26 +1939,18 @@ var RongWebIMWidget;
         RongKefu.$inject = ["WebIMWidget"];
         return RongKefu;
     })();
-    angular.module("RongCloudkefu", ["RongWebIMWidget"])
+    RongWebIMWidget.RongKefu = RongKefu;
+    angular.module("RongWebIMWidget")
         .service("RongKefu", RongKefu);
-})(RongWebIMWidget || (RongWebIMWidget = {}));
-var RongWebIMWidget;
-(function (RongWebIMWidget) {
-    angular.module("RongWebIMWidget", [
-        "RongWebIMWidget.conversation",
-        "RongWebIMWidget.conversationlist",
-        "Evaluate"
-    ]);
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="../lib/window.d.ts"/>
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
-    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig"];
-    function runApp($http, WebIMWidget, WidgetConfig) {
+    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
+    function runApp($http, WebIMWidget, WidgetConfig, RongKefu) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function() {
-        $script.get("../lib/RongIMLib-kefu.js", function () {
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.1.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
@@ -1964,7 +1958,12 @@ var RongWebIMWidget;
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {
-                WebIMWidget.init(WidgetConfig._config);
+                if (WidgetConfig._config.__isKefu) {
+                    RongKefu.init(WidgetConfig._config);
+                }
+                else {
+                    WebIMWidget.init(WidgetConfig._config);
+                }
             }
         });
         $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function () { });

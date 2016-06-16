@@ -553,9 +553,9 @@ var RongWebIMWidget;
                         container: 'funcPanel',
                         drop_element: 'inputMsg',
                         max_file_size: '100mb',
-                        // flash_swf_url: 'js/plupload/Moxie.swf',
                         dragdrop: true,
                         chunk_size: '4mb',
+                        unique_names: true,
                         uptoken: conversationServer._uploadToken,
                         domain: UploadImageDomain,
                         get_new_uptoken: false,
@@ -582,7 +582,7 @@ var RongWebIMWidget;
                                 info = info.replace(/'/g, "\"");
                                 info = JSON.parse(info);
                                 RongIMLib.RongIMClient.getInstance()
-                                    .getFileUrl(RongIMLib.FileType.IMAGE, info.name, {
+                                    .getFileUrl(RongIMLib.FileType.IMAGE, file.target_name, {
                                     onSuccess: function (url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function (obj, data) {
                                             var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
@@ -1951,7 +1951,6 @@ var RongWebIMWidget;
     function runApp($http, WebIMWidget, WidgetConfig, RongKefu) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
         $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function () {
-            // $script.get("../lib/RongIMLib-kefu.js", function() {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.1.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
