@@ -1,5 +1,12 @@
 module RongWebIMWidget {
 
+    class ProductInfo {
+        title: string
+        url: string
+        content: string
+        imageUrl: string
+    }
+
     interface IWebIMWidget {
 
         init(config: any): void
@@ -30,6 +37,8 @@ module RongWebIMWidget {
         setUserInfoProvider(fun: Function)
         setGroupInfoProvider(fun: Function)
         setOnlineStatusProvider(fun: Function)
+
+        setProductInfo()
 
         /**
          * 静态属性
@@ -69,10 +78,13 @@ module RongWebIMWidget {
         init(config: any) {
             var _this = this;
 
+            config.reminder && (_this.widgetConfig.reminder = config.reminder)
+
             if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
                 _this.widgetConfig._config = config;
                 return;
             }
+
 
             var defaultStyle = _this.widgetConfig.style;
             angular.extend(_this.widgetConfig, config);
@@ -182,6 +194,8 @@ module RongWebIMWidget {
 
 
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
+
+            _this.RongIMSDKServer.registerMessage();
 
             _this.RongIMSDKServer.connect(_this.widgetConfig.token).then(function(userId) {
                 _this.conversationListServer.updateConversations();
@@ -366,6 +380,10 @@ module RongWebIMWidget {
 
         setOnlineStatusProvider(fun) {
             this.providerdata.getOnlineStatus = fun;
+        }
+
+        setProductInfo(obj: ProductInfo) {
+            this.providerdata._productInfo = obj;
         }
 
         show() {

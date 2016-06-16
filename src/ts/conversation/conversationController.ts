@@ -91,6 +91,7 @@ module RongWebIMWidget.conversation {
                             });
                         }
                     }
+                    _this.conversationServer._customService.connected = false;
                     RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
                         onSuccess: function() {
 
@@ -241,9 +242,9 @@ module RongWebIMWidget.conversation {
                     container: 'funcPanel',
                     drop_element: 'inputMsg',
                     max_file_size: '100mb',
-                    // flash_swf_url: 'js/plupload/Moxie.swf',
                     dragdrop: true,
                     chunk_size: '4mb',
+                    unique_names: true,
                     uptoken: conversationServer._uploadToken,
                     domain: UploadImageDomain,
                     get_new_uptoken: false,
@@ -271,7 +272,7 @@ module RongWebIMWidget.conversation {
                             info = JSON.parse(info);
                             RongIMLib.RongIMClient.getInstance()
                                 .getFileUrl(RongIMLib.FileType.IMAGE,
-                                info.name,
+                                file.target_name,
                                 {
                                     onSuccess: function(url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function(obj: any, data: any) {
@@ -318,25 +319,19 @@ module RongWebIMWidget.conversation {
                 if (WebIMWidget.onCloseBefore && typeof WebIMWidget.onCloseBefore === "function") {
                     var isClose = WebIMWidget.onCloseBefore({
                         close: function(data) {
-                            if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                                if ($scope.evaluate.valid) {
-                                    $scope.evaluate.showSelf = true;
-                                } else {
-                                    $scope.evaluate.onCancle();
-                                }
+                            if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                                $scope.evaluate.showSelf = true;
                             } else {
+                                conversationServer._customService.connected = false;
                                 _this.closeState();
                             }
                         }
                     });
                 } else {
-                    if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                        if ($scope.evaluate.valid) {
-                            $scope.evaluate.showSelf = true;
-                        } else {
-                            $scope.evaluate.onCancle();
-                        }
+                    if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
+                        $scope.evaluate.showSelf = true;
                     } else {
+                        conversationServer._customService.connected = false;
                         _this.closeState();
                     }
                 }
@@ -348,7 +343,7 @@ module RongWebIMWidget.conversation {
         }
 
         closeState() {
-          var _this=this;
+            var _this = this;
             if (this.WebIMWidget.onClose && typeof this.WebIMWidget.onClose === "function") {
                 setTimeout(function() { _this.WebIMWidget.onClose(_this.$scope.conversation) }, 1);
             }
@@ -385,6 +380,7 @@ module RongWebIMWidget.conversation {
 
             if (obj.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE
                 && (!_this.conversationServer.current || _this.conversationServer.current.targetId != obj.targetId)) {
+                _this.conversationServer._customService.connected = false;
                 _this.RongIMSDKServer.startCustomService(obj.targetId);
             }
 
@@ -427,6 +423,7 @@ module RongWebIMWidget.conversation {
                 switch (msg.messageType) {
                     case RongWebIMWidget.MessageType.HandShakeResponseMessage:
                         _this.conversationServer._customService.type = msg.content.data.serviceType;
+                        _this.conversationServer._customService.connected = true;
                         _this.conversationServer._customService.companyName = msg.content.data.companyName;
                         _this.conversationServer._customService.robotName = msg.content.data.robotName;
                         _this.conversationServer._customService.robotIcon = msg.content.data.robotIcon;
@@ -450,10 +447,10 @@ module RongWebIMWidget.conversation {
                             _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.person);
                         }
                         _this.$scope.evaluate.valid = false;
-                        // setTimeout(function() {
-                        //     _this.$scope.evaluate.valid = true;
-                        // }, 60 * 1000);
-                        _this.$scope.evaluate.valid = true;
+                        setTimeout(function() {
+                            _this.$scope.evaluate.valid = true;
+                        }, 60 * 1000);
+                        _this.RongIMSDKServer.sendProductInfo(_this.conversationServer.current.targetId, _this.providerdata._productInfo);
                         break;
                     case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                         switch (msg.content.data.status) {
@@ -485,6 +482,7 @@ module RongWebIMWidget.conversation {
                         break;
                     case RongWebIMWidget.MessageType.TerminateMessage:
                         //关闭客服
+                        _this.conversationServer._customService.connected = false;
                         if (msg.content.code == 0) {
                             _this.$scope.evaluate.valid = true;
                             _this.$scope.close();
@@ -498,10 +496,11 @@ module RongWebIMWidget.conversation {
 
                         break;
                     case RongWebIMWidget.MessageType.SuspendMessage:
-                         if (msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
-                             _this.closeState();
-                         }
-                         break;
+                        if (msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                            _this.conversationServer._customService.connected = false;
+                            _this.closeState();
+                        }
+                        break;
                     case RongWebIMWidget.MessageType.CustomerStatusUpdateMessage:
                         switch (Number(msg.content.serviceStatus)) {
                             case 1:

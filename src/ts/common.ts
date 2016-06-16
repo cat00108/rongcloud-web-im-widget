@@ -200,7 +200,7 @@ module RongWebIMWidget {
 
             n.onclick = function() {
                 window.focus();
-                NotificationHelper.onclick(n);
+                NotificationHelper.onclick && NotificationHelper.onclick(n);
                 n.close();
             };
 
@@ -265,6 +265,7 @@ module RongWebIMWidget {
                 if (newVal === '' || newVal === attrs["placeholder"]) {
                     domElement.innerHTML = attrs["placeholder"];
                     domElement.style.color = "#a9a9a9";
+                    ngModel.$setViewValue("");
                 }
             });
             element.bind('focus', function() {

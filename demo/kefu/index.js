@@ -1,4 +1,4 @@
-var demo = angular.module("demo", ["RongCloudkefu"]);
+var demo = angular.module("demo", ["RongWebIMWidget"]);
 
 demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,RongKefu) {
   $scope.title="asdf";
@@ -10,13 +10,15 @@ demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,Rong
         position:RongKefu.KefuPostion.right,
         // displayMinButton:false,
         style:{
-          height:500,
-          width:500
+          // height:500,
+          width:400
         },
         onSuccess:function(e){
           console.log(e);
         }
   })
+
+
     $scope.show = function() {
       RongKefu.show();
     }
