@@ -1234,7 +1234,7 @@ var RongWebIMWidget;
                         if (!ele)
                             return;
                         ele.scrollTop = ele.scrollHeight;
-                    }, 0);
+                    }, 200);
                 };
             };
             rongConversation.$inject = ["ConversationServer"];

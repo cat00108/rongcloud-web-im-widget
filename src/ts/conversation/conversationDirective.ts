@@ -29,7 +29,7 @@ module RongWebIMWidget.conversation {
                     if (!ele)
                         return;
                     ele.scrollTop = ele.scrollHeight;
-                }, 0);
+                }, 200);
             }
         }
 
