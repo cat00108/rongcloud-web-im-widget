@@ -4,6 +4,7 @@ module RongWebIMWidget.conversationlist {
         _conversationList: RongWebIMWidget.Conversation[]
         _onlineStatus: any[]
 
+        setHiddenConversations(hiddenConversations: any[]): void
         updateConversations(): angular.IPromise<any>
         startRefreshOnlineStatus(): void
         stopRefreshOnlineStatus(): void
@@ -32,15 +33,33 @@ module RongWebIMWidget.conversationlist {
         _onlineStatus: any[] = [];
         __intervale: any
 
+        hiddenConversations: any[] = []
+        _hiddenConversationObject: any = {}
+
+        setHiddenConversations(list: any[]) {
+            if (angular.isArray(list)) {
+                for (var i = 0, length = list.length; i < length; i++) {
+                    this._hiddenConversationObject[list[i].type + "_" + list[i].id] = true;
+                }
+            }
+        }
+
         updateConversations() {
             var defer = this.$q.defer();
             var _this = this;
 
             RongIMLib.RongIMClient.getInstance().getConversationList({
                 onSuccess: function(data) {
+                    var totalUnreadCount = 0;
+
                     _this._conversationList.splice(0, _this._conversationList.length);
+
                     for (var i = 0, len = data.length; i < len; i++) {
                         var con = RongWebIMWidget.Conversation.onvert(data[i]);
+
+                        if (_this._hiddenConversationObject[con.targetType + "_" + con.targetId]) {
+                            continue;
+                        }
 
                         switch (con.targetType) {
                             case RongIMLib.ConversationType.PRIVATE:
@@ -75,7 +94,7 @@ module RongWebIMWidget.conversationlist {
                                 con.title = "聊天室：" + con.targetId;
                                 break;
                         }
-
+                        totalUnreadCount += Number(con.unreadMessageCount) || 0
                         _this._conversationList.push(con);
                     }
                     _this._onlineStatus.forEach(function(item) {
@@ -84,15 +103,8 @@ module RongWebIMWidget.conversationlist {
                     });
 
                     if (_this.widgetConfig.displayConversationList) {
-                        RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
-                            onSuccess: function(num) {
-                                _this.providerdata.totalUnreadCount = num || 0;
-                                defer.resolve();
-                            },
-                            onError: function() {
-
-                            }
-                        });
+                        _this.providerdata.totalUnreadCount = totalUnreadCount;
+                        defer.resolve();
                     } else {
                         var cu = _this.conversationServer.current;
                         cu && cu.targetId && _this.RongIMSDKServer.getConversation(cu.targetType, cu.targetId).then(function(conv) {
@@ -113,6 +125,7 @@ module RongWebIMWidget.conversationlist {
             }, null);
             return defer.promise;
         }
+
 
         _getConversation(type: number, id: string) {
 

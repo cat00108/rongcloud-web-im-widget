@@ -1875,7 +1875,7 @@ var RongIMLib;
             var session = RongIMClient._memoryStore.custStore[custId];
             if (!session)
                 return;
-            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, isRobotResolved: isRobotResolved, sugest: sugest, type: 0 });
+            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, isresolve: isRobotResolved, suggest: sugest, type: 0 });
             this.sendCustMessage(custId, msg, callback);
         };
         RongIMClient.prototype.evaluateHumanCustomService = function (custId, humanValue, sugest, callback) {
@@ -1884,7 +1884,7 @@ var RongIMLib;
             var session = RongIMClient._memoryStore.custStore[custId];
             if (!session)
                 return;
-            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, humanValue: humanValue, sugest: sugest, type: 1 });
+            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, source: humanValue, suggest: sugest, type: 1 });
             this.sendCustMessage(custId, msg, callback);
         };
         RongIMClient.prototype.sendCustMessage = function (custId, msg, callback) {
@@ -4358,7 +4358,7 @@ var RongIMLib;
                 "navUrl-Release": RongIMLib.MessageUtil.schemeArrs[RongIMLib.RongIMClient.schemeType][0] + "://nav.cn.ronghub.com/"
             }, xss = document.createElement("script");
             //进行jsonp请求
-            xss.src = Url["navUrl-Release"] + (RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"] ? "cometnavi.js" : "navi.js") + "?appId=" + _appId + "&token=" + encodeURIComponent(_token) + "&" + "callBack=getServerEndpoint&t=" + (new Date).getTime();
+            xss.src = Url["navUrl-Debug"] + (RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"] ? "cometnavi.js" : "navi.js") + "?appId=" + _appId + "&token=" + encodeURIComponent(_token) + "&" + "callBack=getServerEndpoint&t=" + (new Date).getTime();
             document.body.appendChild(xss);
             xss.onerror = function () {
                 _onerror(RongIMLib.ConnectionState.TOKEN_INCORRECT);
@@ -6255,7 +6255,7 @@ var RongIMLib;
             this.pid = message.pid;
             this.source = message.source;
             this.suggest = message.suggest;
-            this.isRobotResolved = message.isresolve;
+            this.isresolve = message.isresolve;
             this.type = message.type;
         }
         EvaluateMessage.obtain = function () {

@@ -418,13 +418,13 @@ var RongWebIMWidget;
                     onConfirm: function (data) {
                         //发评价
                         if (data) {
-                            if ($scope.evaluate.type == 1) {
+                            if ($scope.evaluate.type == RongWebIMWidget.EnumCustomerStatus.person) {
                                 RongIMSDKServer.evaluateHumanCustomService(conversationServer.current.targetId, data.stars, data.describe).then(function () {
                                 }, function () {
                                 });
                             }
                             else {
-                                RongIMSDKServer.evaluateHumanCustomService(conversationServer.current.targetId, data.value, data.describe).then(function () {
+                                RongIMSDKServer.evaluateRebotCustomService(conversationServer.current.targetId, data.value, data.describe).then(function () {
                                 }, function () {
                                 });
                             }
@@ -447,7 +447,7 @@ var RongWebIMWidget;
                     if (newVal === oldVal)
                         return;
                     if (!$scope.emojiList || $scope.emojiList.length == 0) {
-                        $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 66);
+                        $scope.emojiList = RongIMLib.RongIMEmoji.emojis.slice(0, 70);
                     }
                 });
                 document.addEventListener("click", function (e) {
@@ -618,22 +618,44 @@ var RongWebIMWidget;
                     if (WebIMWidget.onCloseBefore && typeof WebIMWidget.onCloseBefore === "function") {
                         var isClose = WebIMWidget.onCloseBefore({
                             close: function (data) {
-                                if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
-                                    $scope.evaluate.showSelf = true;
+                                if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
+                                    if ($scope.evaluate.valid) {
+                                        $scope.evaluate.showSelf = true;
+                                    }
+                                    else {
+                                        RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
+                                            onSuccess: function () {
+                                            },
+                                            onError: function () {
+                                            }
+                                        });
+                                        conversationServer._customService.connected = false;
+                                        _this.closeState();
+                                    }
                                 }
                                 else {
-                                    conversationServer._customService.connected = false;
                                     _this.closeState();
                                 }
                             }
                         });
                     }
                     else {
-                        if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && $scope.evaluate.valid) {
-                            $scope.evaluate.showSelf = true;
+                        if (conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
+                            if ($scope.evaluate.valid) {
+                                $scope.evaluate.showSelf = true;
+                            }
+                            else {
+                                RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
+                                    onSuccess: function () {
+                                    },
+                                    onError: function () {
+                                    }
+                                });
+                                conversationServer._customService.connected = false;
+                                _this.closeState();
+                            }
                         }
                         else {
-                            conversationServer._customService.connected = false;
                             _this.closeState();
                         }
                     }
@@ -737,11 +759,12 @@ var RongWebIMWidget;
                             else {
                                 _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.person);
                             }
+                            //会话一分钟评价有效，显示评价
                             _this.$scope.evaluate.valid = false;
                             setTimeout(function () {
                                 _this.$scope.evaluate.valid = true;
                             }, 60 * 1000);
-                            _this.RongIMSDKServer.sendProductInfo(_this.conversationServer.current.targetId, _this.providerdata._productInfo);
+                            _this.providerdata._productInfo && _this.RongIMSDKServer.sendProductInfo(_this.conversationServer.current.targetId, _this.providerdata._productInfo);
                             break;
                         case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                             switch (msg.content.data.status) {
@@ -817,22 +840,22 @@ var RongWebIMWidget;
                     }
                     if (systemMsg) {
                         var wmsg = RongWebIMWidget.Message.convert(systemMsg);
-                        _this.addCustomService(wmsg);
+                        _this.addCustomServiceInfo(wmsg);
                         _this.conversationServer._addHistoryMessages(wmsg);
                     }
-                    _this.addCustomService(msg);
+                    _this.addCustomServiceInfo(msg);
                     setTimeout(function () {
                         _this.$scope.$apply();
                         _this.$scope.scrollBar();
                     }, 200);
                 }
             };
-            ConversationController.prototype.addCustomService = function (msg) {
+            ConversationController.prototype.addCustomServiceInfo = function (msg) {
                 if (!msg.content || msg.content.userInfo) {
                     return;
                 }
                 if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE) {
-                    if (this.conversationServer._customService.currentType == "1") {
+                    if (this.conversationServer._customService.currentType == 1) {
                         msg.content.userInfo = {
                             name: this.conversationServer._customService.human.name || "客服人员",
                             portraitUri: this.conversationServer._customService.human.headimgurl || this.conversationServer._customService.robotIcon
@@ -856,13 +879,13 @@ var RongWebIMWidget;
             ConversationController.prototype.changeCustomerState = function (type) {
                 this.$scope._inputPanelState = type;
                 if (type == RongWebIMWidget.EnumInputPanelType.person) {
-                    this.$scope.evaluate.type = 1;
-                    this.conversationServer._customService.currentType = "1";
+                    this.$scope.evaluate.type = RongWebIMWidget.EnumCustomerStatus.person;
+                    this.conversationServer._customService.currentType = RongWebIMWidget.EnumCustomerStatus.person;
                     this.conversationServer.current.title = this.conversationServer._customService.human.name || "客服人员";
                 }
                 else {
-                    this.$scope.evaluate.type = 2;
-                    this.conversationServer._customService.currentType = "2";
+                    this.$scope.evaluate.type = RongWebIMWidget.EnumCustomerStatus.robot;
+                    this.conversationServer._customService.currentType = RongWebIMWidget.EnumCustomerStatus.robot;
                     this.conversationServer.current.title = this.conversationServer._customService.robotName;
                 }
             };
@@ -1344,15 +1367,28 @@ var RongWebIMWidget;
                 this.conversationServer = conversationServer;
                 this._conversationList = [];
                 this._onlineStatus = [];
+                this.hiddenConversations = [];
+                this._hiddenConversationObject = {};
             }
+            ConversationListServer.prototype.setHiddenConversations = function (list) {
+                if (angular.isArray(list)) {
+                    for (var i = 0, length = list.length; i < length; i++) {
+                        this._hiddenConversationObject[list[i].type + "_" + list[i].id] = true;
+                    }
+                }
+            };
             ConversationListServer.prototype.updateConversations = function () {
                 var defer = this.$q.defer();
                 var _this = this;
                 RongIMLib.RongIMClient.getInstance().getConversationList({
                     onSuccess: function (data) {
+                        var totalUnreadCount = 0;
                         _this._conversationList.splice(0, _this._conversationList.length);
                         for (var i = 0, len = data.length; i < len; i++) {
                             var con = RongWebIMWidget.Conversation.onvert(data[i]);
+                            if (_this._hiddenConversationObject[con.targetType + "_" + con.targetId]) {
+                                continue;
+                            }
                             switch (con.targetType) {
                                 case RongIMLib.ConversationType.PRIVATE:
                                     if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
@@ -1386,6 +1422,7 @@ var RongWebIMWidget;
                                     con.title = "聊天室：" + con.targetId;
                                     break;
                             }
+                            totalUnreadCount += Number(con.unreadMessageCount) || 0;
                             _this._conversationList.push(con);
                         }
                         _this._onlineStatus.forEach(function (item) {
@@ -1393,14 +1430,8 @@ var RongWebIMWidget;
                             conv && (conv.onLine = item.status);
                         });
                         if (_this.widgetConfig.displayConversationList) {
-                            RongIMLib.RongIMClient.getInstance().getTotalUnreadCount({
-                                onSuccess: function (num) {
-                                    _this.providerdata.totalUnreadCount = num || 0;
-                                    defer.resolve();
-                                },
-                                onError: function () {
-                                }
-                            });
+                            _this.providerdata.totalUnreadCount = totalUnreadCount;
+                            defer.resolve();
                         }
                         else {
                             var cu = _this.conversationServer.current;
@@ -1585,6 +1616,7 @@ var RongWebIMWidget;
             if (_this.widgetConfig.displayMinButton == false) {
                 eleminbtn.style["display"] = "none";
             }
+            _this.conversationListServer.setHiddenConversations(_this.widgetConfig.hiddenConversations);
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
             _this.RongIMSDKServer.registerMessage();
             _this.RongIMSDKServer.connect(_this.widgetConfig.token).then(function (userId) {
@@ -1752,7 +1784,12 @@ var RongWebIMWidget;
             this.providerdata.getOnlineStatus = fun;
         };
         WebIMWidget.prototype.setProductInfo = function (obj) {
-            this.providerdata._productInfo = obj;
+            if (this.conversationServer._customService.connected) {
+                this.RongIMSDKServer.sendProductInfo(this.conversationServer.current.targetId, obj);
+            }
+            else {
+                this.providerdata._productInfo = obj;
+            }
         };
         WebIMWidget.prototype.show = function () {
             this.display = true;
@@ -1950,11 +1987,11 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
     function runApp($http, WebIMWidget, WidgetConfig, RongKefu) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function () {
-            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.1.min.js", function () {
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.3.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
-            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.1.1.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.1.3.min.js", function () {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {
@@ -2130,6 +2167,11 @@ var RongWebIMWidget;
         EnumInputPanelType[EnumInputPanelType["notService"] = 4] = "notService";
     })(RongWebIMWidget.EnumInputPanelType || (RongWebIMWidget.EnumInputPanelType = {}));
     var EnumInputPanelType = RongWebIMWidget.EnumInputPanelType;
+    (function (EnumCustomerStatus) {
+        EnumCustomerStatus[EnumCustomerStatus["person"] = 1] = "person";
+        EnumCustomerStatus[EnumCustomerStatus["robot"] = 2] = "robot";
+    })(RongWebIMWidget.EnumCustomerStatus || (RongWebIMWidget.EnumCustomerStatus = {}));
+    var EnumCustomerStatus = RongWebIMWidget.EnumCustomerStatus;
     RongWebIMWidget.MessageType = {
         DiscussionNotificationMessage: "DiscussionNotificationMessage ",
         TextMessage: "TextMessage",
@@ -2637,6 +2679,18 @@ var RongWebIMWidget;
             });
             return defer.promise;
         };
+        RongIMSDKServer.prototype.evaluateRebotCustomService = function (targetId, value, describe) {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance().evaluateRebotCustomService(targetId, value, describe, {
+                onSuccess: function () {
+                    defer.resolve();
+                },
+                onError: function () {
+                    defer.reject();
+                }
+            });
+            return defer.promise;
+        };
         RongIMSDKServer.prototype.reconnect = function (callback) {
             RongIMLib.RongIMClient.reconnect(callback);
         };
@@ -2799,6 +2853,7 @@ var RongWebIMWidget;
                 right: 0
             };
             this.refershOnlineStateIntercycle = 1000 * 20;
+            this.hiddenConversations = [];
             this.__isKefu = false;
         }
         return WidgetConfig;

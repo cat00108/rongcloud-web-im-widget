@@ -172,18 +172,18 @@ module.exports = function(grunt) {
     uglify:{
       build:{
         files:[
-          {
-            src:'./build/RongIMWidget.js',
-            dest:'./build/RongIMWidget.min.js'
-          },
-          {
-            src:'./build/RongIMWidget.full.js',
-            dest:'./build/RongIMWidget.full.min.js'
-          },
-          {
-            src:'./build/RongIMWidget.tidy.js',
-            dest:'./build/RongIMWidget.tidy.min.js'
-          }
+          // {
+          //   src:'./build/RongIMWidget.js',
+          //   dest:'./build/RongIMWidget.min.js'
+          // },
+          // {
+          //   src:'./build/RongIMWidget.full.js',
+          //   dest:'./build/RongIMWidget.full.min.js'
+          // },
+          // {
+          //   src:'./build/RongIMWidget.tidy.js',
+          //   dest:'./build/RongIMWidget.tidy.min.js'
+          // }
         ]
       },
       release:{

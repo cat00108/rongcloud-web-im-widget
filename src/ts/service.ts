@@ -72,7 +72,7 @@ module RongWebIMWidget {
         };
 
         refershOnlineStateIntercycle: number = 1000 * 20;
-
+        hiddenConversations: { type: number, id: string }[] = []
         voiceUrl: string;
         appkey: string;
         token: string;

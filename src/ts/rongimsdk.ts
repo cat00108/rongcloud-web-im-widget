@@ -155,6 +155,19 @@ module RongWebIMWidget {
             });
             return defer.promise;
         }
+        
+        evaluateRebotCustomService(targetId: string, value: any, describe: any) {
+            var defer = this.$q.defer();
+            RongIMLib.RongIMClient.getInstance().evaluateRebotCustomService(targetId, value, describe, {
+                onSuccess: function() {
+                    defer.resolve();
+                },
+                onError: function() {
+                    defer.reject();
+                }
+            });
+            return defer.promise;
+        }
 
 
 

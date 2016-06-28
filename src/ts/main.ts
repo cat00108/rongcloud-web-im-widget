@@ -10,11 +10,11 @@ module RongWebIMWidget {
         RongKefu: RongWebIMWidget.RongKefu) {
 
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.1.min.js", function() {
-            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.1.min.js", function() {
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function() {
+            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.3.min.js", function() {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
-            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.1.1.min.js", function() {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.1.3.min.js", function() {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {

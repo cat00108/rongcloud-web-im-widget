@@ -55,6 +55,10 @@ module RongWebIMWidget {
         person = 0, robot = 1, robotSwitchPerson = 2, notService = 4
     }
 
+    export enum EnumCustomerStatus {
+        person = 1, robot = 2,
+    }
+
     export var MessageType = {
         DiscussionNotificationMessage: "DiscussionNotificationMessage ",
         TextMessage: "TextMessage",

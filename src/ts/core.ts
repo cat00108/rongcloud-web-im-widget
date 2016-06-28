@@ -33,7 +33,6 @@ module RongWebIMWidget {
 
         getCurrentConversation(): RongWebIMWidget.Conversation
 
-
         setUserInfoProvider(fun: Function)
         setGroupInfoProvider(fun: Function)
         setOnlineStatusProvider(fun: Function)
@@ -191,7 +190,7 @@ module RongWebIMWidget {
             if (_this.widgetConfig.displayMinButton == false) {
                 eleminbtn.style["display"] = "none";
             }
-
+            _this.conversationListServer.setHiddenConversations(_this.widgetConfig.hiddenConversations);
 
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
 
@@ -383,7 +382,11 @@ module RongWebIMWidget {
         }
 
         setProductInfo(obj: ProductInfo) {
-            this.providerdata._productInfo = obj;
+            if (this.conversationServer._customService.connected) {
+                this.RongIMSDKServer.sendProductInfo(this.conversationServer.current.targetId, obj)
+            } else {
+                this.providerdata._productInfo = obj;
+            }
         }
 
         show() {

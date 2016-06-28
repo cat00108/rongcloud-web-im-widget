@@ -4,7 +4,7 @@ module RongWebIMWidget.conversation {
 
     class CustomerService {
         type: string;
-        currentType: string;
+        currentType: number;
         companyName: string;
         robotName: string;
         robotIcon: string;
@@ -12,7 +12,7 @@ module RongWebIMWidget.conversation {
         humanWelcome: string;
         noOneOnlineTip: string;
         isblack: string;
-        connected:boolean;
+        connected: boolean;
         human: {
             name: string,
             headimgurl: string

@@ -32,6 +32,7 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
       },
       displayConversationList:true,
       conversationListPosition:WebIMWidget.EnumConversationListPosition.right,
+      hiddenConversations:[{type:WebIMWidget.EnumConversationType.PRIVATE,id:'bb'}],
       onSuccess:function(id){
         console.log(id);
       },
@@ -68,6 +69,7 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
           obj.onSuccess(rep.data);
         })
     })
+
 
     WebIMWidget.onClose=function(){
       console.log("已关闭");
