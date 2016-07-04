@@ -1868,7 +1868,7 @@ var Evaluate;
                                 scope.displayDescribe = true;
                             }
                             else {
-                                confirm(scope.data);
+                                callbackConfirm(scope.data);
                             }
                         }
                         else {
@@ -1877,22 +1877,29 @@ var Evaluate;
                                 scope.displayDescribe = true;
                             }
                             else {
-                                confirm(scope.data);
+                                callbackConfirm(scope.data);
                             }
                         }
                     }
                     else {
-                        confirm(null);
+                        callbackConfirm(null);
                     }
                 };
                 scope.commit = function () {
-                    confirm(scope.data);
+                    var value = [];
+                    for (var i = 0, len = scope.labels.length; i < len; i++) {
+                        if (scope.labels[i].selected) {
+                            value.push(scope.labels[i].display);
+                        }
+                    }
+                    scope.data.label = value;
+                    callbackConfirm(scope.data);
                 };
                 scope.cancle = function () {
                     scope.display = false;
                     scope.dcancle();
                 };
-                function confirm(data) {
+                function callbackConfirm(data) {
                     scope.end = true;
                     if (data) {
                         $timeout(function () {
@@ -2790,7 +2797,7 @@ var RongWebIMWidget;
             var messageName = "ProductMessage"; // 消息名称。
             var objectName = "cs:product"; // 消息内置名称，请按照此格式命名。
             var mesasgeTag = new RongIMLib.MessageTag(true, true); // 消息是否保存是否计数，true true 保存且计数，false false 不保存不计数。
-            var propertys = ["title", "url", "content", "imageUrl"]; // 消息类中的属性名。
+            var propertys = ["title", "url", "content", "imageUrl", "extra"]; // 消息类中的属性名。
             RongIMLib.RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
         };
         RongIMSDKServer.$inject = ["$q"];

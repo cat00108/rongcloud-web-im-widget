@@ -59,23 +59,30 @@ module Evaluate {
                             if (scope.data.stars != 5) {
                                 scope.displayDescribe = true;
                             } else {
-                                confirm(scope.data);
+                                callbackConfirm(scope.data);
                             }
                         } else {
                             scope.data.value = data;
                             if (scope.data.value === false) {
                                 scope.displayDescribe = true;
                             } else {
-                                confirm(scope.data);
+                                callbackConfirm(scope.data);
                             }
                         }
                     } else {
-                        confirm(null);
+                        callbackConfirm(null);
                     }
                 }
 
                 scope.commit = function() {
-                    confirm(scope.data);
+                    var value: any[] = [];
+                    for (var i = 0, len = scope.labels.length; i < len; i++) {
+                        if (scope.labels[i].selected) {
+                            value.push(scope.labels[i].display);
+                        }
+                    }
+                    scope.data.label = value;
+                    callbackConfirm(scope.data);
                 }
 
                 scope.cancle = function() {
@@ -83,7 +90,7 @@ module Evaluate {
                     scope.dcancle();
                 }
 
-                function confirm(data) {
+                function callbackConfirm(data) {
                     scope.end = true;
                     if (data) {
                         $timeout(function() {
