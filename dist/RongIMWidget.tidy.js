@@ -678,6 +678,7 @@ var RongWebIMWidget;
                 this.$scope.messageList = [];
                 this.$scope.conversation = null;
                 this.conversationServer.current = null;
+                _this.$scope.evaluate.showSelf = false;
             };
             ConversationController.prototype.changeConversation = function (obj) {
                 var _this = this;
@@ -699,7 +700,7 @@ var RongWebIMWidget;
                 }
                 var key = obj.targetType + "_" + obj.targetId;
                 if (obj.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE
-                    && (!_this.conversationServer.current || _this.conversationServer.current.targetId != obj.targetId)) {
+                    && (!_this.conversationServer.current || _this.conversationServer.current.targetId != obj.targetId) && !_this.conversationServer._customService.connected) {
                     _this.conversationServer._customService.connected = false;
                     _this.RongIMSDKServer.startCustomService(obj.targetId);
                 }
@@ -761,6 +762,7 @@ var RongWebIMWidget;
                             }
                             //会话一分钟评价有效，显示评价
                             _this.$scope.evaluate.valid = false;
+                            _this.$scope.evaluate.showSelf = false;
                             setTimeout(function () {
                                 _this.$scope.evaluate.valid = true;
                             }, 60 * 1000);
@@ -851,7 +853,7 @@ var RongWebIMWidget;
                 }
             };
             ConversationController.prototype.addCustomServiceInfo = function (msg) {
-                if (!msg.content || msg.content.userInfo) {
+                if (!msg.content || (msg.content.userInfo && msg.content.userInfo.name)) {
                     return;
                 }
                 if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE) {

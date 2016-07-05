@@ -4358,7 +4358,7 @@ var RongIMLib;
                 "navUrl-Release": RongIMLib.MessageUtil.schemeArrs[RongIMLib.RongIMClient.schemeType][0] + "://nav.cn.ronghub.com/"
             }, xss = document.createElement("script");
             //进行jsonp请求
-            xss.src = Url["navUrl-Debug"] + (RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"] ? "cometnavi.js" : "navi.js") + "?appId=" + _appId + "&token=" + encodeURIComponent(_token) + "&" + "callBack=getServerEndpoint&t=" + (new Date).getTime();
+            xss.src = Url["navUrl-Release"] + (RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"] ? "cometnavi.js" : "navi.js") + "?appId=" + _appId + "&token=" + encodeURIComponent(_token) + "&" + "callBack=getServerEndpoint&t=" + (new Date).getTime();
             document.body.appendChild(xss);
             xss.onerror = function () {
                 _onerror(RongIMLib.ConnectionState.TOKEN_INCORRECT);
@@ -5745,7 +5745,7 @@ registerMessageTypeMapping = {}, HistoryMsgType = {
     6: "qrySMsg",
     7: "qryPMsg",
     8: "qryPMsg",
-    5: "qryPMsg"
+    5: "qryCMsg"
 }, disconnectStatus = { 1: 6 };
 var RongIMLib;
 (function (RongIMLib) {
@@ -6004,6 +6004,9 @@ var RongIMLib;
             message.receivedTime = new Date().getTime();
             message.messageId = (message.conversationType + "_" + ~~(Math.random() * 0xffffff));
             message.objectName = objectName;
+            if (objectName == "RC:CsHs") {
+              RongIMLib.RongIMClient._memoryStore.custStore["isInit"] = true;
+            }
             return message;
         };
         //适配SSL
