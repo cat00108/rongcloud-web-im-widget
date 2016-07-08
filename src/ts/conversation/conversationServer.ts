@@ -32,6 +32,7 @@ module RongWebIMWidget.conversation {
         changeConversation(conversation: RongWebIMWidget.Conversation): void
         handleMessage(message: RongWebIMWidget.Message): void
         closeConversation(): ng.IPromise<any>
+        addCustomServiceInfo(msg: RongWebIMWidget.Message): void
 
         _handleConnectSuccess(): void// 获取上传 token ，并初始化上传控件
     }
@@ -74,16 +75,33 @@ module RongWebIMWidget.conversation {
                     var msglen = data.length;
                     while (msglen--) {
                         var msg = RongWebIMWidget.Message.convert(data[msglen]);
-                        _this.unshiftHistoryMessages(targetId, targetType, msg);
-                        if (msg.content && _this.providerdata.getUserInfo) {
-                            (function(msg) {
-                                _this.providerdata.getUserInfo(msg.senderUserId, {
-                                    onSuccess: function(obj) {
-                                        msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                    }
-                                })
-                            })(msg)
+
+                        switch (msg.messageType) {
+                            case RongWebIMWidget.MessageType.TextMessage:
+                            case RongWebIMWidget.MessageType.ImageMessage:
+                            case RongWebIMWidget.MessageType.VoiceMessage:
+                            case RongWebIMWidget.MessageType.RichContentMessage:
+                            case RongWebIMWidget.MessageType.LocationMessage:
+                            case RongWebIMWidget.MessageType.InformationNotificationMessage:
+                                _this.unshiftHistoryMessages(targetId, targetType, msg);
+                                _this.addCustomServiceInfo(msg);
+                                if (msg.content && _this.providerdata.getUserInfo) {
+                                    (function(msg) {
+                                        _this.providerdata.getUserInfo(msg.senderUserId, {
+                                            onSuccess: function(obj) {
+                                                msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                            }
+                                        })
+                                    })(msg)
+                                }
+                                break;
+                            case RongWebIMWidget.MessageType.UnknownMessage:
+                                break;
+                            default:
+                                break;
                         }
+
+
                     }
 
                     defer.resolve({ data: data, has: has });
@@ -98,8 +116,10 @@ module RongWebIMWidget.conversation {
 
         _addHistoryMessages(item: RongWebIMWidget.Message) {
             var key = item.conversationType + "_" + item.targetId;
-            var arr = this._cacheHistory[key]
-                = this._cacheHistory[key] || [];
+            var arr = this._cacheHistory[key];
+            if (arr.length == 0) {
+                arr.push(new RongWebIMWidget.GetHistoryPanel());
+            }
 
             if (arr[arr.length - 1]
                 && arr[arr.length - 1].panelType != RongWebIMWidget.PanelType.Time
@@ -122,6 +142,33 @@ module RongWebIMWidget.conversation {
                 }
             })
         }
+
+        addCustomServiceInfo(msg: RongWebIMWidget.Message) {
+            if (!msg.content || (msg.content.userInfo && msg.content.userInfo.name)) {
+                return;
+            }
+            if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE) {
+                if (this._customService.currentType == 1) {
+                    msg.content.userInfo = {
+                        name: this._customService.human.name || "客服人员",
+                        portraitUri: this._customService.human.headimgurl || this._customService.robotIcon,
+                    }
+                } else {
+                    msg.content.userInfo = {
+                        name: this._customService.robotName,
+                        portraitUri: this._customService.robotIcon,
+                    }
+                }
+            } else if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                msg.content.userInfo = {
+                    name: "我",
+                    portraitUri: this.providerdata.currentUserInfo.portraitUri
+                }
+            }
+            return msg;
+        }
+
+
 
         changeConversation: (conversation: RongWebIMWidget.Conversation) => void
         handleMessage: (message: RongWebIMWidget.Message) => void

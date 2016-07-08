@@ -74,6 +74,32 @@ module RongWebIMWidget {
             }
         }
 
+        static discernUrlEmailInStr(str) {
+            var html
+            var EMailReg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/gi
+            var EMailArr = <string[]>[];
+            html = str.replace(EMailReg, function(str: any) {
+                EMailArr.push(str);
+                return '[email`' + (EMailArr.length - 1) + ']';
+            });
+
+            var URLReg = /(((ht|f)tp(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi
+
+            html = html.replace(URLReg, function(str: any, $1: any) {
+                if ($1) {
+                    return '<a target="_blank" href="' + str + '">' + str + '</a>';
+                } else {
+                    return '<a target="_blank" href="//' + str + '">' + str + '</a>';
+                }
+            });
+
+            for (var i = 0, len = EMailArr.length; i < len; i++) {
+                html = html.replace('[email`' + i + ']', '<a href="mailto:' + EMailArr[i] + '">' + EMailArr[i] + '<a>');
+            }
+
+            return html;
+        }
+
         static checkType(obj) {
             var type = Object.prototype.toString.call(obj);
             return type.substring(8, type.length - 1).toLowerCase();
@@ -349,7 +375,8 @@ module RongWebIMWidget {
         .directive("ctrlEnterKeys", DirectiveFactory.GetFactoryFor(ctrlEnterKeys))
         .filter('trustHtml', ["$sce", function($sce: angular.ISCEService) {
             return function(str: any) {
-                return $sce.trustAsHtml(str);
+                var trustAsHtml = $sce.trustAsHtml(str);
+                return trustAsHtml;
             }
         }]).filter("historyTime", ["$filter", function($filter: angular.IFilterService) {
             return function(time: Date) {

@@ -15,9 +15,6 @@
   "homepage": "",
   "dependencies": {
     "angular": "~1.4.8",
-    "angular-motion": "mgcrea/angular-motion#~0.4.3",
-    "angular-animate": "~1.4.8",
-    "jquery.nicescroll": "jquery-nicescroll#~3.6.7",
     "jquery": "~2.2.1"
   }
 }

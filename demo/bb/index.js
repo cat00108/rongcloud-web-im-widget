@@ -39,6 +39,10 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
       }
     });
 
+    WebIMWidget.onReceivedMessage=function(msg){
+        console.log(msg)
+    }
+
     WebIMWidget.setUserInfoProvider(function(targetId,obj){
         obj.onSuccess({name:"陌："+targetId});
     });

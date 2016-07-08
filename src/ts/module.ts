@@ -165,6 +165,7 @@ module RongWebIMWidget {
                         content = RongIMLib.RongIMEmoji.emojiToHTML(content);
                     }
                     texmsg.content = content;
+                    texmsg.extra = SDKmsg.content.extra;
 
                     msg.content = texmsg;
                     break;
@@ -176,6 +177,7 @@ module RongWebIMWidget {
                     }
                     image.content = content;
                     image.imageUri = SDKmsg.content.imageUri;
+                    image.extra = SDKmsg.content.extra;
 
                     msg.content = image;
                     break;
@@ -184,6 +186,7 @@ module RongWebIMWidget {
                     var voice = new VoiceMessage();
                     voice.content = SDKmsg.content.content;
                     voice.duration = SDKmsg.content.duration;
+                    voice.extra = SDKmsg.content.extra;
 
                     msg.content = voice;
                     break;
@@ -193,6 +196,7 @@ module RongWebIMWidget {
                     rich.content = SDKmsg.content.content;
                     rich.title = SDKmsg.content.title;
                     rich.imageUri = SDKmsg.content.imageUri;
+                    rich.extra = SDKmsg.content.extra;
 
                     msg.content = rich;
                     break;
@@ -206,6 +210,7 @@ module RongWebIMWidget {
                     location.latiude = SDKmsg.content.latiude;
                     location.longitude = SDKmsg.content.longitude;
                     location.poi = SDKmsg.content.poi;
+                    location.extra = SDKmsg.content.extra;
 
                     msg.content = location;
                     break;
@@ -331,6 +336,7 @@ module RongWebIMWidget {
     export class TextMessage {
         userInfo: UserInfo;
         content: string;
+        extra: any;
         constructor(msg?: any) {
             msg = msg || {};
             this.content = msg.content;
@@ -378,12 +384,14 @@ module RongWebIMWidget {
         userInfo: UserInfo;
         content: string;
         imageUri: string;
+        extra: any;
     }
 
     export class VoiceMessage {
         userInfo: UserInfo;
         content: string;
         duration: string;
+        extra: any;
     }
 
     export class LocationMessage {
@@ -392,6 +400,7 @@ module RongWebIMWidget {
         latiude: number;
         longitude: number;
         poi: string;
+        extra: any;
     }
 
     export class RichContentMessage {
@@ -399,6 +408,7 @@ module RongWebIMWidget {
         content: string;
         title: string;
         imageUri: string;
+        extra: any;
     }
 
     export class DiscussionNotificationMessage {

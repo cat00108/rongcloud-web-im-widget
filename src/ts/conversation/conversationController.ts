@@ -415,7 +415,7 @@ module RongWebIMWidget.conversation {
 
             _this.$scope.messageList = _this.conversationServer._cacheHistory[key] = _this.conversationServer._cacheHistory[key] || []
 
-            if (_this.$scope.messageList.length == 0) {
+            if (_this.$scope.messageList.length == 0 && _this.conversationServer.current.targetType !== RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
                 _this.conversationServer._getHistoryMessages(obj.targetType, obj.targetId, 3)
                     .then(function(data) {
                         if (_this.$scope.messageList.length > 0) {
@@ -553,43 +553,29 @@ module RongWebIMWidget.conversation {
 
                 if (systemMsg) {
                     var wmsg = RongWebIMWidget.Message.convert(systemMsg);
-                    _this.addCustomServiceInfo(wmsg);
+                    _this.conversationServer.addCustomServiceInfo(wmsg);
                     _this.conversationServer._addHistoryMessages(wmsg);
                 }
 
-                _this.addCustomServiceInfo(msg);
+                _this.conversationServer.addCustomServiceInfo(msg);
 
                 setTimeout(function() {
                     _this.$scope.$apply();
                     _this.$scope.scrollBar();
                 }, 200);
             }
+
+            if (msg.messageType === RongWebIMWidget.MessageType.ImageMessage) {
+                // setTimeout(function() {
+                //     _this.$scope.$apply();
+                //     _this.$scope.scrollBar();
+                // }, 500);
+            }
+
+
         }
 
-        addCustomServiceInfo(msg: RongWebIMWidget.Message) {
-            if (!msg.content || (msg.content.userInfo && msg.content.userInfo.name)) {
-                return;
-            }
-            if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE) {
-                if (this.conversationServer._customService.currentType == 1) {
-                    msg.content.userInfo = {
-                        name: this.conversationServer._customService.human.name || "客服人员",
-                        portraitUri: this.conversationServer._customService.human.headimgurl || this.conversationServer._customService.robotIcon,
-                    }
-                } else {
-                    msg.content.userInfo = {
-                        name: this.conversationServer._customService.robotName,
-                        portraitUri: this.conversationServer._customService.robotIcon,
-                    }
-                }
-            } else if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
-                msg.content.userInfo = {
-                    name: "我",
-                    portraitUri: this.providerdata.currentUserInfo.portraitUri
-                }
-            }
-            return msg;
-        }
+
 
         changeCustomerState(type) {
             this.$scope._inputPanelState = type;

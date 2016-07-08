@@ -54,6 +54,28 @@ var RongWebIMWidget;
                 return obj;
             }
         };
+        Helper.discernUrlEmailInStr = function (str) {
+            var html;
+            var EMailReg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/gi;
+            var EMailArr = [];
+            html = str.replace(EMailReg, function (str) {
+                EMailArr.push(str);
+                return '[email`' + (EMailArr.length - 1) + ']';
+            });
+            var URLReg = /(((ht|f)tp(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi;
+            html = html.replace(URLReg, function (str, $1) {
+                if ($1) {
+                    return '<a target="_blank" href="' + str + '">' + str + '</a>';
+                }
+                else {
+                    return '<a target="_blank" href="//' + str + '">' + str + '</a>';
+                }
+            });
+            for (var i = 0, len = EMailArr.length; i < len; i++) {
+                html = html.replace('[email`' + i + ']', '<a href="mailto:' + EMailArr[i] + '">' + EMailArr[i] + '<a>');
+            }
+            return html;
+        };
         Helper.checkType = function (obj) {
             var type = Object.prototype.toString.call(obj);
             return type.substring(8, type.length - 1).toLowerCase();
@@ -364,7 +386,8 @@ var RongWebIMWidget;
         .directive("ctrlEnterKeys", DirectiveFactory.GetFactoryFor(ctrlEnterKeys))
         .filter('trustHtml', ["$sce", function ($sce) {
             return function (str) {
-                return $sce.trustAsHtml(str);
+                var trustAsHtml = $sce.trustAsHtml(str);
+                return trustAsHtml;
             };
         }]).filter("historyTime", ["$filter", function ($filter) {
             return function (time) {
@@ -708,7 +731,7 @@ var RongWebIMWidget;
                 _this.$scope.conversation = obj;
                 _this.$scope.conversation.messageContent = RongIMLib.RongIMClient.getInstance().getTextMessageDraft(obj.targetType, obj.targetId) || "";
                 _this.$scope.messageList = _this.conversationServer._cacheHistory[key] = _this.conversationServer._cacheHistory[key] || [];
-                if (_this.$scope.messageList.length == 0) {
+                if (_this.$scope.messageList.length == 0 && _this.conversationServer.current.targetType !== RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
                     _this.conversationServer._getHistoryMessages(obj.targetType, obj.targetId, 3)
                         .then(function (data) {
                         if (_this.$scope.messageList.length > 0) {
@@ -842,41 +865,17 @@ var RongWebIMWidget;
                     }
                     if (systemMsg) {
                         var wmsg = RongWebIMWidget.Message.convert(systemMsg);
-                        _this.addCustomServiceInfo(wmsg);
+                        _this.conversationServer.addCustomServiceInfo(wmsg);
                         _this.conversationServer._addHistoryMessages(wmsg);
                     }
-                    _this.addCustomServiceInfo(msg);
+                    _this.conversationServer.addCustomServiceInfo(msg);
                     setTimeout(function () {
                         _this.$scope.$apply();
                         _this.$scope.scrollBar();
                     }, 200);
                 }
-            };
-            ConversationController.prototype.addCustomServiceInfo = function (msg) {
-                if (!msg.content || (msg.content.userInfo && msg.content.userInfo.name)) {
-                    return;
+                if (msg.messageType === RongWebIMWidget.MessageType.ImageMessage) {
                 }
-                if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE) {
-                    if (this.conversationServer._customService.currentType == 1) {
-                        msg.content.userInfo = {
-                            name: this.conversationServer._customService.human.name || "客服人员",
-                            portraitUri: this.conversationServer._customService.human.headimgurl || this.conversationServer._customService.robotIcon
-                        };
-                    }
-                    else {
-                        msg.content.userInfo = {
-                            name: this.conversationServer._customService.robotName,
-                            portraitUri: this.conversationServer._customService.robotIcon
-                        };
-                    }
-                }
-                else if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
-                    msg.content.userInfo = {
-                        name: "我",
-                        portraitUri: this.providerdata.currentUserInfo.portraitUri
-                    };
-                }
-                return msg;
             };
             ConversationController.prototype.changeCustomerState = function (type) {
                 this.$scope._inputPanelState = type;
@@ -945,7 +944,7 @@ var RongWebIMWidget;
             rongConversation.prototype.link = function (scope, ele) {
                 if (window["jQuery"] && window["jQuery"].nicescroll) {
                     $("#Messages").niceScroll({
-                        'cursorcolor': "#0099ff",
+                        // 'cursorcolor': "#0099ff",
                         'cursoropacitymax': 1,
                         'touchbehavior': true,
                         'cursorwidth': "8px",
@@ -1198,15 +1197,29 @@ var RongWebIMWidget;
                         var msglen = data.length;
                         while (msglen--) {
                             var msg = RongWebIMWidget.Message.convert(data[msglen]);
-                            _this.unshiftHistoryMessages(targetId, targetType, msg);
-                            if (msg.content && _this.providerdata.getUserInfo) {
-                                (function (msg) {
-                                    _this.providerdata.getUserInfo(msg.senderUserId, {
-                                        onSuccess: function (obj) {
-                                            msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                        }
-                                    });
-                                })(msg);
+                            switch (msg.messageType) {
+                                case RongWebIMWidget.MessageType.TextMessage:
+                                case RongWebIMWidget.MessageType.ImageMessage:
+                                case RongWebIMWidget.MessageType.VoiceMessage:
+                                case RongWebIMWidget.MessageType.RichContentMessage:
+                                case RongWebIMWidget.MessageType.LocationMessage:
+                                case RongWebIMWidget.MessageType.InformationNotificationMessage:
+                                    _this.unshiftHistoryMessages(targetId, targetType, msg);
+                                    _this.addCustomServiceInfo(msg);
+                                    if (msg.content && _this.providerdata.getUserInfo) {
+                                        (function (msg) {
+                                            _this.providerdata.getUserInfo(msg.senderUserId, {
+                                                onSuccess: function (obj) {
+                                                    msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                                }
+                                            });
+                                        })(msg);
+                                    }
+                                    break;
+                                case RongWebIMWidget.MessageType.UnknownMessage:
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                         defer.resolve({ data: data, has: has });
@@ -1219,8 +1232,10 @@ var RongWebIMWidget;
             };
             conversationServer.prototype._addHistoryMessages = function (item) {
                 var key = item.conversationType + "_" + item.targetId;
-                var arr = this._cacheHistory[key]
-                    = this._cacheHistory[key] || [];
+                var arr = this._cacheHistory[key];
+                if (arr.length == 0) {
+                    arr.push(new RongWebIMWidget.GetHistoryPanel());
+                }
                 if (arr[arr.length - 1]
                     && arr[arr.length - 1].panelType != RongWebIMWidget.PanelType.Time
                     && arr[arr.length - 1].sentTime
@@ -1239,6 +1254,32 @@ var RongWebIMWidget;
                     }, onError: function () {
                     }
                 });
+            };
+            conversationServer.prototype.addCustomServiceInfo = function (msg) {
+                if (!msg.content || (msg.content.userInfo && msg.content.userInfo.name)) {
+                    return;
+                }
+                if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE) {
+                    if (this._customService.currentType == 1) {
+                        msg.content.userInfo = {
+                            name: this._customService.human.name || "客服人员",
+                            portraitUri: this._customService.human.headimgurl || this._customService.robotIcon
+                        };
+                    }
+                    else {
+                        msg.content.userInfo = {
+                            name: this._customService.robotName,
+                            portraitUri: this._customService.robotIcon
+                        };
+                    }
+                }
+                else if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
+                    msg.content.userInfo = {
+                        name: "我",
+                        portraitUri: this.providerdata.currentUserInfo.portraitUri
+                    };
+                }
+                return msg;
             };
             conversationServer.$inject = ["$q", "ProviderData"];
             return conversationServer;
@@ -1735,7 +1776,7 @@ var RongWebIMWidget;
                             break;
                     }
                     if (_this.onReceivedMessage) {
-                        _this.onReceivedMessage(msg);
+                        _this.onReceivedMessage(data);
                     }
                     _this.conversationServer.handleMessage(msg);
                     if (!document.hidden && _this.display
@@ -1766,9 +1807,7 @@ var RongWebIMWidget;
             var key = msg.conversationType + "_" + msg.targetId;
             var hislist = this.conversationServer._cacheHistory[key] = this.conversationServer._cacheHistory[key] || [];
             if (hislist.length == 0) {
-                if (msg.conversationType != RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                    hislist.push(new RongWebIMWidget.GetHistoryPanel());
-                }
+                hislist.push(new RongWebIMWidget.GetHistoryPanel());
                 hislist.push(new RongWebIMWidget.TimePanl(msg.sentTime));
             }
             this.conversationServer._addHistoryMessages(msg);
@@ -2280,6 +2319,7 @@ var RongWebIMWidget;
                         content = RongIMLib.RongIMEmoji.emojiToHTML(content);
                     }
                     texmsg.content = content;
+                    texmsg.extra = SDKmsg.content.extra;
                     msg.content = texmsg;
                     break;
                 case RongWebIMWidget.MessageType.ImageMessage:
@@ -2290,12 +2330,14 @@ var RongWebIMWidget;
                     }
                     image.content = content;
                     image.imageUri = SDKmsg.content.imageUri;
+                    image.extra = SDKmsg.content.extra;
                     msg.content = image;
                     break;
                 case RongWebIMWidget.MessageType.VoiceMessage:
                     var voice = new VoiceMessage();
                     voice.content = SDKmsg.content.content;
                     voice.duration = SDKmsg.content.duration;
+                    voice.extra = SDKmsg.content.extra;
                     msg.content = voice;
                     break;
                 case RongWebIMWidget.MessageType.RichContentMessage:
@@ -2303,6 +2345,7 @@ var RongWebIMWidget;
                     rich.content = SDKmsg.content.content;
                     rich.title = SDKmsg.content.title;
                     rich.imageUri = SDKmsg.content.imageUri;
+                    rich.extra = SDKmsg.content.extra;
                     msg.content = rich;
                     break;
                 case RongWebIMWidget.MessageType.LocationMessage:
@@ -2315,6 +2358,7 @@ var RongWebIMWidget;
                     location.latiude = SDKmsg.content.latiude;
                     location.longitude = SDKmsg.content.longitude;
                     location.poi = SDKmsg.content.poi;
+                    location.extra = SDKmsg.content.extra;
                     msg.content = location;
                     break;
                 case RongWebIMWidget.MessageType.InformationNotificationMessage:
@@ -2569,7 +2613,7 @@ var RongWebIMWidget;
                                 info = '用户被封禁';
                                 break;
                         }
-                        console.log("失败:" + info);
+                        console.log("失败:" + info + errorCode);
                     }
                 });
                 return defer.promise;

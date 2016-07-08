@@ -323,7 +323,7 @@ module RongWebIMWidget {
                     }
 
                     if (_this.onReceivedMessage) {
-                        _this.onReceivedMessage(msg);
+                        _this.onReceivedMessage(data);
                     }
                     _this.conversationServer.handleMessage(msg);
 
@@ -357,9 +357,7 @@ module RongWebIMWidget {
             var key = msg.conversationType + "_" + msg.targetId;
             var hislist = this.conversationServer._cacheHistory[key] = this.conversationServer._cacheHistory[key] || []
             if (hislist.length == 0) {
-                if (msg.conversationType != RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
-                    hislist.push(new RongWebIMWidget.GetHistoryPanel());
-                }
+                hislist.push(new RongWebIMWidget.GetHistoryPanel());
                 hislist.push(new RongWebIMWidget.TimePanl(msg.sentTime));
             }
             this.conversationServer._addHistoryMessages(msg);

@@ -7,6 +7,14 @@ demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,Rong
         token:"I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",//selfe kefu
         kefuId:"KEFU145914839332836",//selfe
 
+        // appkey:"e5t4ouvptkf6a",//kehu
+        // token:"SIs+A1dNqAGzDekNSEhTDFkorAnYm9Nmdw8vnrfMyunoplOHJxCyEHlkzhq1P1A8aR8MDR1+5Us3yH7RcuzUOA15G+GXlZ2T7QWk/DpW1zu94mpXoD3AMQ==",
+        // kefuId:"KEFU146787560842415",
+
+        // appkey:"e0x9wycfx7flq",//xiaoqiao
+        // token:"4FGXZfT05dvLJYDfnLTu8hnk1aK4cFsKdlugrlEUcJ1Up9M1NxrkDRCYrs3oWBKkSg8cGCMaW6mKOtbWRl67FOEToZ3N32hf",
+        // kefuId:"KEFUxiaoqiaoZhubajie1",
+
         reminder:"在线咨询",
 
         position:RongKefu.KefuPostion.right,

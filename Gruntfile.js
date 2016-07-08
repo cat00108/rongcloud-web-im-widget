@@ -105,7 +105,7 @@ module.exports = function(grunt) {
           {
             src:[
               './vendor/jqueryrebox/jquery-rebox.js',
-              './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
+              '/vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
               './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
             dest:'./build/RongIMWidget.js'
@@ -114,7 +114,7 @@ module.exports = function(grunt) {
             src:[
               './bower_components/jquery/dist/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
-              './bower_components/jquery.nicescroll/dist/jquery.nicescroll.min.js',
+              '/vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
               './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
             dest:'./build/RongIMWidget.full.js'

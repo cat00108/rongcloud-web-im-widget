@@ -15,7 +15,7 @@ module RongWebIMWidget.conversation {
         link(scope: any, ele: angular.IRootElementService) {
             if (window["jQuery"] && window["jQuery"].nicescroll) {
                 $("#Messages").niceScroll({
-                    'cursorcolor': "#0099ff",
+                    // 'cursorcolor': "#0099ff",
                     'cursoropacitymax': 1,
                     'touchbehavior': true,
                     'cursorwidth': "8px",
