@@ -354,6 +354,11 @@ module RongWebIMWidget {
         }
 
         addMessageAndOperation(msg: RongWebIMWidget.Message) {
+            if (msg.conversationType === RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && !this.conversationServer._customService.connected) {
+                //客服没有连接直接返回不追加显示消息
+                return;
+            }
+
             var key = msg.conversationType + "_" + msg.targetId;
             var hislist = this.conversationServer._cacheHistory[key] = this.conversationServer._cacheHistory[key] || []
             if (hislist.length == 0) {

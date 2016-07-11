@@ -1819,6 +1819,10 @@ var RongWebIMWidget;
             };
         };
         WebIMWidget.prototype.addMessageAndOperation = function (msg) {
+            if (msg.conversationType === RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && !this.conversationServer._customService.connected) {
+                //客服没有连接直接返回不追加显示消息
+                return;
+            }
             var key = msg.conversationType + "_" + msg.targetId;
             var hislist = this.conversationServer._cacheHistory[key] = this.conversationServer._cacheHistory[key] || [];
             if (hislist.length == 0) {
@@ -2050,7 +2054,8 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
     function runApp($http, WebIMWidget, WidgetConfig, RongKefu) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function () {
+        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function() {
+        $script.get("../lib/RongIMLib-kefu.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.3.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
