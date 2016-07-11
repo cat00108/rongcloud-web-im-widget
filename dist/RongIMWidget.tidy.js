@@ -22,7 +22,7 @@ var RongWebIMWidget;
 })(RongWebIMWidget || (RongWebIMWidget = {}));
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
-    var userAgent = window.navigator.userAgent;
+    var userAgent = window.navigator.userAgent.toLowerCase();
     var Helper = (function () {
         function Helper() {
         }
@@ -959,7 +959,7 @@ var RongWebIMWidget;
             rongConversation.prototype.link = function (scope, ele) {
                 if (window["jQuery"] && window["jQuery"].nicescroll) {
                     $("#Messages").niceScroll({
-                        // 'cursorcolor': "#0099ff",
+                        'cursorcolor': "#0099ff",
                         'cursoropacitymax': 1,
                         'touchbehavior': true,
                         'cursorwidth': "8px",
@@ -1010,24 +1010,6 @@ var RongWebIMWidget;
                     '</div>';
             }
             textmessage.prototype.link = function (scope, ele, attr) {
-                var EMailReg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/gi;
-                var EMailArr = [];
-                scope.msg.content = scope.msg.content.replace(EMailReg, function (str) {
-                    EMailArr.push(str);
-                    return '[email`' + (EMailArr.length - 1) + ']';
-                });
-                var URLReg = /(((ht|f)tp(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi;
-                scope.msg.content = scope.msg.content.replace(URLReg, function (str, $1) {
-                    if ($1) {
-                        return '<a target="_blank" href="' + str + '">' + str + '</a>';
-                    }
-                    else {
-                        return '<a target="_blank" href="//' + str + '">' + str + '</a>';
-                    }
-                });
-                for (var i = 0, len = EMailArr.length; i < len; i++) {
-                    scope.content = scope.content.replace('[email`' + i + ']', '<a href="mailto:' + EMailArr[i] + '">' + EMailArr[i] + '<a>');
-                }
             };
             return textmessage;
         })();
@@ -2054,8 +2036,7 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
     function runApp($http, WebIMWidget, WidgetConfig, RongKefu) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function() {
-        $script.get("../lib/RongIMLib-kefu.js", function () {
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.3.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
@@ -2335,6 +2316,7 @@ var RongWebIMWidget;
                     var texmsg = new TextMessage();
                     var content = SDKmsg.content.content;
                     content = RongWebIMWidget.Helper.escapeSymbol.encodeHtmlsymbol(content);
+                    content = RongWebIMWidget.Helper.discernUrlEmailInStr(content);
                     if (RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.emojiToHTML) {
                         content = RongIMLib.RongIMEmoji.emojiToHTML(content);
                     }

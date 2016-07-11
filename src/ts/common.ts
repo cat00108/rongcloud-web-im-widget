@@ -1,6 +1,6 @@
 module RongWebIMWidget {
 
-    var userAgent = window.navigator.userAgent;
+    var userAgent = window.navigator.userAgent.toLowerCase();
 
     export class Helper {
         static timeCompare(first: Date, second: Date) {
