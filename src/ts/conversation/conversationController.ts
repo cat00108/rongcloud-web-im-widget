@@ -566,10 +566,10 @@ module RongWebIMWidget.conversation {
             }
 
             if (msg.messageType === RongWebIMWidget.MessageType.ImageMessage) {
-                // setTimeout(function() {
-                //     _this.$scope.$apply();
-                //     _this.$scope.scrollBar();
-                // }, 500);
+                setTimeout(function() {
+                    _this.$scope.$apply();
+                    _this.$scope.scrollBar();
+                }, 800);
             }
 
 

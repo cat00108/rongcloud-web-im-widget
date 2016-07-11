@@ -38,13 +38,22 @@ module RongWebIMWidget {
             }
         }
         static escapeSymbol = {
-            escapeHtml: function(str: string): string {
+            encodeHtmlsymbol: function(str: string): string {
                 if (!str) return '';
-                // str = str.replace(/&/g, '&amp;');
+                str = str.replace(/&/g, '&amp;');
                 str = str.replace(/</g, '&lt;');
                 str = str.replace(/>/g, '&gt;');
                 str = str.replace(/"/g, '&quot;');
                 str = str.replace(/'/g, '&#039;');
+                return str;
+            },
+            decodeHtmlsymbol: function(str: string): string {
+                if (!str) return '';
+                str = str.replace(/&amp;/g, '&');
+                str = str.replace(/&lt;/g, '<');
+                str = str.replace(/&gt;/g, '>');
+                str = str.replace(/&quot;/g, '"');
+                str = str.replace(/&#039;/g, '\'');
                 return str;
             }
         }
@@ -188,7 +197,7 @@ module RongWebIMWidget {
         static desktopNotification = true;
 
         static isNotificationSupported() {
-            return typeof Notification === "function";
+            return (typeof Notification === "function" || typeof Notification === "object");
         }
 
         static requestPermission() {
@@ -329,6 +338,7 @@ module RongWebIMWidget {
 
             function read() {
                 var html = element.html();
+                var html = Helper.escapeSymbol.decodeHtmlsymbol(html);
                 html = html.replace(/^<br>$/i, "");
                 html = html.replace(/<br>/gi, "\n");
                 if (attrs["stripBr"] && html == '<br>') {

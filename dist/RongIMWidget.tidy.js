@@ -89,14 +89,24 @@ var RongWebIMWidget;
             mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit|like gecko)/.test(userAgent)
         };
         Helper.escapeSymbol = {
-            escapeHtml: function (str) {
+            encodeHtmlsymbol: function (str) {
                 if (!str)
                     return '';
-                // str = str.replace(/&/g, '&amp;');
+                str = str.replace(/&/g, '&amp;');
                 str = str.replace(/</g, '&lt;');
                 str = str.replace(/>/g, '&gt;');
                 str = str.replace(/"/g, '&quot;');
                 str = str.replace(/'/g, '&#039;');
+                return str;
+            },
+            decodeHtmlsymbol: function (str) {
+                if (!str)
+                    return '';
+                str = str.replace(/&amp;/g, '&');
+                str = str.replace(/&lt;/g, '<');
+                str = str.replace(/&gt;/g, '>');
+                str = str.replace(/&quot;/g, '"');
+                str = str.replace(/&#039;/g, '\'');
                 return str;
             }
         };
@@ -204,7 +214,7 @@ var RongWebIMWidget;
         function NotificationHelper() {
         }
         NotificationHelper.isNotificationSupported = function () {
-            return typeof Notification === "function";
+            return (typeof Notification === "function" || typeof Notification === "object");
         };
         NotificationHelper.requestPermission = function () {
             if (!NotificationHelper.isNotificationSupported()) {
@@ -337,6 +347,7 @@ var RongWebIMWidget;
             element.bind("input", read);
             function read() {
                 var html = element.html();
+                var html = Helper.escapeSymbol.decodeHtmlsymbol(html);
                 html = html.replace(/^<br>$/i, "");
                 html = html.replace(/<br>/gi, "\n");
                 if (attrs["stripBr"] && html == '<br>') {
@@ -875,6 +886,10 @@ var RongWebIMWidget;
                     }, 200);
                 }
                 if (msg.messageType === RongWebIMWidget.MessageType.ImageMessage) {
+                    setTimeout(function () {
+                        _this.$scope.$apply();
+                        _this.$scope.scrollBar();
+                    }, 800);
                 }
             };
             ConversationController.prototype.changeCustomerState = function (type) {
@@ -2314,7 +2329,7 @@ var RongWebIMWidget;
                 case RongWebIMWidget.MessageType.TextMessage:
                     var texmsg = new TextMessage();
                     var content = SDKmsg.content.content;
-                    content = RongWebIMWidget.Helper.escapeSymbol.escapeHtml(content);
+                    content = RongWebIMWidget.Helper.escapeSymbol.encodeHtmlsymbol(content);
                     if (RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.emojiToHTML) {
                         content = RongIMLib.RongIMEmoji.emojiToHTML(content);
                     }

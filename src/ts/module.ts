@@ -160,7 +160,7 @@ module RongWebIMWidget {
                 case MessageType.TextMessage:
                     var texmsg = new TextMessage();
                     var content = SDKmsg.content.content;
-                    content = RongWebIMWidget.Helper.escapeSymbol.escapeHtml(content);
+                    content = RongWebIMWidget.Helper.escapeSymbol.encodeHtmlsymbol(content);
                     if (RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.emojiToHTML) {
                         content = RongIMLib.RongIMEmoji.emojiToHTML(content);
                     }
