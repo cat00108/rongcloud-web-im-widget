@@ -1,11 +1,11 @@
 var demo = angular.module("demo", ["RongWebIMWidget"]);
 
-demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,RongKefu) {
+demo.controller("main", ["$scope","$http","RongCustomerService", function($scope,$http,RongCustomerService) {
   $scope.title="asdf";
-  RongKefu.init({
+  RongCustomerService.init({
         appkey:"3argexb6r934e",//selfe
         token:"I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",//selfe kefu
-        kefuId:"KEFU145914839332836",//selfe
+        customerServiceId:"KEFU145914839332836",//selfe
 
         // appkey:"e5t4ouvptkf6a",//kehu
         // token:"SIs+A1dNqAGzDekNSEhTDFkorAnYm9Nmdw8vnrfMyunoplOHJxCyEHlkzhq1P1A8aR8MDR1+5Us3yH7RcuzUOA15G+GXlZ2T7QWk/DpW1zu94mpXoD3AMQ==",
@@ -16,8 +16,8 @@ demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,Rong
         // kefuId:"KEFUxiaoqiaoZhubajie1",
 
         reminder:"在线咨询",
-
-        position:RongKefu.KefuPostion.right,
+        // displayMinButton:false,
+        position:RongCustomerService.Position.right,
         style:{
           // height:500,
           width:320
@@ -41,14 +41,14 @@ demo.controller("main", ["$scope","$http","RongKefu", function($scope,$http,Rong
   cookie.set("visitHistory",JSON.stringify(visitHistory))
 
 
-  RongKefu.setProductInfo({title:"这是啦啦啦",imageUrl:"https://www.baidu.com/img/bd_logo1.png",extra:visitHistory})
+  RongCustomerService.setProductInfo({title:"这是啦啦啦",imageUrl:"https://www.baidu.com/img/bd_logo1.png",extra:visitHistory})
 
 
     $scope.show = function() {
-      RongKefu.show();
+      RongCustomerService.show();
     }
 
     $scope.hidden = function() {
-      RongKefu.hidden();
+      RongCustomerService.hidden();
     }
 }]);

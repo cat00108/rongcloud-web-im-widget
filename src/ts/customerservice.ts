@@ -1,18 +1,18 @@
 module RongWebIMWidget {
 
-    enum KefuPostion {
+    enum Position {
         left = 1, right = 2
     }
 
-    export class RongKefu {
+    export class RongCustomerService {
 
         static $inject: string[] = ["WebIMWidget"];
 
         defaultconfig: any = {
-            __isKefu: true
+            __isCustomerService: true
         }
 
-        KefuPostion: any = KefuPostion
+        Position: any = Position
 
         constructor(private WebIMWidget: RongWebIMWidget.WebIMWidget) {
 
@@ -25,7 +25,7 @@ module RongWebIMWidget {
                 right: 20
             }
             if (config.position) {
-                if (config.position == KefuPostion.left) {
+                if (config.position == Position.left) {
                     style = {
                         left: 20,
                         bottom: 0,
@@ -49,7 +49,7 @@ module RongWebIMWidget {
 
             _this.WebIMWidget.init(this.defaultconfig);
             _this.WebIMWidget.onShow = function() {
-                _this.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.kefuId, "客服");
+                _this.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.customerServiceId, "客服");
             }
         }
 
@@ -66,6 +66,6 @@ module RongWebIMWidget {
     }
 
     angular.module("RongWebIMWidget")
-        .service("RongKefu", RongKefu);
+        .service("RongCustomerService", RongCustomerService);
 
 }

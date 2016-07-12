@@ -2,24 +2,24 @@
 /// <reference path="../lib/window.d.ts"/>
 module RongWebIMWidget {
 
-    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
+    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongCustomerService"];
 
     function runApp($http: ng.IHttpService,
         WebIMWidget: RongWebIMWidget.WebIMWidget,
         WidgetConfig: RongWebIMWidget.WidgetConfig,
-        RongKefu: RongWebIMWidget.RongKefu) {
+        RongCustomerService: RongWebIMWidget.RongCustomerService) {
 
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function() {
-            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.3.min.js", function() {
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function() {
+            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function() {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
-            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.1.3.min.js", function() {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function() {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {
                 if (WidgetConfig._config.__isKefu) {
-                    RongKefu.init(WidgetConfig._config);
+                    RongCustomerService.init(WidgetConfig._config);
                 } else {
                     WebIMWidget.init(WidgetConfig._config);
                 }

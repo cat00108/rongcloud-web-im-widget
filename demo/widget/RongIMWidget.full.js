@@ -11999,6 +11999,71 @@ var RongWebIMWidget;
     angular.module("RongWebIMWidget")
         .service("WebIMWidget", WebIMWidget);
 })(RongWebIMWidget || (RongWebIMWidget = {}));
+var RongWebIMWidget;
+(function (RongWebIMWidget) {
+    var Position;
+    (function (Position) {
+        Position[Position["left"] = 1] = "left";
+        Position[Position["right"] = 2] = "right";
+    })(Position || (Position = {}));
+    var RongCustomerService = (function () {
+        function RongCustomerService(WebIMWidget) {
+            this.WebIMWidget = WebIMWidget;
+            this.defaultconfig = {
+                __isCustomerService: true
+            };
+            this.Position = Position;
+        }
+        RongCustomerService.prototype.init = function (config) {
+            var _this = this;
+            angular.extend(this.defaultconfig, config);
+            var style = {
+                right: 20
+            };
+            if (config.position) {
+                if (config.position == Position.left) {
+                    style = {
+                        left: 20,
+                        bottom: 0,
+                        width: 325,
+                        positionFixed: true
+                    };
+                }
+                else {
+                    style = {
+                        right: 20,
+                        bottom: 0,
+                        width: 325,
+                        positionFixed: true
+                    };
+                }
+            }
+            if (config.style) {
+                config.style.width && (style.width = config.style.width);
+                config.style.height && (style.height = config.style.height);
+            }
+            this.defaultconfig.style = style;
+            _this.WebIMWidget.init(this.defaultconfig);
+            _this.WebIMWidget.onShow = function () {
+                _this.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.customerServiceId, "客服");
+            };
+        };
+        RongCustomerService.prototype.show = function () {
+            this.WebIMWidget.show();
+        };
+        RongCustomerService.prototype.setProductInfo = function (obj) {
+            this.WebIMWidget.setProductInfo(obj);
+        };
+        RongCustomerService.prototype.hidden = function () {
+            this.WebIMWidget.hidden();
+        };
+        RongCustomerService.$inject = ["WebIMWidget"];
+        return RongCustomerService;
+    })();
+    RongWebIMWidget.RongCustomerService = RongCustomerService;
+    angular.module("RongWebIMWidget")
+        .service("RongCustomerService", RongCustomerService);
+})(RongWebIMWidget || (RongWebIMWidget = {}));
 var Evaluate;
 (function (Evaluate) {
     var evaluatedir = (function () {
@@ -12108,88 +12173,23 @@ var Evaluate;
     angular.module("Evaluate", [])
         .directive("evaluatedir", RongWebIMWidget.DirectiveFactory.GetFactoryFor(evaluatedir));
 })(Evaluate || (Evaluate = {}));
-var RongWebIMWidget;
-(function (RongWebIMWidget) {
-    var KefuPostion;
-    (function (KefuPostion) {
-        KefuPostion[KefuPostion["left"] = 1] = "left";
-        KefuPostion[KefuPostion["right"] = 2] = "right";
-    })(KefuPostion || (KefuPostion = {}));
-    var RongKefu = (function () {
-        function RongKefu(WebIMWidget) {
-            this.WebIMWidget = WebIMWidget;
-            this.defaultconfig = {
-                __isKefu: true
-            };
-            this.KefuPostion = KefuPostion;
-        }
-        RongKefu.prototype.init = function (config) {
-            var _this = this;
-            angular.extend(this.defaultconfig, config);
-            var style = {
-                right: 20
-            };
-            if (config.position) {
-                if (config.position == KefuPostion.left) {
-                    style = {
-                        left: 20,
-                        bottom: 0,
-                        width: 325,
-                        positionFixed: true
-                    };
-                }
-                else {
-                    style = {
-                        right: 20,
-                        bottom: 0,
-                        width: 325,
-                        positionFixed: true
-                    };
-                }
-            }
-            if (config.style) {
-                config.style.width && (style.width = config.style.width);
-                config.style.height && (style.height = config.style.height);
-            }
-            this.defaultconfig.style = style;
-            _this.WebIMWidget.init(this.defaultconfig);
-            _this.WebIMWidget.onShow = function () {
-                _this.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.kefuId, "客服");
-            };
-        };
-        RongKefu.prototype.show = function () {
-            this.WebIMWidget.show();
-        };
-        RongKefu.prototype.setProductInfo = function (obj) {
-            this.WebIMWidget.setProductInfo(obj);
-        };
-        RongKefu.prototype.hidden = function () {
-            this.WebIMWidget.hidden();
-        };
-        RongKefu.$inject = ["WebIMWidget"];
-        return RongKefu;
-    })();
-    RongWebIMWidget.RongKefu = RongKefu;
-    angular.module("RongWebIMWidget")
-        .service("RongKefu", RongKefu);
-})(RongWebIMWidget || (RongWebIMWidget = {}));
 /// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="../lib/window.d.ts"/>
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
-    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongKefu"];
-    function runApp($http, WebIMWidget, WidgetConfig, RongKefu) {
+    runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongCustomerService"];
+    function runApp($http, WebIMWidget, WidgetConfig, RongCustomerService) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.1.3.min.js", function () {
-            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.1.3.min.js", function () {
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
-            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.1.3.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function () {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {
                 if (WidgetConfig._config.__isKefu) {
-                    RongKefu.init(WidgetConfig._config);
+                    RongCustomerService.init(WidgetConfig._config);
                 }
                 else {
                     WebIMWidget.init(WidgetConfig._config);
