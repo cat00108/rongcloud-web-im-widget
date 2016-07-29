@@ -12,7 +12,7 @@ demo.controller("main", ["$scope","$http","RongCustomerService", function($scope
         // kefuId:"KEFU146787560842415",
 
         appkey:"e0x9wycfx7flq",//xiaoqiao
-        token:"4FGXZfT05dvLJYDfnLTu8hnk1aK4cFsKdlugrlEUcJ1Up9M1NxrkDRCYrs3oWBKkSg8cGCMaW6mKOtbWRl67FOEToZ3N32hf",
+        token:"RPCyXkmB2ZTK4x+jaYXVhU9URnmOqIZtiIUxmNB69UC0IXIdtx7kpnek1bXpceZxNL15tvbD2D5Hy3/XN4QDRv9806s1JpIX",
         customerServiceId:"KEFUxiaoqiaoZhubajie1",
 
         reminder:"在线咨询",

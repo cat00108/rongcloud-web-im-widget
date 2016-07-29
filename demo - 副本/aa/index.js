@@ -32,7 +32,7 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
       },
       displayConversationList:true,
       conversationListPosition:WebIMWidget.EnumConversationListPosition.right,
-      // hiddenConversations:[{type:WebIMWidget.EnumConversationType.PRIVATE,id:'bb'}],
+      hiddenConversations:[{type:WebIMWidget.EnumConversationType.PRIVATE,id:'bb'}],
       onSuccess:function(id){
         console.log(id);
       },
@@ -44,38 +44,21 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
     WebIMWidget.show();
 
     WebIMWidget.setUserInfoProvider(function(targetId,obj){
-        // $http({
-        //   url:"/userinfo.json"
-        // }).success(function(rep){
-        //   var user;
-        //   rep.userlist.forEach(function(item){
-        //     if(item.id==targetId){
-        //       user=item;
-        //     }
-        //   })
-        //
-        //   if(user){
-        //     obj.onSuccess({id:user.id,name:user.name,portraitUri:user.portraitUri});
-        //   }else{
-        //     obj.onSuccess({id:targetId,name:"陌："+targetId});
-        //   }
-        // })
-        //
-        $.ajax({
+        $http({
           url:"/userinfo.json"
-        }).then(function(rep){
-            var user;
-            rep.userlist.forEach(function(item){
-              if(item.id==targetId){
-                user=item;
-              }
-            })
-
-            if(user){
-              obj.onSuccess({userId:user.id,name:user.name,portraitUri:user.portraitUri});
-            }else{
-              obj.onSuccess({userId:targetId,name:"陌："+targetId});
+        }).success(function(rep){
+          var user;
+          rep.userlist.forEach(function(item){
+            if(item.id==targetId){
+              user=item;
             }
+          })
+
+          if(user){
+            obj.onSuccess({id:user.id,name:user.name,portraitUri:user.portraitUri});
+          }else{
+            obj.onSuccess({id:targetId,name:"陌："+targetId});
+          }
         })
     });
 

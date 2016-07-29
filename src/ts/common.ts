@@ -114,6 +114,10 @@ module RongWebIMWidget {
             return type.substring(8, type.length - 1).toLowerCase();
         }
 
+        static isFunction(obj) {
+            return Helper.checkType(obj) === "function";
+        }
+        
         static ImageHelper = {
             getThumbnail(obj: any, area: number, callback: any) {
                 var canvas = document.createElement("canvas"),

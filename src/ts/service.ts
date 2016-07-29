@@ -34,8 +34,7 @@ module RongWebIMWidget {
             }
         }
 
-        getUserInfo: (targetId: string,
-            callback: CallBack<RongWebIMWidget.UserInfo>) => void
+        getUserInfo: (targetId: string) => ng.IPromise<RongWebIMWidget.UserInfo>
 
         getGroupInfo: (targetId: string,
             callback: CallBack<RongWebIMWidget.GroupInfo>) => void

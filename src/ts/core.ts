@@ -201,22 +201,19 @@ module RongWebIMWidget {
                 _this.conversationListServer.startRefreshOnlineStatus();
                 _this.conversationServer._handleConnectSuccess && _this.conversationServer._handleConnectSuccess();
 
-                if (RongWebIMWidget.Helper.checkType(_this.widgetConfig.onSuccess) == "function") {
+                if (RongWebIMWidget.Helper.isFunction(_this.widgetConfig.onSuccess)) {
                     _this.widgetConfig.onSuccess(userId);
                 }
-                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
-                    _this.providerdata.getUserInfo(userId, {
-                        onSuccess: function(data) {
-                            _this.providerdata.currentUserInfo =
-                                new RongWebIMWidget.UserInfo(data.userId,
-                                    data.name,
-                                    data.portraitUri
-                                )
-                        }
+                if (RongWebIMWidget.Helper.isFunction(_this.providerdata.getUserInfo)) {
+                    _this.providerdata.getUserInfo(userId).then(function(data) {
+                        _this.providerdata.currentUserInfo =
+                            new RongWebIMWidget.UserInfo(data.userId,
+                                data.name,
+                                data.portraitUri
+                            )
                     });
                 }
 
-                //_this.conversationServer._onConnectSuccess();
             }, function(err) {
                 if (err.tokenError) {
                     if (_this.widgetConfig.onError && typeof _this.widgetConfig.onError == "function") {
@@ -262,13 +259,9 @@ module RongWebIMWidget {
                     var msg = RongWebIMWidget.Message.convert(data);
 
                     if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
-                        _this.providerdata.getUserInfo(msg.senderUserId, {
-                            onSuccess: function(data) {
-                                if (data) {
-                                    msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
-                                }
-                            }
-                        })
+                        _this.providerdata.getUserInfo(msg.senderUserId).then(function(user) {
+                            msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                        });
                     }
 
                     switch (data.messageType) {
@@ -373,7 +366,31 @@ module RongWebIMWidget {
         }
 
         setUserInfoProvider(fun) {
-            this.providerdata.getUserInfo = fun;
+            var that = this;
+            this.providerdata.getUserInfo = function(id) {
+                var defer = that.$q.defer();
+                var user = that.providerdata._getCacheUserInfo(id);
+                if (user) {
+                    defer.resolve(user)
+                } else {
+                    setTimeout(function() {
+                        fun(id, {
+                            onSuccess: function(user) {
+                                that.providerdata._addUserInfo(user);
+                                defer.resolve(user);
+                            },
+                            onError: function() {
+                                defer.reject();
+                            }
+                        });
+                    });
+                    setTimeout(function() {
+                        console.log(defer.reject());
+                    }, 1000 * 10);
+                }
+
+                return defer.promise;
+            }
         }
 
         setGroupInfoProvider(fun) {

@@ -10224,9 +10224,6 @@ var RongWebIMWidget;
             var type = Object.prototype.toString.call(obj);
             return type.substring(8, type.length - 1).toLowerCase();
         };
-        Helper.isFunction = function (obj) {
-            return Helper.checkType(obj) === "function";
-        };
         Helper.browser = {
             version: (userAgent.match(/.+(?:rv|it|ra|chrome|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
             safari: /webkit/.test(userAgent),
@@ -11352,14 +11349,11 @@ var RongWebIMWidget;
                                     _this.addCustomServiceInfo(msg);
                                     if (msg.content && _this.providerdata.getUserInfo) {
                                         (function (msg) {
-                                            _this.providerdata.getUserInfo(msg.senderUserId).then(function (obj) {
-                                                msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                            _this.providerdata.getUserInfo(msg.senderUserId, {
+                                                onSuccess: function (obj) {
+                                                    msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                                }
                                             });
-                                            // _this.providerdata.getUserInfo(msg.senderUserId, {
-                                            //     onSuccess: function(obj) {
-                                            //         msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                            //     }
-                                            // })
                                         })(msg);
                                     }
                                     break;
@@ -11581,13 +11575,15 @@ var RongWebIMWidget;
                             }
                             switch (con.targetType) {
                                 case RongIMLib.ConversationType.PRIVATE:
-                                    if (angular.isFunction(_this.providerdata.getUserInfo)) {
+                                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
                                         (function (a, b) {
-                                            _this.providerdata.getUserInfo(a.targetId).then(function (data) {
-                                                a.title = data.name;
-                                                a.portraitUri = data.portraitUri;
-                                                b.conversationTitle = data.name;
-                                                b.portraitUri = data.portraitUri;
+                                            _this.providerdata.getUserInfo(a.targetId, {
+                                                onSuccess: function (data) {
+                                                    a.title = data.name;
+                                                    a.portraitUri = data.portraitUri;
+                                                    b.conversationTitle = data.name;
+                                                    b.portraitUri = data.portraitUri;
+                                                }
                                             });
                                         }(con, data[i]));
                                     }
@@ -11811,15 +11807,18 @@ var RongWebIMWidget;
                 _this.conversationListServer.updateConversations();
                 _this.conversationListServer.startRefreshOnlineStatus();
                 _this.conversationServer._handleConnectSuccess && _this.conversationServer._handleConnectSuccess();
-                if (RongWebIMWidget.Helper.isFunction(_this.widgetConfig.onSuccess)) {
+                if (RongWebIMWidget.Helper.checkType(_this.widgetConfig.onSuccess) == "function") {
                     _this.widgetConfig.onSuccess(userId);
                 }
-                if (RongWebIMWidget.Helper.isFunction(_this.providerdata.getUserInfo)) {
-                    _this.providerdata.getUserInfo(userId).then(function (data) {
-                        _this.providerdata.currentUserInfo =
-                            new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
+                    _this.providerdata.getUserInfo(userId, {
+                        onSuccess: function (data) {
+                            _this.providerdata.currentUserInfo =
+                                new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                        }
                     });
                 }
+                //_this.conversationServer._onConnectSuccess();
             }, function (err) {
                 if (err.tokenError) {
                     if (_this.widgetConfig.onError && typeof _this.widgetConfig.onError == "function") {
@@ -11862,8 +11861,12 @@ var RongWebIMWidget;
                     _this.$log.debug(data);
                     var msg = RongWebIMWidget.Message.convert(data);
                     if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
-                        _this.providerdata.getUserInfo(msg.senderUserId).then(function (user) {
-                            msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                        _this.providerdata.getUserInfo(msg.senderUserId, {
+                            onSuccess: function (data) {
+                                if (data) {
+                                    msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                                }
+                            }
                         });
                     }
                     switch (data.messageType) {
@@ -11958,31 +11961,7 @@ var RongWebIMWidget;
             this.conversationServer.changeConversation(new RongWebIMWidget.Conversation(targetType, targetId, title));
         };
         WebIMWidget.prototype.setUserInfoProvider = function (fun) {
-            var that = this;
-            this.providerdata.getUserInfo = function (id) {
-                var defer = that.$q.defer();
-                var user = that.providerdata._getCacheUserInfo(id);
-                if (user) {
-                    defer.resolve(user);
-                }
-                else {
-                    setTimeout(function () {
-                        fun(id, {
-                            onSuccess: function (user) {
-                                that.providerdata._addUserInfo(user);
-                                defer.resolve(user);
-                            },
-                            onError: function () {
-                                defer.reject();
-                            }
-                        });
-                    });
-                    setTimeout(function () {
-                        console.log(defer.reject());
-                    }, 1000 * 10);
-                }
-                return defer.promise;
-            };
+            this.providerdata.getUserInfo = fun;
         };
         WebIMWidget.prototype.setGroupInfoProvider = function (fun) {
             this.providerdata.getGroupInfo = fun;
@@ -12201,8 +12180,8 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongCustomerService"];
     function runApp($http, WebIMWidget, WidgetConfig, RongCustomerService) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function () {
-            // $script.get("../lib/RongIMLib.js", function() {
+        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function() {
+        $script.get("../lib/RongIMLib.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });

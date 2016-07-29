@@ -87,11 +87,14 @@ module RongWebIMWidget.conversation {
                                 _this.addCustomServiceInfo(msg);
                                 if (msg.content && _this.providerdata.getUserInfo) {
                                     (function(msg) {
-                                        _this.providerdata.getUserInfo(msg.senderUserId, {
-                                            onSuccess: function(obj) {
-                                                msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                            }
-                                        })
+                                        _this.providerdata.getUserInfo(msg.senderUserId).then(function(obj) {
+                                            msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                        });
+                                        // _this.providerdata.getUserInfo(msg.senderUserId, {
+                                        //     onSuccess: function(obj) {
+                                        //         msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                        //     }
+                                        // })
                                     })(msg)
                                 }
                                 break;

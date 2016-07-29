@@ -63,15 +63,13 @@ module RongWebIMWidget.conversationlist {
 
                         switch (con.targetType) {
                             case RongIMLib.ConversationType.PRIVATE:
-                                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
+                                if (angular.isFunction(_this.providerdata.getUserInfo)) {
                                     (function(a, b) {
-                                        _this.providerdata.getUserInfo(a.targetId, {
-                                            onSuccess: function(data) {
-                                                a.title = data.name;
-                                                a.portraitUri = data.portraitUri;
-                                                b.conversationTitle = data.name;
-                                                b.portraitUri = data.portraitUri;
-                                            }
+                                        _this.providerdata.getUserInfo(a.targetId).then(function(data) {
+                                            a.title = data.name;
+                                            a.portraitUri = data.portraitUri;
+                                            b.conversationTitle = data.name;
+                                            b.portraitUri = data.portraitUri;
                                         })
                                     } (con, data[i]));
                                 }
