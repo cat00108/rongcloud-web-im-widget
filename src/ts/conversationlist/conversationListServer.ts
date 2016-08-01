@@ -75,16 +75,14 @@ module RongWebIMWidget.conversationlist {
                                 }
                                 break;
                             case RongIMLib.ConversationType.GROUP:
-                                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getGroupInfo) == "function") {
+                                if (angular.isFunction(_this.providerdata.getGroupInfo)) {
                                     (function(a, b) {
-                                        _this.providerdata.getGroupInfo(a.targetId, {
-                                            onSuccess: function(data) {
-                                                a.title = data.name;
-                                                a.portraitUri = data.portraitUri;
-                                                b.conversationTitle = data.name;
-                                                b.portraitUri = data.portraitUri;
-                                            }
-                                        })
+                                        _this.providerdata.getGroupInfo(a.targetId).then(function(data) {
+                                            a.title = data.name;
+                                            a.portraitUri = data.portraitUri;
+                                            b.conversationTitle = data.name;
+                                            b.portraitUri = data.portraitUri;
+                                        });
                                     } (con, data[i]))
                                 }
                                 break;

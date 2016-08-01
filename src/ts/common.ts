@@ -54,6 +54,7 @@ module RongWebIMWidget {
                 str = str.replace(/&gt;/g, '>');
                 str = str.replace(/&quot;/g, '"');
                 str = str.replace(/&#039;/g, '\'');
+                str = str.replace(/&nbsp;/g, ' ');
                 return str;
             }
         }
@@ -117,7 +118,7 @@ module RongWebIMWidget {
         static isFunction(obj) {
             return Helper.checkType(obj) === "function";
         }
-        
+
         static ImageHelper = {
             getThumbnail(obj: any, area: number, callback: any) {
                 var canvas = document.createElement("canvas"),
@@ -324,20 +325,27 @@ module RongWebIMWidget {
             if (!ngModel) return;
 
             element.bind("paste", function(e: any) {
-                var that = this, ohtml = that.innerHTML;
-                timeoutid && clearTimeout(timeoutid);
-                var timeoutid = setTimeout(function() {
-                    that.innerHTML = replacemy(that.innerHTML);
-                    ngModel.$setViewValue(that.innerHTML);
-                    timeoutid = null;
-                }, 50);
+                var that = this;
+                var content;
+                if (e.clipboardData || e.originalEvent) {
+                    // originalEvent jQuery中的
+                    content = (e.originalEvent || e).clipboardData.getData('text/plain');
+                    content = replacemy(content);
+                    document.execCommand('insertText', false, content);
+                } else if (window['clipboardData']) {
+                    content = window['clipboardData'].getData('Text');
+                    content = replacemy(content);
+                    document['selection'].createRange().pasteHTML(content);
+                }
+                ngModel.$setViewValue(that.innerHTML);
+                e.preventDefault();
             });
 
             ngModel.$render = function() {
                 element.html(ngModel.$viewValue || '');
             };
 
-            element.bind("keydown paste", read);
+            element.bind("keyup paste", read);
             element.bind("input", read);
 
             function read() {

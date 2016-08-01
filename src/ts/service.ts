@@ -16,7 +16,7 @@ module RongWebIMWidget {
         currentUserInfo: RongWebIMWidget.UserInfo = <any>{}
         _productInfo: any;
 
-        _getCacheUserInfo(id) {
+        _getCacheUserInfo(id: string) {
             for (var i = 0, len = this._cacheUserInfo.length; i < len; i++) {
                 if (this._cacheUserInfo[i].userId == id) {
                     return this._cacheUserInfo[i];
@@ -26,6 +26,10 @@ module RongWebIMWidget {
         }
 
         _addUserInfo(user: RongWebIMWidget.UserInfo) {
+            if (!user.userId || !angular.isString(user.userId)) {
+                console.warn("setUserInfoProvider 返回用户信息无 userId 无法缓存");
+                return;
+            }
             var olduser = this._getCacheUserInfo(user.userId);
             if (olduser) {
                 angular.extend(olduser, user);
@@ -34,10 +38,34 @@ module RongWebIMWidget {
             }
         }
 
+        _getCacheGroupInfo(id: string) {
+            for (var i = 0, len = this._cacheGroupInfo.length; i < len; i++) {
+                if (this._cacheGroupInfo[i].id == id) {
+                    return this._cacheGroupInfo[i];
+                }
+            }
+            return null;
+        }
+
+        _addGroupInfo(group: RongWebIMWidget.GroupInfo) {
+            if (!group.id || !angular.isString(group.id)) {
+                console.warn("setGroupInfoProvider 返回组信息无 id 无法缓存");
+                return;
+            }
+            var oldgroup = this._getCacheGroupInfo(group.id);
+            if (oldgroup) {
+                angular.extend(oldgroup, group);
+            } else {
+                this._cacheGroupInfo.push(group);
+            }
+        }
+
         getUserInfo: (targetId: string) => ng.IPromise<RongWebIMWidget.UserInfo>
 
-        getGroupInfo: (targetId: string,
-            callback: CallBack<RongWebIMWidget.GroupInfo>) => void
+        getGroupInfo: (targetId: string) => ng.IPromise<RongWebIMWidget.UserInfo>
+
+        // getGroupInfo: (targetId: string,
+        //     callback: CallBack<RongWebIMWidget.GroupInfo>) => void
 
         getOnlineStatus: (targetId: string[],
             callback: CallBack<{ id: string, status: boolean }[]>) => void

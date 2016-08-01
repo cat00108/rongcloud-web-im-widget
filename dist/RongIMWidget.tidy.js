@@ -80,6 +80,9 @@ var RongWebIMWidget;
             var type = Object.prototype.toString.call(obj);
             return type.substring(8, type.length - 1).toLowerCase();
         };
+        Helper.isFunction = function (obj) {
+            return Helper.checkType(obj) === "function";
+        };
         Helper.browser = {
             version: (userAgent.match(/.+(?:rv|it|ra|chrome|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
             safari: /webkit/.test(userAgent),
@@ -107,6 +110,7 @@ var RongWebIMWidget;
                 str = str.replace(/&gt;/g, '>');
                 str = str.replace(/&quot;/g, '"');
                 str = str.replace(/&#039;/g, '\'');
+                str = str.replace(/&nbsp;/g, ' ');
                 return str;
             }
         };
@@ -332,18 +336,26 @@ var RongWebIMWidget;
             if (!ngModel)
                 return;
             element.bind("paste", function (e) {
-                var that = this, ohtml = that.innerHTML;
-                timeoutid && clearTimeout(timeoutid);
-                var timeoutid = setTimeout(function () {
-                    that.innerHTML = replacemy(that.innerHTML);
-                    ngModel.$setViewValue(that.innerHTML);
-                    timeoutid = null;
-                }, 50);
+                var that = this;
+                var content;
+                if (e.clipboardData || e.originalEvent) {
+                    // originalEvent jQuery中的
+                    content = (e.originalEvent || e).clipboardData.getData('text/plain');
+                    content = replacemy(content);
+                    document.execCommand('insertText', false, content);
+                }
+                else if (window['clipboardData']) {
+                    content = window['clipboardData'].getData('Text');
+                    content = replacemy(content);
+                    document['selection'].createRange().pasteHTML(content);
+                }
+                ngModel.$setViewValue(that.innerHTML);
+                e.preventDefault();
             });
             ngModel.$render = function () {
                 element.html(ngModel.$viewValue || '');
             };
-            element.bind("keydown paste", read);
+            element.bind("keyup paste", read);
             element.bind("input", read);
             function read() {
                 var html = element.html();
@@ -1205,11 +1217,14 @@ var RongWebIMWidget;
                                     _this.addCustomServiceInfo(msg);
                                     if (msg.content && _this.providerdata.getUserInfo) {
                                         (function (msg) {
-                                            _this.providerdata.getUserInfo(msg.senderUserId, {
-                                                onSuccess: function (obj) {
-                                                    msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                                }
+                                            _this.providerdata.getUserInfo(msg.senderUserId).then(function (obj) {
+                                                msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
                                             });
+                                            // _this.providerdata.getUserInfo(msg.senderUserId, {
+                                            //     onSuccess: function(obj) {
+                                            //         msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
+                                            //     }
+                                            // })
                                         })(msg);
                                     }
                                     break;
@@ -1431,29 +1446,25 @@ var RongWebIMWidget;
                             }
                             switch (con.targetType) {
                                 case RongIMLib.ConversationType.PRIVATE:
-                                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
+                                    if (angular.isFunction(_this.providerdata.getUserInfo)) {
                                         (function (a, b) {
-                                            _this.providerdata.getUserInfo(a.targetId, {
-                                                onSuccess: function (data) {
-                                                    a.title = data.name;
-                                                    a.portraitUri = data.portraitUri;
-                                                    b.conversationTitle = data.name;
-                                                    b.portraitUri = data.portraitUri;
-                                                }
+                                            _this.providerdata.getUserInfo(a.targetId).then(function (data) {
+                                                a.title = data.name;
+                                                a.portraitUri = data.portraitUri;
+                                                b.conversationTitle = data.name;
+                                                b.portraitUri = data.portraitUri;
                                             });
                                         }(con, data[i]));
                                     }
                                     break;
                                 case RongIMLib.ConversationType.GROUP:
-                                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getGroupInfo) == "function") {
+                                    if (angular.isFunction(_this.providerdata.getGroupInfo)) {
                                         (function (a, b) {
-                                            _this.providerdata.getGroupInfo(a.targetId, {
-                                                onSuccess: function (data) {
-                                                    a.title = data.name;
-                                                    a.portraitUri = data.portraitUri;
-                                                    b.conversationTitle = data.name;
-                                                    b.portraitUri = data.portraitUri;
-                                                }
+                                            _this.providerdata.getGroupInfo(a.targetId).then(function (data) {
+                                                a.title = data.name;
+                                                a.portraitUri = data.portraitUri;
+                                                b.conversationTitle = data.name;
+                                                b.portraitUri = data.portraitUri;
                                             });
                                         }(con, data[i]));
                                     }
@@ -1545,7 +1556,7 @@ var RongWebIMWidget;
     })();
     var eleConversationListWidth = 195, eleminbtnHeight = 50, eleminbtnWidth = 195, spacing = 3;
     var WebIMWidget = (function () {
-        function WebIMWidget($q, conversationServer, conversationListServer, providerdata, widgetConfig, RongIMSDKServer, $log) {
+        function WebIMWidget($q, conversationServer, conversationListServer, providerdata, widgetConfig, RongIMSDKServer, $log, $timeout) {
             this.$q = $q;
             this.conversationServer = conversationServer;
             this.conversationListServer = conversationListServer;
@@ -1553,6 +1564,7 @@ var RongWebIMWidget;
             this.widgetConfig = widgetConfig;
             this.RongIMSDKServer = RongIMSDKServer;
             this.$log = $log;
+            this.$timeout = $timeout;
             this.display = false;
             this.connected = false;
             this.EnumConversationType = RongWebIMWidget.EnumConversationType;
@@ -1663,18 +1675,15 @@ var RongWebIMWidget;
                 _this.conversationListServer.updateConversations();
                 _this.conversationListServer.startRefreshOnlineStatus();
                 _this.conversationServer._handleConnectSuccess && _this.conversationServer._handleConnectSuccess();
-                if (RongWebIMWidget.Helper.checkType(_this.widgetConfig.onSuccess) == "function") {
+                if (RongWebIMWidget.Helper.isFunction(_this.widgetConfig.onSuccess)) {
                     _this.widgetConfig.onSuccess(userId);
                 }
-                if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function") {
-                    _this.providerdata.getUserInfo(userId, {
-                        onSuccess: function (data) {
-                            _this.providerdata.currentUserInfo =
-                                new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
-                        }
+                if (RongWebIMWidget.Helper.isFunction(_this.providerdata.getUserInfo)) {
+                    _this.providerdata.getUserInfo(userId).then(function (data) {
+                        _this.providerdata.currentUserInfo =
+                            new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
                     });
                 }
-                //_this.conversationServer._onConnectSuccess();
             }, function (err) {
                 if (err.tokenError) {
                     if (_this.widgetConfig.onError && typeof _this.widgetConfig.onError == "function") {
@@ -1717,12 +1726,8 @@ var RongWebIMWidget;
                     _this.$log.debug(data);
                     var msg = RongWebIMWidget.Message.convert(data);
                     if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
-                        _this.providerdata.getUserInfo(msg.senderUserId, {
-                            onSuccess: function (data) {
-                                if (data) {
-                                    msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
-                                }
-                            }
+                        _this.providerdata.getUserInfo(msg.senderUserId).then(function (user) {
+                            msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
                         });
                     }
                     switch (data.messageType) {
@@ -1817,10 +1822,59 @@ var RongWebIMWidget;
             this.conversationServer.changeConversation(new RongWebIMWidget.Conversation(targetType, targetId, title));
         };
         WebIMWidget.prototype.setUserInfoProvider = function (fun) {
-            this.providerdata.getUserInfo = fun;
+            var that = this;
+            this.providerdata.getUserInfo = function (id) {
+                var defer = that.$q.defer();
+                var user = that.providerdata._getCacheUserInfo(id);
+                var timeout = null;
+                if (user) {
+                    defer.resolve(user);
+                }
+                else {
+                    that.$timeout(function () {
+                        fun(id, {
+                            onSuccess: function (user) {
+                                that.providerdata._addUserInfo(user);
+                                that.$timeout.cancel(timeout);
+                                defer.resolve(user);
+                            },
+                            onError: function () {
+                                that.$timeout.cancel(timeout);
+                                defer.reject();
+                            }
+                        });
+                    });
+                }
+                return defer.promise;
+            };
         };
         WebIMWidget.prototype.setGroupInfoProvider = function (fun) {
-            this.providerdata.getGroupInfo = fun;
+            var that = this;
+            this.providerdata.getGroupInfo = function (id) {
+                var defer = that.$q.defer();
+                var group = that.providerdata._getCacheGroupInfo(id);
+                var timeout = null;
+                if (group) {
+                    defer.resolve(group);
+                }
+                else {
+                    that.$timeout(function () {
+                        fun(id, {
+                            onSuccess: function (group) {
+                                that.providerdata._addGroupInfo(group);
+                                that.$timeout.cancel(timeout);
+                                defer.resolve(group);
+                            },
+                            onError: function () {
+                                that.$timeout.cancel(timeout);
+                                defer.reject();
+                            }
+                        });
+                    });
+                }
+                return defer.promise;
+            };
+            // this.providerdata.getGroupInfo = fun;
         };
         WebIMWidget.prototype.setOnlineStatusProvider = function (fun) {
             this.providerdata.getOnlineStatus = fun;
@@ -1848,7 +1902,8 @@ var RongWebIMWidget;
             "ProviderData",
             "WidgetConfig",
             "RongIMSDKServer",
-            "$log"];
+            "$log",
+            "$timeout"];
         return WebIMWidget;
     })();
     RongWebIMWidget.WebIMWidget = WebIMWidget;
@@ -2036,23 +2091,24 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongCustomerService"];
     function runApp($http, WebIMWidget, WidgetConfig, RongCustomerService) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function () {
-            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function () {
-                RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
-            });
-            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function () {
-                RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
-            });
-            if (WidgetConfig._config) {
-                if (WidgetConfig._config.__isKefu) {
-                    RongCustomerService.init(WidgetConfig._config);
+        $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function () {
+                $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function () {
+                    RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
+                });
+                $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function () {
+                    RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
+                });
+                if (WidgetConfig._config) {
+                    if (WidgetConfig._config.__isKefu) {
+                        RongCustomerService.init(WidgetConfig._config);
+                    }
+                    else {
+                        WebIMWidget.init(WidgetConfig._config);
+                    }
                 }
-                else {
-                    WebIMWidget.init(WidgetConfig._config);
-                }
-            }
+            });
         });
-        $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function () { });
     }
     var rongWidget = (function () {
         function rongWidget() {
@@ -2470,8 +2526,8 @@ var RongWebIMWidget;
     })();
     RongWebIMWidget.UserInfo = UserInfo;
     var GroupInfo = (function () {
-        function GroupInfo(userId, name, portraitUri) {
-            this.userId = userId;
+        function GroupInfo(id, name, portraitUri) {
+            this.id = id;
             this.name = name;
             this.portraitUri = portraitUri;
         }
@@ -2876,12 +2932,37 @@ var RongWebIMWidget;
             return null;
         };
         ProviderData.prototype._addUserInfo = function (user) {
+            if (!user.userId || !angular.isString(user.userId)) {
+                console.warn("setUserInfoProvider 返回用户信息无 userId 无法缓存");
+                return;
+            }
             var olduser = this._getCacheUserInfo(user.userId);
             if (olduser) {
                 angular.extend(olduser, user);
             }
             else {
                 this._cacheUserInfo.push(user);
+            }
+        };
+        ProviderData.prototype._getCacheGroupInfo = function (id) {
+            for (var i = 0, len = this._cacheGroupInfo.length; i < len; i++) {
+                if (this._cacheGroupInfo[i].id == id) {
+                    return this._cacheGroupInfo[i];
+                }
+            }
+            return null;
+        };
+        ProviderData.prototype._addGroupInfo = function (group) {
+            if (!group.id || !angular.isString(group.id)) {
+                console.warn("setGroupInfoProvider 返回组信息无 id 无法缓存");
+                return;
+            }
+            var oldgroup = this._getCacheGroupInfo(group.id);
+            if (oldgroup) {
+                angular.extend(oldgroup, group);
+            }
+            else {
+                this._cacheGroupInfo.push(group);
             }
         };
         return ProviderData;

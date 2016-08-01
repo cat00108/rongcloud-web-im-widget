@@ -59,7 +59,8 @@ module RongWebIMWidget {
             "ProviderData",
             "WidgetConfig",
             "RongIMSDKServer",
-            "$log"];
+            "$log",
+            "$timeout"];
 
         display: boolean = false;
         connected: boolean = false;
@@ -70,7 +71,8 @@ module RongWebIMWidget {
             private providerdata: RongWebIMWidget.ProviderData,
             private widgetConfig: RongWebIMWidget.WidgetConfig,
             private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer,
-            private $log: ng.ILogService) {
+            private $log: ng.ILogService,
+            private $timeout: ng.ITimeoutService) {
 
         }
 
@@ -367,26 +369,31 @@ module RongWebIMWidget {
 
         setUserInfoProvider(fun) {
             var that = this;
+
             this.providerdata.getUserInfo = function(id) {
                 var defer = that.$q.defer();
                 var user = that.providerdata._getCacheUserInfo(id);
+                var timeout = null;
                 if (user) {
                     defer.resolve(user)
                 } else {
-                    setTimeout(function() {
+                    that.$timeout(function() {
                         fun(id, {
                             onSuccess: function(user) {
                                 that.providerdata._addUserInfo(user);
+                                that.$timeout.cancel(timeout);
                                 defer.resolve(user);
                             },
                             onError: function() {
+                                that.$timeout.cancel(timeout);
                                 defer.reject();
                             }
                         });
                     });
-                    setTimeout(function() {
-                        console.log(defer.reject());
-                    }, 1000 * 10);
+                    //用户信息返回超时处理
+                    // timeout = that.$timeout(function() {
+                    //     defer.reject();
+                    // }, 1000 * 100);
                 }
 
                 return defer.promise;
@@ -394,7 +401,39 @@ module RongWebIMWidget {
         }
 
         setGroupInfoProvider(fun) {
-            this.providerdata.getGroupInfo = fun;
+
+            var that = this;
+
+            this.providerdata.getGroupInfo = function(id) {
+                var defer = that.$q.defer();
+                var group = that.providerdata._getCacheGroupInfo(id);
+                var timeout = null;
+                if (group) {
+                    defer.resolve(group)
+                } else {
+                    that.$timeout(function() {
+                        fun(id, {
+                            onSuccess: function(group) {
+                                that.providerdata._addGroupInfo(group);
+                                that.$timeout.cancel(timeout);
+                                defer.resolve(group);
+                            },
+                            onError: function() {
+                                that.$timeout.cancel(timeout);
+                                defer.reject();
+                            }
+                        });
+                    });
+                    //组信息返回超时处理
+                    // timeout = that.$timeout(function() {
+                    //     defer.reject();
+                    // }, 1000 * 100);
+                }
+
+                return defer.promise;
+            }
+
+            // this.providerdata.getGroupInfo = fun;
         }
 
         setOnlineStatusProvider(fun) {

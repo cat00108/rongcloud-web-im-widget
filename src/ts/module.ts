@@ -324,11 +324,11 @@ module RongWebIMWidget {
     }
 
     export class GroupInfo {
-        userId: string;
+        id: string;
         name: string;
         portraitUri: string;
-        constructor(userId: string, name: string, portraitUri?: string) {
-            this.userId = userId;
+        constructor(id: string, name: string, portraitUri?: string) {
+            this.id = id;
             this.name = name;
             this.portraitUri = portraitUri;
         }
