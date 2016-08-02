@@ -2,13 +2,7 @@ module RongWebIMWidget.conversation {
     var factory = RongWebIMWidget.DirectiveFactory.GetFactoryFor;
 
     class rongConversation {
-
-        static $inject: string[] = ["ConversationServer"];
-
-        constructor(private conversationServer: RongWebIMWidget.conversation.IConversationService) {
-
-        }
-
+      
         restrict: string = "E";
         templateUrl: string = "./src/ts/conversation/conversation.tpl.html";
         controller: string = "conversationController";
@@ -63,7 +57,7 @@ module RongWebIMWidget.conversation {
         '<div class="rongcloud-Message-text"><pre class="rongcloud-Message-entry" ng-bind-html="msg.content|trustHtml"><br></pre></div>' +
         '</div>';
         link(scope: any, ele: angular.IRootElementService, attr: any) {
-          
+
         }
     }
 
@@ -194,6 +188,32 @@ module RongWebIMWidget.conversation {
         '</div>';
     }
 
+    class customerservicegroupmessage {
+
+        restrict: string = "E";
+        scope: any = { msg: "=" };
+        template: string = '<div class="">' +
+        '<div class="rongcloud-Message-text"><span class="rongcloud-Message-entry">' +
+        '<div class="rongcloud-customerservicegroupBox">' +
+        '<h4>{{msg.title}}</h4>' +
+        '<ul><li ng-repeat="group in msg.groups" ng-click="start(group)">{{group.name}}</li></ul>' +
+        '</div>' +
+        '</span></div>' +
+        '</div>';
+        link(scope: any, ele: ng.IRootElementService, attr: ng.IAttributes) {
+            var that = this;
+            scope.start = function(group) {
+                if (group && group.id) {
+                    RongIMLib.RongIMClient.getInstance().startCustomService(group.customerServiceId, {
+                        onSuccess: function() {
+
+                        }
+                    }, group.id)
+                }
+            }
+        }
+    }
+
     angular.module("RongWebIMWidget.conversation")
         .directive("rongConversation", factory(rongConversation))
         .directive("emoji", factory(emoji))
@@ -202,5 +222,6 @@ module RongWebIMWidget.conversation {
         .directive("imagemessage", factory(imagemessage))
         .directive("voicemessage", factory(voicemessage))
         .directive("locationmessage", factory(locationmessage))
-        .directive("richcontentmessage", factory(richcontentmessage));
+        .directive("richcontentmessage", factory(richcontentmessage))
+        .directive("customerservicegroupmessage", factory(customerservicegroupmessage));
 }

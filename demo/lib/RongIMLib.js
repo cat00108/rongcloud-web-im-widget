@@ -1815,10 +1815,11 @@ var RongIMLib;
         RongIMClient.prototype.disconnect = function () {
             RongIMClient.bridge.disconnect();
         };
-        RongIMClient.prototype.startCustomService = function (custId, callback) {
+        RongIMClient.prototype.startCustomService = function (custId, callback, groupid) {
             if (!custId || !callback)
                 return;
             var msg = new RongIMLib.HandShakeMessage();
+            msg.groupid = groupid || "0";
             var me = this;
             RongIMLib.RongIMClient._memoryStore.custStore["isInit"] = true;
             RongIMClient.getInstance().sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, custId, msg, {
@@ -6260,6 +6261,7 @@ var RongIMLib;
             this.suggest = message.suggest;
             this.isresolve = message.isresolve;
             this.type = message.type;
+            this.groupid = message.groupid;
         }
         EvaluateMessage.obtain = function () {
             return null;

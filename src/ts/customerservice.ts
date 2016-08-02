@@ -6,7 +6,7 @@ module RongWebIMWidget {
 
     export class RongCustomerService {
 
-        static $inject: string[] = ["WebIMWidget"];
+        static $inject: string[] = ["WebIMWidget", "SelfCustomerService"];
 
         defaultconfig: any = {
             __isCustomerService: true
@@ -14,12 +14,13 @@ module RongWebIMWidget {
 
         Position: any = Position
 
-        constructor(private WebIMWidget: RongWebIMWidget.WebIMWidget) {
+        constructor(private WebIMWidget: RongWebIMWidget.WebIMWidget,
+            private SelfCustomerService: RongWebIMWidget.SelfCustomerService) {
 
         }
 
         init(config) {
-            var _this = this;
+            var that = this;
             angular.extend(this.defaultconfig, config)
             var style = <any>{
                 right: 20
@@ -47,9 +48,21 @@ module RongWebIMWidget {
             }
             this.defaultconfig.style = style;
 
-            _this.WebIMWidget.init(this.defaultconfig);
-            _this.WebIMWidget.onShow = function() {
-                _this.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.customerServiceId, "客服");
+            that.WebIMWidget.init(this.defaultconfig);
+
+            if (this.defaultconfig.customerServiceGroup && angular.isArray(this.defaultconfig.customerServiceGroup)) {
+                var arr = this.defaultconfig.customerServiceGroup;
+                var i = 0, len = arr.length;
+                this.SelfCustomerService.group = [];
+                for (; i < len; i++) {
+                    if (arr[i].id && arr[i].name) {
+                        this.SelfCustomerService.group.push({ id: arr[i].id, name: arr[i].name, customerServiceId: config.customerServiceId })
+                    }
+                }
+            }
+
+            that.WebIMWidget.onShow = function() {
+                that.WebIMWidget.setConversation(RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE, config.customerServiceId, "客服");
             }
         }
 
@@ -65,7 +78,13 @@ module RongWebIMWidget {
         }
     }
 
+    export class SelfCustomerService {
+        group: { id: string, name: string, customerServiceId: string }[]
+    }
+
     angular.module("RongWebIMWidget")
         .service("RongCustomerService", RongCustomerService);
+
+    angular.module("RongWebIMWidget").service("SelfCustomerService", SelfCustomerService)
 
 }

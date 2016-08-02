@@ -17,6 +17,8 @@ module RongWebIMWidget.conversation {
             name: string,
             headimgurl: string
         } = <any>{}
+
+        group: { id: string, name: string }[]
     }
 
     export interface IConversationService {
@@ -35,6 +37,8 @@ module RongWebIMWidget.conversation {
         addCustomServiceInfo(msg: RongWebIMWidget.Message): void
 
         _handleConnectSuccess(): void// 获取上传 token ，并初始化上传控件
+
+        selfSetCustomerServiceGroup(group: { id: string, name: string }[]): void
     }
 
     class conversationServer implements IConversationService {
@@ -158,7 +162,7 @@ module RongWebIMWidget.conversation {
                     }
                 } else {
                     msg.content.userInfo = {
-                        name: this._customService.robotName,
+                        name: this._customService.robotName || "客服",
                         portraitUri: this._customService.robotIcon,
                     }
                 }
@@ -171,6 +175,9 @@ module RongWebIMWidget.conversation {
             return msg;
         }
 
+        selfSetCustomerServiceGroup(group: { id: string, name: string }[]) {
+            this._customService.group = group;
+        }
 
 
         changeConversation: (conversation: RongWebIMWidget.Conversation) => void

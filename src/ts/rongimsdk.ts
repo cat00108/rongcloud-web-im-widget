@@ -70,7 +70,7 @@ module RongWebIMWidget {
             RongIMLib.RongIMClient.setConnectionStatusListener(option);
         }
 
-        startCustomService(targetId: string) {
+        startCustomService(targetId: string, groupid?: string) {
             var defer = this.$q.defer();
             RongIMLib.RongIMClient.getInstance().startCustomService(targetId, {
                 onSuccess: function() {
@@ -79,7 +79,7 @@ module RongWebIMWidget {
                 onError: function() {
                     defer.reject();
                 }
-            })
+            }, groupid);
             return defer.promise;
         }
 
@@ -314,6 +314,12 @@ module RongWebIMWidget {
             var objectName = "cs:product"; // 消息内置名称，请按照此格式命名。
             var mesasgeTag = new RongIMLib.MessageTag(true, true);// 消息是否保存是否计数，true true 保存且计数，false false 不保存不计数。
             var propertys = ["title", "url", "content", "imageUrl", "extra"]; // 消息类中的属性名。
+            RongIMLib.RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
+
+            var messageName = "CustomerServiceGroupMessage"; // 消息名称。
+            var objectName = "cs:groupinfo"; // 消息内置名称，请按照此格式命名。
+            var mesasgeTag = new RongIMLib.MessageTag(true, true);// 消息是否保存是否计数，true true 保存且计数，false false 不保存不计数。
+            var propertys = ["title", "groups", "extra"]; // 消息类中的属性名。
             RongIMLib.RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
         }
     }

@@ -327,18 +327,23 @@ module RongWebIMWidget {
             element.bind("paste", function(e: any) {
                 var that = this;
                 var content;
-                if (e.clipboardData || e.originalEvent) {
+                e.preventDefault();
+                if (e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData)) {
                     // originalEvent jQuery中的
                     content = (e.originalEvent || e).clipboardData.getData('text/plain');
-                    content = replacemy(content);
-                    document.execCommand('insertText', false, content);
+                    content = replacemy(content || '');
+                    content && document.execCommand('insertText', false, content);
                 } else if (window['clipboardData']) {
                     content = window['clipboardData'].getData('Text');
-                    content = replacemy(content);
-                    document['selection'].createRange().pasteHTML(content);
+                    content = replacemy(content || '');
+                    if (document['selection']) {
+                        content && document['selection'].createRange().pasteHTML(content);
+                    } else if (document.getSelection) {
+                        document.getSelection().getRangeAt(0).insertNode(document.createTextNode(content));
+                    }
                 }
+                console.log(that.innerHTML);
                 ngModel.$setViewValue(that.innerHTML);
-                e.preventDefault();
             });
 
             ngModel.$render = function() {

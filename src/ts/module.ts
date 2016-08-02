@@ -77,7 +77,8 @@ module RongWebIMWidget {
         ChangeModeResponseMessage: "ChangeModeResponseMessage",
         TerminateMessage: "TerminateMessage",
         CustomerStatusUpdateMessage: "CustomerStatusUpdateMessage",
-        ReadReceiptMessage: "ReadReceiptMessage"
+        ReadReceiptMessage: "ReadReceiptMessage",
+        CustomerServiceGroupMessage: "CustomerServiceGroupMessage"
     }
 
     export enum PanelType {
@@ -254,6 +255,13 @@ module RongWebIMWidget {
                     ter.code = SDKmsg.content.code;
                     msg.content = ter;
                     break;
+                case MessageType.CustomerServiceGroupMessage:
+                    var csg = new CustomerServiceGroupMessage();
+                    csg.title = SDKmsg.content.title;
+                    csg.groups = SDKmsg.content.groups;
+                    csg.customerServiceId = SDKmsg.content.customerServiceId;
+                    msg.content = csg;
+                    break;
                 default:
 
                     break;
@@ -420,6 +428,13 @@ module RongWebIMWidget {
         operation: string;
         extra: string;
         messageName: string;
+    }
+
+    export class CustomerServiceGroupMessage {
+        title: string;
+        groups: { id: string, name: string }[]
+        customerServiceId: string
+        extra: string
     }
 
     export class Conversation {

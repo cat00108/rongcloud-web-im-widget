@@ -718,7 +718,7 @@ declare module RongIMLib {
          * 断开连接。
          */
         disconnect(): void;
-        startCustomService(custId: string, callback: any): void;
+        startCustomService(custId: string, callback: any, groupid: string): void;
         stopCustomeService(custId: string, callback: any): void;
         switchToHumanMode(custId: string, callback: any): void;
         evaluateRebotCustomService(custId: string, isRobotResolved: boolean, sugest: string, callback: any): void;
