@@ -396,6 +396,61 @@ module RongWebIMWidget {
         }
     }
 
+   export class Scroll {
+        _isBottom: boolean
+
+        ele: Element;
+
+        constructor(ele: HTMLElement) {
+            this.ele = ele;
+            var that = this;
+            angular.element(ele).bind("scroll", function(event) {
+                var e = event.target;
+                that._isBottom = e.scrollTop + e.clientHeight == e.scrollHeight;
+                that.onScroll && that.onScroll(event);
+            })
+        }
+
+        onScroll: Function
+
+        scrollToBottom() {
+            this.ele.scrollTop = this.ele.scrollHeight;
+        }
+
+        scrollToChildEle(e: any) {
+            if (angular.isElement(e)) {
+                this.ele.scrollTop = e.offsetTop;
+            } else if (angular.isString(e)) {
+                this.ele.scrollTop = angular.element(document.querySelector(e))[0].offsetTop;
+            }
+        }
+
+        getScrollHeight(): number {
+            return this.ele.scrollHeight;
+        }
+
+        getScrollTop(): number {
+            return this.ele.scrollTop;
+        }
+        setScrollTop(num: number) {
+            this.ele.scrollTop = num;
+        }
+
+        getIsBottom(): boolean {
+            return this.ele.scrollTop + this.ele.clientHeight == this.ele.scrollHeight;
+        }
+
+        _recordScrollBottom: number = 0;
+
+        recordedPosition() {
+            this._recordScrollBottom = this.ele.scrollHeight - this.ele.scrollTop;
+        }
+
+        scrollToRecordPosition() {
+            this.setScrollTop(this.ele.scrollHeight - this._recordScrollBottom);
+        }
+    }
+
     angular.module("RongWebIMWidget")
         .directive('errSrc', errSrc.instance)
         .directive("contenteditableDire", DirectiveFactory.GetFactoryFor(contenteditableDire))

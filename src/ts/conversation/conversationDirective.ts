@@ -2,7 +2,7 @@ module RongWebIMWidget.conversation {
     var factory = RongWebIMWidget.DirectiveFactory.GetFactoryFor;
 
     class rongConversation {
-      
+
         restrict: string = "E";
         templateUrl: string = "./src/ts/conversation/conversation.tpl.html";
         controller: string = "conversationController";
@@ -17,12 +17,13 @@ module RongWebIMWidget.conversation {
                     'cursorborderradius': "5px"
                 });
             }
+            var scroll = new RongWebIMWidget.Scroll(document.getElementById("Messages"));
+
+            scope.scroll = scroll;
+
             scope.scrollBar = function() {
                 setTimeout(function() {
-                    var ele = document.getElementById("Messages");
-                    if (!ele)
-                        return;
-                    ele.scrollTop = ele.scrollHeight;
+                    scroll.scrollToBottom();
                 }, 200);
             }
         }
@@ -188,31 +189,38 @@ module RongWebIMWidget.conversation {
         '</div>';
     }
 
-    class customerservicegroupmessage {
-
-        restrict: string = "E";
-        scope: any = { msg: "=" };
-        template: string = '<div class="">' +
-        '<div class="rongcloud-Message-text"><span class="rongcloud-Message-entry">' +
-        '<div class="rongcloud-customerservicegroupBox">' +
-        '<h4>{{msg.title}}</h4>' +
-        '<ul><li ng-repeat="group in msg.groups" ng-click="start(group)">{{group.name}}</li></ul>' +
-        '</div>' +
-        '</span></div>' +
-        '</div>';
-        link(scope: any, ele: ng.IRootElementService, attr: ng.IAttributes) {
-            var that = this;
-            scope.start = function(group) {
-                if (group && group.id) {
-                    RongIMLib.RongIMClient.getInstance().startCustomService(group.customerServiceId, {
-                        onSuccess: function() {
-
-                        }
-                    }, group.id)
+    function customerservicegroupmessage(SelfCustomerService: RongWebIMWidget.SelfCustomerService) {
+        return {
+            restrict: "E",
+            scope: { msg: "=" },
+            template: '<div class="">' +
+            '<div class="rongcloud-Message-text"><span class="rongcloud-Message-entry">' +
+            '<div class="rongcloud-customerservicegroupBox">' +
+            '<h4>{{msg.title}}</h4>' +
+            '<ul><li ng-class="{\'disable-text\': disable}" ng-repeat="group in msg.groups" ng-click="start(group)" class="groupitem">{{group.name}}</li></ul>' +
+            '</div>' +
+            '</span></div>' +
+            '</div>',
+            link(scope: any, ele: ng.IRootElementService, attr: ng.IAttributes) {
+                var that = this;
+                scope.disable = false;
+                scope.start = function(group) {
+                    if (group && group.id && !SelfCustomerService.currentGroupId) {
+                        SelfCustomerService.currentGroupId = group.id;
+                        scope.disable = true;
+                        RongIMLib.RongIMClient.getInstance().startCustomService(group.customerServiceId, {
+                            onSuccess: function() {
+                            }
+                        }, group.id)
+                    }
                 }
             }
         }
     }
+
+    customerservicegroupmessage.$inject = ["SelfCustomerService"]
+
+    angular.module("RongWebIMWidget.conversation").directive("customerservicegroupmessage", customerservicegroupmessage);
 
     angular.module("RongWebIMWidget.conversation")
         .directive("rongConversation", factory(rongConversation))
@@ -222,6 +230,5 @@ module RongWebIMWidget.conversation {
         .directive("imagemessage", factory(imagemessage))
         .directive("voicemessage", factory(voicemessage))
         .directive("locationmessage", factory(locationmessage))
-        .directive("richcontentmessage", factory(richcontentmessage))
-        .directive("customerservicegroupmessage", factory(customerservicegroupmessage));
+        .directive("richcontentmessage", factory(richcontentmessage));
 }

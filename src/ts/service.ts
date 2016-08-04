@@ -14,7 +14,7 @@ module RongWebIMWidget {
         connectionState: boolean = false;
         voiceSound: boolean = false;
         currentUserInfo: RongWebIMWidget.UserInfo = <any>{}
-        _productInfo: any;
+        // _productInfo: any;
 
         _getCacheUserInfo(id: string) {
             for (var i = 0, len = this._cacheUserInfo.length; i < len; i++) {

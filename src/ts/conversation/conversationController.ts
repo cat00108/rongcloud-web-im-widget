@@ -8,6 +8,7 @@ module RongWebIMWidget.conversation {
         showemoji: boolean
         _inputPanelState: number
         messageList: any[]
+        scroll: RongWebIMWidget.Scroll
 
         conversation: {
             title: string
@@ -53,13 +54,13 @@ module RongWebIMWidget.conversation {
             private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer,
             private SelfCustomerService: RongWebIMWidget.SelfCustomerService) {
 
-            var _this = this;
+            var that = this;
 
             conversationServer.changeConversation = function(obj) {
-                _this.changeConversation(obj);
+                that.changeConversation(obj);
             }
             conversationServer.handleMessage = function(msg) {
-                _this.handleMessage(msg);
+                that.handleMessage(msg);
             }
 
             conversationServer._handleConnectSuccess = function() {
@@ -93,7 +94,7 @@ module RongWebIMWidget.conversation {
                             });
                         }
                     }
-                    _this.conversationServer._customService.connected = false;
+                    that.conversationServer._customService.connected = false;
                     RongIMLib.RongIMClient.getInstance().stopCustomeService(conversationServer.current.targetId, {
                         onSuccess: function() {
 
@@ -103,7 +104,7 @@ module RongWebIMWidget.conversation {
                         }
                     });
 
-                    _this.closeState();
+                    that.closeState();
                 },
                 onCancle: function() {
                     $scope.evaluate.showSelf = false;
@@ -156,10 +157,18 @@ module RongWebIMWidget.conversation {
                 var key = $scope.conversation.targetType + "_" + $scope.conversation.targetId;
                 var arr = conversationServer._cacheHistory[key];
                 arr.splice(0, arr.length);
+                // 自建客服 分组信息显示。
+                if ($scope.conversation.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && !conversationServer._customService.connected) {
+                    that.SelfCustomerService.selfCustomerServiceShowGroup(true);
+                }
+                $scope.scroll.recordedPosition();
                 conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20).then(function(data) {
                     if (data.has) {
                         conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
                     }
+                    setTimeout(function() {
+                        $scope.scroll.scrollToRecordPosition();
+                    }, 100);
                 });
             }
 
@@ -203,25 +212,16 @@ module RongWebIMWidget.conversation {
 
                 msg.user = userinfo;
 
-                try {
-                    RongIMLib.RongIMClient.getInstance().sendMessage(+$scope.conversation.targetType, $scope.conversation.targetId, msg, {
-                        onSuccess: function(retMessage: RongIMLib.Message) {
-
-                            conversationListServer.updateConversations().then(function() {
-
-                            });
-                        },
-                        onError: function(error) {
-
-                        }
-                    });
-
-                } catch (e) {
-
+                // 自建客服有分组是要带上分组 Id
+                if ($scope.conversation.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
+                    SelfCustomerService.sendMessageHandle(msg);
                 }
 
+                RongIMSDKServer.sendMessage(+$scope.conversation.targetType, $scope.conversation.targetId, msg);
 
-                var content = _this.packDisplaySendMessage(msg, RongWebIMWidget.MessageType.TextMessage);
+
+
+                var content = that.packDisplaySendMessage(msg, RongWebIMWidget.MessageType.TextMessage);
 
                 var cmsg = RongWebIMWidget.Message.convert(content);
                 conversationServer._addHistoryMessages(cmsg);
@@ -279,8 +279,10 @@ module RongWebIMWidget.conversation {
                                     onSuccess: function(url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function(obj: any, data: any) {
                                             var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
-
-                                            var content = _this.packDisplaySendMessage(im, RongWebIMWidget.MessageType.ImageMessage);
+                                            if ($scope.conversation.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
+                                                SelfCustomerService.sendMessageHandle(im);
+                                            }
+                                            var content = that.packDisplaySendMessage(im, RongWebIMWidget.MessageType.ImageMessage);
                                             RongIMLib.RongIMClient.getInstance()
                                                 .sendMessage($scope.conversation.targetType,
                                                 $scope.conversation.targetId,
@@ -334,10 +336,10 @@ module RongWebIMWidget.conversation {
                                         }
                                     });
                                     conversationServer._customService.connected = false;
-                                    _this.closeState();
+                                    that.closeState();
                                 }
                             } else {
-                                _this.closeState();
+                                that.closeState();
                             }
                         }
                     });
@@ -355,10 +357,10 @@ module RongWebIMWidget.conversation {
                                 }
                             });
                             conversationServer._customService.connected = false;
-                            _this.closeState();
+                            that.closeState();
                         }
                     } else {
-                        _this.closeState();
+                        that.closeState();
                     }
                 }
             }
@@ -419,13 +421,8 @@ module RongWebIMWidget.conversation {
                 if (!that.SelfCustomerService.group || that.SelfCustomerService.group.length === 0) {
                     that.RongIMSDKServer.startCustomService(obj.targetId);
                 } else {
-                    var msg = new RongIMLib.RongIMClient.RegisterMessage['CustomerServiceGroupMessage']({ title: "请选择咨询客服组", groups: that.SelfCustomerService.group })
-                    msg = that.packReceiveMessage(msg, "CustomerServiceGroupMessage");
-
-                    var wmsg = RongWebIMWidget.Message.convert(msg);
-
-                    that.conversationServer.addCustomServiceInfo(wmsg);
-                    that.conversationServer._addHistoryMessages(wmsg);
+                    that.SelfCustomerService.currentGroupId = "";
+                    that.SelfCustomerService.selfCustomerServiceShowGroup();
                 }
             }
 
@@ -479,14 +476,10 @@ module RongWebIMWidget.conversation {
                         if (msg.content.data.serviceType == "1") {//仅机器人
                             that.changeCustomerState(RongWebIMWidget.EnumInputPanelType.robot);
                             msg.content.data.robotWelcome
-                                && (systemMsg = this.packReceiveMessage(
-                                    RongIMLib.TextMessage.obtain(msg.content.data.robotWelcome),
-                                    RongWebIMWidget.MessageType.TextMessage));
+                                && (systemMsg = this.conversationServer.packReceiveMessage(RongIMLib.TextMessage.obtain(msg.content.data.robotWelcome)));
                         } else if (msg.content.data.serviceType == "3") {
                             msg.content.data.robotWelcome
-                                && (systemMsg = this.packReceiveMessage(
-                                    RongIMLib.TextMessage.obtain(msg.content.data.robotWelcome),
-                                    RongWebIMWidget.MessageType.TextMessage));
+                                && (systemMsg = this.conversationServer.packReceiveMessage(RongIMLib.TextMessage.obtain(msg.content.data.robotWelcome)));
                             that.changeCustomerState(RongWebIMWidget.EnumInputPanelType.robotSwitchPerson);
                         } else {
                             that.changeCustomerState(RongWebIMWidget.EnumInputPanelType.person);
@@ -497,7 +490,7 @@ module RongWebIMWidget.conversation {
                         setTimeout(function() {
                             that.$scope.evaluate.valid = true;
                         }, 60 * 1000);
-                        that.providerdata._productInfo && that.RongIMSDKServer.sendProductInfo(that.conversationServer.current.targetId, that.providerdata._productInfo);
+                        that.SelfCustomerService._productInfo && that.SelfCustomerService.sendProductInfo(that.conversationServer.current.targetId, that.SelfCustomerService._productInfo);
                         break;
                     case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                         switch (msg.content.data.status) {
@@ -515,13 +508,11 @@ module RongWebIMWidget.conversation {
                                 break;
                             case 3:
                                 that.changeCustomerState(RongWebIMWidget.EnumInputPanelType.robot);
-                                systemMsg = this.packReceiveMessage(RongIMLib.InformationNotificationMessage.obtain("你被拉黑了"),
-                                    RongWebIMWidget.MessageType.InformationNotificationMessage);
+                                systemMsg = this.conversationServer.packReceiveMessage(RongIMLib.InformationNotificationMessage.obtain("你被拉黑了"));
                                 break;
                             case 4:
                                 that.changeCustomerState(RongWebIMWidget.EnumInputPanelType.person);
-                                systemMsg = that.packReceiveMessage(RongIMLib.InformationNotificationMessage.obtain("已经是人工了"),
-                                    RongWebIMWidget.MessageType.InformationNotificationMessage);
+                                systemMsg = that.conversationServer.packReceiveMessage(RongIMLib.InformationNotificationMessage.obtain("已经是人工了"));
                                 break;
                             default:
                                 break;
@@ -611,6 +602,8 @@ module RongWebIMWidget.conversation {
         }
 
         packDisplaySendMessage(msg: any, messageType: string) {
+
+
             var ret = new RongIMLib.Message();
             var userinfo = new RongIMLib.UserInfo(this.providerdata.currentUserInfo.userId, this.providerdata.currentUserInfo.name || "我", this.providerdata.currentUserInfo.portraitUri);
             msg.user = userinfo;
@@ -620,22 +613,6 @@ module RongWebIMWidget.conversation {
             ret.senderUserId = this.providerdata.currentUserInfo.userId;
 
             ret.messageDirection = RongIMLib.MessageDirection.SEND;
-            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
-            ret.messageType = messageType;
-
-            return ret;
-        }
-
-        packReceiveMessage(msg: any, messageType: string) {
-            var ret = new RongIMLib.Message();
-            var userinfo = null;
-            msg.userInfo = userinfo;
-            ret.content = msg;
-            ret.conversationType = this.$scope.conversation.targetType;
-            ret.targetId = this.$scope.conversation.targetId;
-            ret.senderUserId = this.$scope.conversation.targetId;
-
-            ret.messageDirection = RongIMLib.MessageDirection.RECEIVE;
             ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
             ret.messageType = messageType;
 

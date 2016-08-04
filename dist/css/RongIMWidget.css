@@ -2062,3 +2062,19 @@ ul {
 .moxie-shim.moxie-shim-html5{
   z-index: 1;
 }
+
+/*自建客服*/
+.rongcloud-customerservicegroupBox{
+
+}
+.rongcloud-customerservicegroupBox ul{
+  list-style: none;
+}
+.rongcloud-customerservicegroupBox .groupitem{
+  color: #5B97DE;
+  cursor: pointer;
+}
+.rongcloud-customerservicegroupBox .groupitem.disable-text{
+  color: #8e969f;
+  cursor: default;
+}

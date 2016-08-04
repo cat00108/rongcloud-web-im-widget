@@ -3966,14 +3966,14 @@ var RongIMLib;
                 });
             }
             if (message.conversationType == RongIMLib.ConversationType.CUSTOMER_SERVICE && (message.messageType == "ChangeModeResponseMessage" || message.messageType == "SuspendMessage" || message.messageType == "HandShakeResponseMessage" ||
-                message.messageType == "TerminateMessage" || message.messageType == "CustomerStatusUpdateMessage" || message.messageType == "TextMessage" || message.messageType == "InformationNotificationMessage")) {
+                message.messageType == "TerminateMessage" || message.messageType == "CustomerStatusUpdateMessage" || message.messageType == "TextMessage")) {
                 if (!RongIMLib.RongIMClient._memoryStore.custStore["isInit"]) {
                     return;
                 }
             }
             if (message.conversationType == RongIMLib.ConversationType.CUSTOMER_SERVICE && message.messageType != "HandShakeResponseMessage") {
                 if (!RongIMLib.RongIMClient._memoryStore.custStore[message.targetId]) {
-                    return;
+                    // return;
                 }
                 if (message.messageType == "TerminateMessage") {
                     if (RongIMLib.RongIMClient._memoryStore.custStore[message.targetId].sid != message.content.sid) {

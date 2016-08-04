@@ -2,6 +2,19 @@ var demo = angular.module("demo", ["RongWebIMWidget"]);
 
 demo.controller("main", ["$scope","$http","RongCustomerService", function($scope,$http,RongCustomerService) {
   $scope.title="asdf";
+
+  var groups={"code":200,
+  "list":[{"group_id":"1","kefu_id":"KEFUxiaoqiaoPrestaShop1","group_name":"group1"},
+  {"group_id":"2","kefu_id":"KEFUxiaoqiaoPrestaShop1","group_name":"group2"}]
+  };
+  var customerServiceGroup=[];
+  for(var i=0,len=groups.list.length;i<len;i++){
+    customerServiceGroup.push({
+      id:groups.list[i].group_id,
+      name:groups.list[i].group_name
+    })
+  }
+
   RongCustomerService.init({
         // appkey:"3argexb6r934e",//selfe
         // token:"I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",//selfe kefu

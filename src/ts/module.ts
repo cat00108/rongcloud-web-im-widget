@@ -343,6 +343,7 @@ module RongWebIMWidget {
     }
 
     export class TextMessage {
+        messageName: string = "TextMessage"
         userInfo: UserInfo;
         content: string;
         extra: any;
@@ -353,6 +354,7 @@ module RongWebIMWidget {
         }
     }
     export class HandShakeResponseMessage {
+        messageName: string = "HandShakeResponseMessage"
         status: string
         msg: string
         data: {
@@ -371,25 +373,29 @@ module RongWebIMWidget {
         }
     }
     export class ChangeModeResponseMessage {
+        messageName: string = "ChangeModeResponseMessage"
         code: string
         data: any//1成功，2没有客服在线，3用户被拉黑，4用户已转人工
         status: string
     }
     export class TerminateMessage {
+        messageName: string = "TerminateMessage"
         code: string //0表示会话结束，1转为机器人
     }
     export class CustomerStatusUpdateMessage {
+        messageName: string = "CustomerStatusUpdateMessage"
         serviceStatus: string//1机器人，2人工，3无法服务
     }
 
     export class InformationNotificationMessage {
+        messageName: string = "InformationNotificationMessage"
         userInfo: UserInfo;
         content: string;
         extra: string;
-        messageName: string;
     }
 
     export class ImageMessage {
+        messageName: string = "ImageMessage"
         userInfo: UserInfo;
         content: string;
         imageUri: string;
@@ -397,6 +403,7 @@ module RongWebIMWidget {
     }
 
     export class VoiceMessage {
+        messageName: string = "VoiceMessage"
         userInfo: UserInfo;
         content: string;
         duration: string;
@@ -404,6 +411,7 @@ module RongWebIMWidget {
     }
 
     export class LocationMessage {
+        messageName: string = "LocationMessage"
         userInfo: UserInfo;
         content: string;
         latiude: number;
@@ -413,6 +421,7 @@ module RongWebIMWidget {
     }
 
     export class RichContentMessage {
+        messageName: string = "RichContentMessage"
         userInfo: UserInfo;
         content: string;
         title: string;
@@ -421,16 +430,17 @@ module RongWebIMWidget {
     }
 
     export class DiscussionNotificationMessage {
+        messageName: string = "DiscussionNotificationMessage"
         userInfo: UserInfo;
         extension: string;
         type: number;
         isHasReceived: boolean;
         operation: string;
         extra: string;
-        messageName: string;
     }
 
     export class CustomerServiceGroupMessage {
+        messageName: string = "CustomerServiceGroupMessage"
         title: string;
         groups: { id: string, name: string }[]
         customerServiceId: string

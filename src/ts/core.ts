@@ -60,7 +60,8 @@ module RongWebIMWidget {
             "WidgetConfig",
             "RongIMSDKServer",
             "$log",
-            "$timeout"];
+            "$timeout",
+            "SelfCustomerService"];
 
         display: boolean = false;
         connected: boolean = false;
@@ -72,7 +73,8 @@ module RongWebIMWidget {
             private widgetConfig: RongWebIMWidget.WidgetConfig,
             private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer,
             private $log: ng.ILogService,
-            private $timeout: ng.ITimeoutService) {
+            private $timeout: ng.ITimeoutService,
+            private SelfCustomerService: RongWebIMWidget.SelfCustomerService) {
 
         }
 
@@ -196,7 +198,7 @@ module RongWebIMWidget {
 
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
 
-            _this.RongIMSDKServer.registerMessage();
+            _this.SelfCustomerService.registerMessage();
 
             _this.RongIMSDKServer.connect(_this.widgetConfig.token).then(function(userId) {
                 _this.conversationListServer.updateConversations();
@@ -349,10 +351,10 @@ module RongWebIMWidget {
         }
 
         addMessageAndOperation(msg: RongWebIMWidget.Message) {
-            if (msg.conversationType === RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && !this.conversationServer._customService.connected) {
-                //客服没有连接直接返回不追加显示消息
-                return;
-            }
+            // if (msg.conversationType === RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && !this.conversationServer._customService.connected) {
+            //     //客服没有连接直接返回不追加显示消息
+            //     return;
+            // }
 
             var key = msg.conversationType + "_" + msg.targetId;
             var hislist = this.conversationServer._cacheHistory[key] = this.conversationServer._cacheHistory[key] || []
@@ -442,9 +444,9 @@ module RongWebIMWidget {
 
         setProductInfo(obj: ProductInfo) {
             if (this.conversationServer._customService.connected) {
-                this.RongIMSDKServer.sendProductInfo(this.conversationServer.current.targetId, obj)
+                this.SelfCustomerService.sendProductInfo(this.conversationServer.current.targetId, obj)
             } else {
-                this.providerdata._productInfo = obj;
+                this.SelfCustomerService._productInfo = obj;
             }
         }
 

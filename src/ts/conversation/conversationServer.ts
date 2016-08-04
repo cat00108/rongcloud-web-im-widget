@@ -18,7 +18,7 @@ module RongWebIMWidget.conversation {
             headimgurl: string
         } = <any>{}
 
-        group: { id: string, name: string }[]
+        // groupId: string
     }
 
     export interface IConversationService {
@@ -30,15 +30,17 @@ module RongWebIMWidget.conversation {
 
         _getHistoryMessages(targetType: number, targetId: string, number: number): angular.IPromise<any>
         _addHistoryMessages(msg: RongWebIMWidget.Message): void
+        unshiftHistoryMessages(item: any): void
 
         changeConversation(conversation: RongWebIMWidget.Conversation): void
         handleMessage(message: RongWebIMWidget.Message): void
         closeConversation(): ng.IPromise<any>
         addCustomServiceInfo(msg: RongWebIMWidget.Message): void
-
         _handleConnectSuccess(): void// 获取上传 token ，并初始化上传控件
 
-        selfSetCustomerServiceGroup(group: { id: string, name: string }[]): void
+        // selfSetCustomerServiceGroup(group: { id: string, name: string }[]): void
+
+        packReceiveMessage(msg: any): RongIMLib.Message
     }
 
     class conversationServer implements IConversationService {
@@ -55,8 +57,8 @@ module RongWebIMWidget.conversation {
         _customService: CustomerService = <any>new CustomerService();
         _uploadToken: string
 
-        unshiftHistoryMessages(id: string, type: number, item: any) {
-            var key = type + "_" + id;
+        unshiftHistoryMessages(item: any) {
+            var key = item.conversationType + "_" + item.targetId;
             var arr = this._cacheHistory[key] = this._cacheHistory[key] || [];
             if (arr[0] && arr[0].sentTime && arr[0].panelType != RongWebIMWidget.PanelType.Time && item.sentTime) {
                 if (!RongWebIMWidget.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
@@ -87,7 +89,7 @@ module RongWebIMWidget.conversation {
                             case RongWebIMWidget.MessageType.RichContentMessage:
                             case RongWebIMWidget.MessageType.LocationMessage:
                             case RongWebIMWidget.MessageType.InformationNotificationMessage:
-                                _this.unshiftHistoryMessages(targetId, targetType, msg);
+                                _this.unshiftHistoryMessages(msg);
                                 _this.addCustomServiceInfo(msg);
                                 if (msg.content && _this.providerdata.getUserInfo) {
                                     (function(msg) {
@@ -175,8 +177,25 @@ module RongWebIMWidget.conversation {
             return msg;
         }
 
-        selfSetCustomerServiceGroup(group: { id: string, name: string }[]) {
-            this._customService.group = group;
+        packReceiveMessage(msg: any) {
+            if (!this.current)
+                return;
+            var targetType = this.current.targetType;
+            var targetId = this.current.targetId;
+
+            var ret = new RongIMLib.Message();
+            var userinfo = null;
+            msg.userInfo = userinfo;
+            ret.content = msg;
+            ret.conversationType = targetType;
+            ret.targetId = targetId;
+            ret.senderUserId = targetId;
+
+            ret.messageDirection = RongIMLib.MessageDirection.RECEIVE;
+            ret.sentTime = (new Date()).getTime() - (RongIMLib.RongIMClient.getInstance().getDeltaTime() || 0);
+            ret.messageType = msg.messageName;
+
+            return ret;
         }
 
 

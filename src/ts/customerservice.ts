@@ -79,7 +79,66 @@ module RongWebIMWidget {
     }
 
     export class SelfCustomerService {
+
+        static $inject = ["ConversationServer"]
+        constructor(private conversationServer: RongWebIMWidget.conversation.IConversationService) {
+
+        }
+
         group: { id: string, name: string, customerServiceId: string }[]
+        currentGroupId: string
+        _productInfo: any
+
+        sendMessageHandle(msg: any) {
+            if (this.group && this.currentGroupId !== "") {
+                msg.extra = '{"groupid":"' + this.currentGroupId + '"}';
+            }
+        }
+
+        selfCustomerServiceShowGroup(isHistory?: boolean) {
+            var that = this;
+            if (!this.group || this.currentGroupId == "") {
+                return;
+            }
+            var msg = new RongIMLib.RongIMClient.RegisterMessage['CustomerServiceGroupMessage']({ title: "请选择咨询客服组", groups: that.group })
+            msg = that.conversationServer.packReceiveMessage(msg);
+            var wmsg = RongWebIMWidget.Message.convert(msg);
+            that.conversationServer.addCustomServiceInfo(wmsg);
+            if (isHistory) {
+                that.conversationServer.unshiftHistoryMessages(wmsg);
+            } else {
+                that.conversationServer._addHistoryMessages(wmsg);
+            }
+        }
+
+        sendProductInfo(targetId: string, msgContent: any) {
+            var msg = new RongIMLib.RongIMClient.RegisterMessage["ProductMessage"](msgContent);
+            this.sendMessageHandle(msg);
+            RongIMLib.RongIMClient.getInstance().sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, targetId, msg, {
+                onSuccess: function() {
+
+                },
+                onError: function() {
+
+                }
+            });
+        }
+
+
+        registerMessage() {
+            var messageName = "ProductMessage"; // 自定义客服产品信息显示
+            var objectName = "cs:product";
+            var mesasgeTag = new RongIMLib.MessageTag(true, true);
+            var propertys = ["title", "url", "content", "imageUrl", "extra"];
+            RongIMLib.RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
+
+            var messageName = "CustomerServiceGroupMessage"; // 自定义客服中分组信息显示
+            var objectName = "cs:groupinfo";
+            var mesasgeTag = new RongIMLib.MessageTag(true, true);
+            var propertys = ["title", "groups", "extra"];
+            RongIMLib.RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
+        }
+
     }
 
     angular.module("RongWebIMWidget")
