@@ -76,12 +76,18 @@ var RongWebIMWidget;
             }
             return html;
         };
-        Helper.checkType = function (obj) {
+        Helper.getType = function (obj) {
             var type = Object.prototype.toString.call(obj);
             return type.substring(8, type.length - 1).toLowerCase();
         };
         Helper.isFunction = function (obj) {
-            return Helper.checkType(obj) === "function";
+            return Helper.getType(obj) === "function";
+        };
+        Helper.isString = function (obj) {
+            return Helper.getType(obj) === "string";
+        };
+        Helper.isObject = function (obj) {
+            return Helper.getType(obj) === "object";
         };
         Helper.browser = {
             version: (userAgent.match(/.+(?:rv|it|ra|chrome|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
@@ -765,6 +771,10 @@ var RongWebIMWidget;
                 };
             }
             ConversationController.prototype.closeState = function () {
+                if (this.conversationServer.current && this.conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
+                    var targetId = this.conversationServer.current.targetId;
+                    this.conversationServer._cacheHistory[RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE + '_' + targetId] = [];
+                }
                 var _this = this;
                 if (this.WebIMWidget.onClose && typeof this.WebIMWidget.onClose === "function") {
                     setTimeout(function () { _this.WebIMWidget.onClose(_this.$scope.conversation); }, 1);
@@ -877,7 +887,7 @@ var RongWebIMWidget;
                             setTimeout(function () {
                                 that.$scope.evaluate.valid = true;
                             }, 60 * 1000);
-                            that.SelfCustomerService._productInfo && that.SelfCustomerService.sendProductInfo(that.conversationServer.current.targetId, that.SelfCustomerService._productInfo);
+                            that.SelfCustomerService.sendProductInfo();
                             break;
                         case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                             switch (msg.content.data.status) {
@@ -1823,7 +1833,7 @@ var RongWebIMWidget;
                 onReceived: function (data) {
                     _this.$log.debug(data);
                     var msg = RongWebIMWidget.Message.convert(data);
-                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
+                    if (RongWebIMWidget.Helper.getType(_this.providerdata.getUserInfo) == "function" && msg.content) {
                         _this.providerdata.getUserInfo(msg.senderUserId).then(function (user) {
                             msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
                         });
@@ -1977,14 +1987,6 @@ var RongWebIMWidget;
         WebIMWidget.prototype.setOnlineStatusProvider = function (fun) {
             this.providerdata.getOnlineStatus = fun;
         };
-        WebIMWidget.prototype.setProductInfo = function (obj) {
-            if (this.conversationServer._customService.connected) {
-                this.SelfCustomerService.sendProductInfo(this.conversationServer.current.targetId, obj);
-            }
-            else {
-                this.SelfCustomerService._productInfo = obj;
-            }
-        };
         WebIMWidget.prototype.show = function () {
             this.display = true;
         };
@@ -2073,7 +2075,7 @@ var RongWebIMWidget;
             this.WebIMWidget.show();
         };
         RongCustomerService.prototype.setProductInfo = function (obj) {
-            this.WebIMWidget.setProductInfo(obj);
+            this.SelfCustomerService.setProductInfo(obj);
         };
         RongCustomerService.prototype.hidden = function () {
             this.WebIMWidget.hidden();
@@ -2088,12 +2090,17 @@ var RongWebIMWidget;
         }
         SelfCustomerService.prototype.sendMessageHandle = function (msg) {
             if (this.group && this.currentGroupId !== "") {
-                msg.extra = '{"groupid":"' + this.currentGroupId + '"}';
+                if (RongWebIMWidget.Helper.isObject(msg.extra)) {
+                    msg.extra.groupid = this.currentGroupId;
+                }
+                else {
+                    msg.extra = { "groupid": this.currentGroupId };
+                }
             }
         };
         SelfCustomerService.prototype.selfCustomerServiceShowGroup = function (isHistory) {
             var that = this;
-            if (!this.group || this.currentGroupId == "") {
+            if (!this.group || this.currentGroupId !== "") {
                 return;
             }
             var msg = new RongIMLib.RongIMClient.RegisterMessage['CustomerServiceGroupMessage']({ title: "请选择咨询客服组", groups: that.group });
@@ -2107,15 +2114,26 @@ var RongWebIMWidget;
                 that.conversationServer._addHistoryMessages(wmsg);
             }
         };
-        SelfCustomerService.prototype.sendProductInfo = function (targetId, msgContent) {
-            var msg = new RongIMLib.RongIMClient.RegisterMessage["ProductMessage"](msgContent);
-            this.sendMessageHandle(msg);
-            RongIMLib.RongIMClient.getInstance().sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, targetId, msg, {
-                onSuccess: function () {
-                },
-                onError: function () {
-                }
-            });
+        SelfCustomerService.prototype.setProductInfo = function (productInfo) {
+            if (this.conversationServer._customService.connected) {
+                this.sendProductInfo();
+            }
+            else {
+                this._productInfo = productInfo;
+            }
+        };
+        SelfCustomerService.prototype.sendProductInfo = function () {
+            var targetid = this.conversationServer.current ? this.conversationServer.current.targetId : "";
+            if (this._productInfo && targetid) {
+                var msg = new RongIMLib.RongIMClient.RegisterMessage["ProductMessage"](this._productInfo);
+                this.sendMessageHandle(msg);
+                RongIMLib.RongIMClient.getInstance().sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, targetid, msg, {
+                    onSuccess: function () {
+                    },
+                    onError: function () {
+                    }
+                });
+            }
         };
         SelfCustomerService.prototype.registerMessage = function () {
             var messageName = "ProductMessage"; // 自定义客服产品信息显示

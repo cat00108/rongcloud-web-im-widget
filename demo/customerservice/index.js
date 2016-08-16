@@ -30,7 +30,7 @@ demo.controller("main", ["$scope","$http","RongCustomerService", function($scope
         customerServiceId:"KEFUxiaoqiaoPrestaShop1",
         customerServiceGroup:[{id:"1",name:"group1"},{id:"2",name:"group2"}],
         reminder:"在线咨询",
-        // displayMinButton:false,
+        displayMinButton:false,
         position:RongCustomerService.Position.right,
         style:{
           // height:500,
@@ -55,7 +55,7 @@ demo.controller("main", ["$scope","$http","RongCustomerService", function($scope
   cookie.set("visitHistory",JSON.stringify(visitHistory))
 
 
-  // RongCustomerService.setProductInfo({title:"这是啦啦啦",imageUrl:"https://www.baidu.com/img/bd_logo1.png",extra:visitHistory})
+  RongCustomerService.setProductInfo({title:"这是啦啦啦",imageUrl:"https://www.baidu.com/img/bd_logo1.png",extra:{history:visitHistory}})
 
 
     $scope.show = function() {

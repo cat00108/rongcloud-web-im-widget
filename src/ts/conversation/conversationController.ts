@@ -371,6 +371,10 @@ module RongWebIMWidget.conversation {
         }
 
         closeState() {
+            if (this.conversationServer.current && this.conversationServer.current.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE) {
+                var targetId = this.conversationServer.current.targetId;
+                this.conversationServer._cacheHistory[RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE + '_' + targetId] = [];
+            }
             var _this = this;
             if (this.WebIMWidget.onClose && typeof this.WebIMWidget.onClose === "function") {
                 setTimeout(function() { _this.WebIMWidget.onClose(_this.$scope.conversation) }, 1);
@@ -490,7 +494,7 @@ module RongWebIMWidget.conversation {
                         setTimeout(function() {
                             that.$scope.evaluate.valid = true;
                         }, 60 * 1000);
-                        that.SelfCustomerService._productInfo && that.SelfCustomerService.sendProductInfo(that.conversationServer.current.targetId, that.SelfCustomerService._productInfo);
+                        that.SelfCustomerService.sendProductInfo();
                         break;
                     case RongWebIMWidget.MessageType.ChangeModeResponseMessage:
                         switch (msg.content.data.status) {

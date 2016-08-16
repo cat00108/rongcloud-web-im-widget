@@ -110,13 +110,21 @@ module RongWebIMWidget {
             return html;
         }
 
-        static checkType(obj) {
+        static getType(obj) {
             var type = Object.prototype.toString.call(obj);
             return type.substring(8, type.length - 1).toLowerCase();
         }
 
         static isFunction(obj) {
-            return Helper.checkType(obj) === "function";
+            return Helper.getType(obj) === "function";
+        }
+
+        static isString(obj) {
+            return Helper.getType(obj) === "string";
+        }
+
+        static isObject(obj) {
+            return Helper.getType(obj) === "object";
         }
 
         static ImageHelper = {

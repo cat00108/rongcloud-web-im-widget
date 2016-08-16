@@ -70,7 +70,7 @@ module RongWebIMWidget {
             this.WebIMWidget.show();
         }
         setProductInfo(obj: any) {
-            this.WebIMWidget.setProductInfo(obj);
+            this.SelfCustomerService.setProductInfo(obj);
         }
 
         hidden() {
@@ -91,13 +91,18 @@ module RongWebIMWidget {
 
         sendMessageHandle(msg: any) {
             if (this.group && this.currentGroupId !== "") {
-                msg.extra = '{"groupid":"' + this.currentGroupId + '"}';
+                if (RongWebIMWidget.Helper.isObject(msg.extra)) {
+                    msg.extra.groupid = this.currentGroupId;
+                }
+                else {
+                    msg.extra = { "groupid": this.currentGroupId };
+                }
             }
         }
 
         selfCustomerServiceShowGroup(isHistory?: boolean) {
             var that = this;
-            if (!this.group || this.currentGroupId == "") {
+            if (!this.group || this.currentGroupId !== "") {
                 return;
             }
             var msg = new RongIMLib.RongIMClient.RegisterMessage['CustomerServiceGroupMessage']({ title: "请选择咨询客服组", groups: that.group })
@@ -111,17 +116,27 @@ module RongWebIMWidget {
             }
         }
 
-        sendProductInfo(targetId: string, msgContent: any) {
-            var msg = new RongIMLib.RongIMClient.RegisterMessage["ProductMessage"](msgContent);
-            this.sendMessageHandle(msg);
-            RongIMLib.RongIMClient.getInstance().sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, targetId, msg, {
-                onSuccess: function() {
+        setProductInfo(productInfo: any) {
+            if (this.conversationServer._customService.connected) {
+                this.sendProductInfo();
+            }
+            else {
+                this._productInfo = productInfo;
+            }
+        }
 
-                },
-                onError: function() {
-
-                }
-            });
+        sendProductInfo() {
+            var targetid = this.conversationServer.current ? this.conversationServer.current.targetId : "";
+            if (this._productInfo && targetid) {
+                var msg = new RongIMLib.RongIMClient.RegisterMessage["ProductMessage"](this._productInfo);
+                this.sendMessageHandle(msg);
+                RongIMLib.RongIMClient.getInstance().sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, targetid, msg, {
+                    onSuccess: function() {
+                    },
+                    onError: function() {
+                    }
+                });
+            }
         }
 
 

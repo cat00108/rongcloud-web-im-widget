@@ -37,7 +37,7 @@ module RongWebIMWidget {
         setGroupInfoProvider(fun: Function)
         setOnlineStatusProvider(fun: Function)
 
-        setProductInfo()
+
 
         /**
          * 静态属性
@@ -262,7 +262,7 @@ module RongWebIMWidget {
                     _this.$log.debug(data);
                     var msg = RongWebIMWidget.Message.convert(data);
 
-                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
+                    if (RongWebIMWidget.Helper.getType(_this.providerdata.getUserInfo) == "function" && msg.content) {
                         _this.providerdata.getUserInfo(msg.senderUserId).then(function(user) {
                             msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
                         });
@@ -442,13 +442,6 @@ module RongWebIMWidget {
             this.providerdata.getOnlineStatus = fun;
         }
 
-        setProductInfo(obj: ProductInfo) {
-            if (this.conversationServer._customService.connected) {
-                this.SelfCustomerService.sendProductInfo(this.conversationServer.current.targetId, obj)
-            } else {
-                this.SelfCustomerService._productInfo = obj;
-            }
-        }
 
         show() {
             this.display = true;
