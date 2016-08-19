@@ -633,18 +633,32 @@ var RongWebIMWidget;
             if (!ngModel)
                 return;
             element.bind("paste", function (e) {
-                var that = this, ohtml = that.innerHTML;
-                timeoutid && clearTimeout(timeoutid);
-                var timeoutid = setTimeout(function () {
-                    that.innerHTML = replacemy(that.innerHTML);
-                    ngModel.$setViewValue(that.innerHTML);
-                    timeoutid = null;
-                }, 50);
+                var that = this;
+                var content;
+                e.preventDefault();
+                if (e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData)) {
+                    // originalEvent jQuery中的
+                    content = (e.originalEvent || e).clipboardData.getData('text/plain');
+                    content = replacemy(content || '');
+                    content && document.execCommand('insertText', false, content);
+                }
+                else if (window['clipboardData']) {
+                    content = window['clipboardData'].getData('Text');
+                    content = replacemy(content || '');
+                    if (document['selection']) {
+                        content && document['selection'].createRange().pasteHTML(content);
+                    }
+                    else if (document.getSelection) {
+                        document.getSelection().getRangeAt(0).insertNode(document.createTextNode(content));
+                    }
+                }
+                console.log(that.innerHTML);
+                ngModel.$setViewValue(that.innerHTML);
             });
             ngModel.$render = function () {
                 element.html(ngModel.$viewValue || '');
             };
-            element.bind("keydown paste", read);
+            element.bind("keyup paste", read);
             element.bind("input", read);
             function read() {
                 var html = element.html();
