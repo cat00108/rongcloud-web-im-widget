@@ -41,7 +41,7 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
         console.log(id);
       },
       onError:function(error){
-        console.log("error:"+error);
+        console.log(error);
       }
     });
 

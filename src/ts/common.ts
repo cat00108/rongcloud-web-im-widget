@@ -93,7 +93,8 @@ module RongWebIMWidget {
                 return '[email`' + (EMailArr.length - 1) + ']';
             });
 
-            var URLReg = /(((ht|f)tp(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi
+            // var URLReg = /((http(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(5[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z])[a-zA-Z0-9\-_]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi
+            var URLReg=/((?:http|https):\/\/)?((?:(?:[a-z0-9][a-z0-9\-_]*\.)+[a-z\-_]{2,})|((25[0-5]|2[0-3]\d|1\d{2}|\d{1,2})\.){3}((25[0-5]|2[0-3]\d|1\d{2}|\d{1,2})))(:\d{1,4})?(\/[\w-./?%&#=\$_]*)?/ig
 
             html = html.replace(URLReg, function(str: any, $1: any) {
                 if ($1) {
@@ -175,28 +176,37 @@ module RongWebIMWidget {
             }
         }
         static CookieHelper = {
-            setCookie: function(name: string, value: string, exires?: number) {
+            set: function(name: string, value: string, exires?: number) {
                 if (exires) {
                     var date = new Date();
                     date.setDate(date.getDate() + exires)
-                    document.cookie = name + "=" + encodeURI(value) + ";expires=" + date.toUTCString();
+                    document.cookie = name + "=" + encodeURIComponent(value) + ";expires=" + date.toUTCString();
                 } else {
-                    document.cookie = name + "=" + encodeURI(value) + ";";
+                    document.cookie = name + "=" + encodeURIComponent(value) + ";";
                 }
             },
-            getCookie: function(name: string) {
-                var start = document.cookie.indexOf(name + "=");
+            get: function(name: string) {
+                var key = "; " + name + "=";
+                var reg = new RegExp('^' + name + '=');
+                var cookie = document.cookie;
+                var start = cookie.indexOf(key);
+
                 if (start != -1) {
-                    var end = document.cookie.indexOf(";", start);
-                    if (end == -1) {
-                        end = document.cookie.length;
-                    }
-                    return decodeURI(document.cookie.substring(start + name.length + 1, end));
+                    start += key.length;
+                } else if (reg.test(cookie)) {
+                    start = name.length + 1;
                 } else {
-                    return ""
+                    return null;
                 }
+
+                var end = document.cookie.indexOf(";", start);
+                if (end == -1) {
+                    end = document.cookie.length;
+                }
+                return decodeURIComponent(document.cookie.substring(start, end));
+
             },
-            removeCookie: function(name: string) {
+            remove: function(name: string) {
                 var con = this.getCookie(name);
                 if (con) {
                     this.setCookie(name, "con", -1);
@@ -350,7 +360,6 @@ module RongWebIMWidget {
                         document.getSelection().getRangeAt(0).insertNode(document.createTextNode(content));
                     }
                 }
-                console.log(that.innerHTML);
                 ngModel.$setViewValue(that.innerHTML);
             });
 
@@ -404,7 +413,7 @@ module RongWebIMWidget {
         }
     }
 
-   export class Scroll {
+    export class Scroll {
         _isBottom: boolean
 
         ele: Element;

@@ -25,18 +25,21 @@ demo.controller("main", ["$scope","$http","RongCustomerService", function($scope
         // kefuId:"KEFU146787560842415",
 
         appkey:"e0x9wycfx7flq",//xiaoqiao
-        // token:"4FGXZfT05dvLJYDfnLTu8hnk1aK4cFsKdlugrlEUcJ1Up9M1NxrkDRCYrs3oWBKkSg8cGCMaW6mKOtbWRl67FOEToZ3N32hf",
-        token:"6x9aV25Hf7cc0/Hb4s6B9k9URnmOqIZtiIUxmNB69UCl33e7kSvE5JqwDG/XC7Ib4sQvYieZvgoqJu4AS2kCov9806s1JpIX",
-        customerServiceId:"KEFUxiaoqiaoPrestaShop1",
-        customerServiceGroup:[{id:"1",name:"group1"},{id:"2",name:"group2"}],
+        token:"3+oyaLdUoAQhGjI0NzA6gO9cj/O9TE0XZXnIWiJyFcQqE4cUBSEOqCIBHjDNnDgInXrI6LqQOeqiHcVqQzKdLuqi4w2E+KrN",
+        // customerServiceId:"KEFUxiaoqiaoPrestaShop1",
+        customerServiceId:'KEFUxiaoqiaoZhubajie1',
+        // customerServiceGroup:[{id:"1",name:"group1"},{id:"2",name:"group2"}],
         reminder:"在线咨询",
-        displayMinButton:false,
+        // displayMinButton:false,
         position:RongCustomerService.Position.right,
         style:{
           // height:500,
           width:320
         },
         onSuccess:function(e){
+          console.log(e);
+        },
+        onError:function(e){
           console.log(e);
         }
   })
@@ -55,7 +58,7 @@ demo.controller("main", ["$scope","$http","RongCustomerService", function($scope
   cookie.set("visitHistory",JSON.stringify(visitHistory))
 
 
-  RongCustomerService.setProductInfo({title:"这是啦啦啦",imageUrl:"https://www.baidu.com/img/bd_logo1.png",extra:{history:visitHistory}})
+  RongCustomerService.setProductInfo({title:"呵呵哈哈",imageUrl:"https://www.baidu.com/img/bd_logo1.png",extra:{history:visitHistory}})
 
 
     $scope.show = function() {

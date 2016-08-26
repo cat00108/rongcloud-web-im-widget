@@ -48,7 +48,7 @@ module RongWebIMWidget.conversation {
         constructor(private $scope: ConversationScope,
             private conversationServer: RongWebIMWidget.conversation.IConversationService,
             private WebIMWidget: RongWebIMWidget.WebIMWidget,
-            private conversationListServer: any,
+            private conversationListServer: RongWebIMWidget.conversationlist.IConversationListServer,
             private widgetConfig: RongWebIMWidget.WidgetConfig,
             private providerdata: RongWebIMWidget.ProviderData,
             private RongIMSDKServer: RongWebIMWidget.RongIMSDKServer,
@@ -162,7 +162,7 @@ module RongWebIMWidget.conversation {
                     that.SelfCustomerService.selfCustomerServiceShowGroup(true);
                 }
                 $scope.scroll.recordedPosition();
-                conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20).then(function(data) {
+                conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20, true).then(function(data) {
                     if (data.has) {
                         conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
                     }
@@ -230,6 +230,12 @@ module RongWebIMWidget.conversation {
                 $scope.conversation.messageContent = ""
                 var obj = document.getElementById("inputMsg");
                 RongWebIMWidget.Helper.getFocus(obj);
+
+                var conversation = conversationListServer._getConversation(conversationServer.current.targetType, conversationServer.current.targetId);
+                if (!conversation) {
+                    conversationListServer.updateConversations();
+                }
+
             }
 
 
@@ -289,9 +295,7 @@ module RongWebIMWidget.conversation {
                                                 im,
                                                 {
                                                     onSuccess: function() {
-                                                        conversationListServer.updateConversations().then(function() {
-
-                                                        });
+                                                        conversationListServer.updateConversations();
                                                     },
                                                     onError: function() {
 
@@ -382,6 +386,7 @@ module RongWebIMWidget.conversation {
             if (this.widgetConfig.displayConversationList) {
                 this.$scope.showSelf = false;
             } else {
+                this.$scope.showSelf = false;
                 this.WebIMWidget.display = false;
             }
             this.$scope.messageList = [];

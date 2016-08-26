@@ -90,12 +90,12 @@ module RongWebIMWidget {
         _productInfo: any
 
         sendMessageHandle(msg: any) {
-            if (this.group && this.currentGroupId !== "") {
+            if (this.group) {
                 if (RongWebIMWidget.Helper.isObject(msg.extra)) {
-                    msg.extra.groupid = this.currentGroupId;
+                    msg.extra.groupid = this.currentGroupId || '0';
                 }
                 else {
-                    msg.extra = { "groupid": this.currentGroupId };
+                    msg.extra = { "groupid": this.currentGroupId || '0' };
                 }
             }
         }
@@ -110,7 +110,7 @@ module RongWebIMWidget {
             var wmsg = RongWebIMWidget.Message.convert(msg);
             that.conversationServer.addCustomServiceInfo(wmsg);
             if (isHistory) {
-                that.conversationServer.unshiftHistoryMessages(wmsg);
+                that.conversationServer.unshiftHistoryMessages(that.conversationServer.current.targetId, that.conversationServer.current.targetType, wmsg);
             } else {
                 that.conversationServer._addHistoryMessages(wmsg);
             }

@@ -12,11 +12,12 @@ module RongWebIMWidget {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
 
         $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function() {
-            $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function() {
-                $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function() {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.2.min.js", function() {
+            // $script.get( "../lib/RongIMLib.js", function() {
+                $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.2.min.js", function() {
                     RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
                 });
-                $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function() {
+                $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.2.min.js", function() {
                     RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
                 });
                 if (WidgetConfig._config) {
@@ -65,12 +66,12 @@ module RongWebIMWidget {
 
 
 
-            var voicecookie = RongWebIMWidget.Helper.CookieHelper.getCookie("rongcloud.voiceSound");
+            var voicecookie = RongWebIMWidget.Helper.CookieHelper.get("rongcloud.voiceSound");
             providerdata.voiceSound = voicecookie ? (voicecookie == "true") : true;
             $scope.$watch("data.voiceSound", function(newVal, oldVal) {
                 if (newVal === oldVal)
                     return;
-                RongWebIMWidget.Helper.CookieHelper.setCookie("rongcloud.voiceSound", newVal);
+                RongWebIMWidget.Helper.CookieHelper.set("rongcloud.voiceSound", newVal);
             })
 
 

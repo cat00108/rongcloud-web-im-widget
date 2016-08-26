@@ -84,6 +84,7 @@ module RongWebIMWidget {
 
     export class WidgetConfig {
         displayConversationList: boolean = false;
+        conversationListLength: number = 30;
         conversationListPosition: number
         = RongWebIMWidget.EnumConversationListPosition.left;
         displayMinButton: boolean = true;

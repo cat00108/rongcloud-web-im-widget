@@ -28,9 +28,9 @@ module RongWebIMWidget.conversation {
         _cacheHistory: any
         _uploadToken: string
 
-        _getHistoryMessages(targetType: number, targetId: string, number: number): angular.IPromise<any>
+        _getHistoryMessages(targetType: number, targetId: string, number: number, reset?: boolean): angular.IPromise<any>
         _addHistoryMessages(msg: RongWebIMWidget.Message): void
-        unshiftHistoryMessages(item: any): void
+        unshiftHistoryMessages(id: string, type: number, item: any): void
 
         changeConversation(conversation: RongWebIMWidget.Conversation): void
         handleMessage(message: RongWebIMWidget.Message): void
@@ -57,8 +57,8 @@ module RongWebIMWidget.conversation {
         _customService: CustomerService = <any>new CustomerService();
         _uploadToken: string
 
-        unshiftHistoryMessages(item: any) {
-            var key = item.conversationType + "_" + item.targetId;
+        unshiftHistoryMessages(id: string, type: number, item: any) {
+            var key = type + "_" + id;
             var arr = this._cacheHistory[key] = this._cacheHistory[key] || [];
             if (arr[0] && arr[0].sentTime && arr[0].panelType != RongWebIMWidget.PanelType.Time && item.sentTime) {
                 if (!RongWebIMWidget.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
@@ -89,18 +89,13 @@ module RongWebIMWidget.conversation {
                             case RongWebIMWidget.MessageType.RichContentMessage:
                             case RongWebIMWidget.MessageType.LocationMessage:
                             case RongWebIMWidget.MessageType.InformationNotificationMessage:
-                                _this.unshiftHistoryMessages(msg);
+                                _this.unshiftHistoryMessages(targetId, targetType, msg);
                                 _this.addCustomServiceInfo(msg);
                                 if (msg.content && _this.providerdata.getUserInfo) {
                                     (function(msg) {
                                         _this.providerdata.getUserInfo(msg.senderUserId).then(function(obj) {
                                             msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
                                         });
-                                        // _this.providerdata.getUserInfo(msg.senderUserId, {
-                                        //     onSuccess: function(obj) {
-                                        //         msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                        //     }
-                                        // })
                                     })(msg)
                                 }
                                 break;

@@ -44,10 +44,11 @@ module RongWebIMWidget.conversationlist {
             }
         }
 
+
         updateConversations() {
             var defer = this.$q.defer();
             var _this = this;
-
+            console.log("updateConversations");
             RongIMLib.RongIMClient.getInstance().getConversationList({
                 onSuccess: function(data) {
                     var totalUnreadCount = 0;
@@ -64,26 +65,22 @@ module RongWebIMWidget.conversationlist {
                         switch (con.targetType) {
                             case RongIMLib.ConversationType.PRIVATE:
                                 if (angular.isFunction(_this.providerdata.getUserInfo)) {
-                                    (function(a, b) {
+                                    (function(a) {
                                         _this.providerdata.getUserInfo(a.targetId).then(function(data) {
                                             a.title = data.name;
                                             a.portraitUri = data.portraitUri;
-                                            b.conversationTitle = data.name;
-                                            b.portraitUri = data.portraitUri;
                                         })
-                                    } (con, data[i]));
+                                    } (con));
                                 }
                                 break;
                             case RongIMLib.ConversationType.GROUP:
                                 if (angular.isFunction(_this.providerdata.getGroupInfo)) {
-                                    (function(a, b) {
+                                    (function(a) {
                                         _this.providerdata.getGroupInfo(a.targetId).then(function(data) {
                                             a.title = data.name;
                                             a.portraitUri = data.portraitUri;
-                                            b.conversationTitle = data.name;
-                                            b.portraitUri = data.portraitUri;
                                         });
-                                    } (con, data[i]))
+                                    } (con))
                                 }
                                 break;
                             case RongIMLib.ConversationType.CHATROOM:
@@ -118,7 +115,7 @@ module RongWebIMWidget.conversationlist {
                 onError: function(error) {
                     defer.reject(error);
                 }
-            }, null);
+            }, null, _this.widgetConfig.conversationListLength);
             return defer.promise;
         }
 
