@@ -412,7 +412,7 @@ ul {
 }
 .rongcloud-kefuBtnBoxL .rongcloud-recent,.rongcloud-kefuBtnBoxR .rongcloud-recent  {
     width: 26px;
-    line-height: 1.rongcloud-6;
+    line-height: 1.6;
 }
 .rongcloud-kefuBtnBoxL .rongcloud-remind,.rongcloud-kefuBtnBoxR .rongcloud-remind {
     position: relative;
@@ -605,7 +605,7 @@ ul {
 
 .rongcloud-chat_item .rongcloud-ext .rongcloud-attr {
     height: 22px;
-    line-height: 1.rongcloud-5;
+    line-height: 1.5;
     font-size: 12px;
     margin-top: 10px;
 }
@@ -910,6 +910,7 @@ ul {
     border: none;
     border-radius: 0;
     font-family: "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+    overflow: visible;/*bootstrap 覆盖*/
 }
 
 .rongcloud-Message-entry {
@@ -1037,12 +1038,12 @@ ul {
     height: 30px;
     line-height: 30px;
     text-align: center;
-    background: rgba(0,0,0,.rongcloud-5);
+    background: rgba(0,0,0,.5);
     color: #fff;
 }
 /* 单图文消息 */
 .rongcloud-image-textBox{
-    width: 355px;
+    /*width: 355px;*/
     padding-left: 15px;
     border-left: 2px solid #0099ff;
 }
@@ -1068,9 +1069,9 @@ ul {
     line-height: 20px;
     color: #8e969f;
     font-size: 13px;
-    max-width: 225px;
+    /*max-width: 225px;*/
     /*max-height: 100px;*/
-
+    width: 35%;
 }
 .rongcloud-sys-tips{
     text-align: center;

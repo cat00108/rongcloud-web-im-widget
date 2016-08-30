@@ -62,7 +62,8 @@ var RongWebIMWidget;
                 EMailArr.push(str);
                 return '[email`' + (EMailArr.length - 1) + ']';
             });
-            var URLReg = /(((ht|f)tp(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi;
+            // var URLReg = /((http(s?))\:\/\/)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(5[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|(www.|[a-zA-Z])[a-zA-Z0-9\-_]+\.(com|cn|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk|me|im))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*/gi
+            var URLReg = /((?:http|https):\/\/)?((?:(?:[a-z0-9][a-z0-9\-_]*\.)+[a-z\-_]{2,})|((25[0-5]|2[0-3]\d|1\d{2}|\d{1,2})\.){3}((25[0-5]|2[0-3]\d|1\d{2}|\d{1,2})))(:\d{1,4})?(\/[\w-./?%&#=\$_]*)?/ig;
             html = html.replace(URLReg, function (str, $1) {
                 if ($1) {
                     return '<a target="_blank" href="' + str + '">' + str + '</a>';
@@ -187,30 +188,37 @@ var RongWebIMWidget;
             }
         };
         Helper.CookieHelper = {
-            setCookie: function (name, value, exires) {
+            set: function (name, value, exires) {
                 if (exires) {
                     var date = new Date();
                     date.setDate(date.getDate() + exires);
-                    document.cookie = name + "=" + encodeURI(value) + ";expires=" + date.toUTCString();
+                    document.cookie = name + "=" + encodeURIComponent(value) + ";expires=" + date.toUTCString();
                 }
                 else {
-                    document.cookie = name + "=" + encodeURI(value) + ";";
+                    document.cookie = name + "=" + encodeURIComponent(value) + ";";
                 }
             },
-            getCookie: function (name) {
-                var start = document.cookie.indexOf(name + "=");
+            get: function (name) {
+                var key = "; " + name + "=";
+                var reg = new RegExp('^' + name + '=');
+                var cookie = document.cookie;
+                var start = cookie.indexOf(key);
                 if (start != -1) {
-                    var end = document.cookie.indexOf(";", start);
-                    if (end == -1) {
-                        end = document.cookie.length;
-                    }
-                    return decodeURI(document.cookie.substring(start + name.length + 1, end));
+                    start += key.length;
+                }
+                else if (reg.test(cookie)) {
+                    start = name.length + 1;
                 }
                 else {
-                    return "";
+                    return null;
                 }
+                var end = document.cookie.indexOf(";", start);
+                if (end == -1) {
+                    end = document.cookie.length;
+                }
+                return decodeURIComponent(document.cookie.substring(start, end));
             },
-            removeCookie: function (name) {
+            remove: function (name) {
                 var con = this.getCookie(name);
                 if (con) {
                     this.setCookie(name, "con", -1);
@@ -361,7 +369,6 @@ var RongWebIMWidget;
                         document.getSelection().getRangeAt(0).insertNode(document.createTextNode(content));
                     }
                 }
-                console.log(that.innerHTML);
                 ngModel.$setViewValue(that.innerHTML);
             });
             ngModel.$render = function () {
@@ -485,7 +492,7 @@ var RongWebIMWidget;
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
     var conversation;
-    (function (conversation) {
+    (function (conversation_1) {
         var UploadImageDomain = "http://7xogjk.com1.z0.glb.clouddn.com/";
         var ConversationController = (function () {
             function ConversationController($scope, conversationServer, WebIMWidget, conversationListServer, widgetConfig, providerdata, RongIMSDKServer, SelfCustomerService) {
@@ -595,9 +602,14 @@ var RongWebIMWidget;
                         that.SelfCustomerService.selfCustomerServiceShowGroup(true);
                     }
                     $scope.scroll.recordedPosition();
-                    conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20).then(function (data) {
+                    conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20, true).then(function (data) {
+                        var currentcache = conversationServer._cacheHistory[key];
+                        var last = currentcache[currentcache.length - 1];
+                        if (last && last.sentTime) {
+                            currentcache.unshift(new RongWebIMWidget.TimePanl(last.sentTime));
+                        }
                         if (data.has) {
-                            conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                            currentcache.unshift(new RongWebIMWidget.GetMoreMessagePanel());
                         }
                         setTimeout(function () {
                             $scope.scroll.scrollToRecordPosition();
@@ -608,10 +620,19 @@ var RongWebIMWidget;
                     var key = $scope.conversation.targetType + "_" + $scope.conversation.targetId;
                     conversationServer._cacheHistory[key].shift();
                     conversationServer._cacheHistory[key].shift();
+                    $scope.scroll.recordedPosition();
                     conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20).then(function (data) {
-                        if (data.has) {
-                            conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                        var currentcache = conversationServer._cacheHistory[key];
+                        var last = currentcache[currentcache.length - 1];
+                        if (last && last.sentTime) {
+                            currentcache.unshift(new RongWebIMWidget.TimePanl(last.sentTime));
                         }
+                        if (data.has) {
+                            currentcache.unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                        }
+                        setTimeout(function () {
+                            $scope.scroll.scrollToRecordPosition();
+                        }, 100);
                     });
                 };
                 $scope.switchPerson = function () {
@@ -646,6 +667,10 @@ var RongWebIMWidget;
                     $scope.conversation.messageContent = "";
                     var obj = document.getElementById("inputMsg");
                     RongWebIMWidget.Helper.getFocus(obj);
+                    var conversation = conversationListServer._getConversation(conversationServer.current.targetType, conversationServer.current.targetId);
+                    if (!conversation) {
+                        conversationListServer.updateConversations();
+                    }
                 };
                 var qiniuuploader;
                 function uploadFileRefresh() {
@@ -696,8 +721,7 @@ var RongWebIMWidget;
                                             RongIMLib.RongIMClient.getInstance()
                                                 .sendMessage($scope.conversation.targetType, $scope.conversation.targetId, im, {
                                                 onSuccess: function () {
-                                                    conversationListServer.updateConversations().then(function () {
-                                                    });
+                                                    conversationListServer.updateConversations();
                                                 },
                                                 onError: function () {
                                                 }
@@ -783,6 +807,7 @@ var RongWebIMWidget;
                     this.$scope.showSelf = false;
                 }
                 else {
+                    this.$scope.showSelf = false;
                     this.WebIMWidget.display = false;
                 }
                 this.$scope.messageList = [];
@@ -1263,7 +1288,7 @@ var RongWebIMWidget;
 var RongWebIMWidget;
 (function (RongWebIMWidget) {
     var conversation;
-    (function (conversation_1) {
+    (function (conversation_2) {
         var CustomerService = (function () {
             function CustomerService() {
                 this.human = {};
@@ -1278,8 +1303,8 @@ var RongWebIMWidget;
                 this._cacheHistory = {};
                 this._customService = new CustomerService();
             }
-            conversationServer.prototype.unshiftHistoryMessages = function (item) {
-                var key = item.conversationType + "_" + item.targetId;
+            conversationServer.prototype.unshiftHistoryMessages = function (id, type, item) {
+                var key = type + "_" + id;
                 var arr = this._cacheHistory[key] = this._cacheHistory[key] || [];
                 if (arr[0] && arr[0].sentTime && arr[0].panelType != RongWebIMWidget.PanelType.Time && item.sentTime) {
                     if (!RongWebIMWidget.Helper.timeCompare(arr[0].sentTime, item.sentTime)) {
@@ -1303,18 +1328,13 @@ var RongWebIMWidget;
                                 case RongWebIMWidget.MessageType.RichContentMessage:
                                 case RongWebIMWidget.MessageType.LocationMessage:
                                 case RongWebIMWidget.MessageType.InformationNotificationMessage:
-                                    _this.unshiftHistoryMessages(msg);
+                                    _this.unshiftHistoryMessages(targetId, targetType, msg);
                                     _this.addCustomServiceInfo(msg);
                                     if (msg.content && _this.providerdata.getUserInfo) {
                                         (function (msg) {
                                             _this.providerdata.getUserInfo(msg.senderUserId).then(function (obj) {
                                                 msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
                                             });
-                                            // _this.providerdata.getUserInfo(msg.senderUserId, {
-                                            //     onSuccess: function(obj) {
-                                            //         msg.content.userInfo = new RongWebIMWidget.UserInfo(obj.userId, obj.name, obj.portraitUri);
-                                            //     }
-                                            // })
                                         })(msg);
                                     }
                                     break;
@@ -1554,26 +1574,22 @@ var RongWebIMWidget;
                             switch (con.targetType) {
                                 case RongIMLib.ConversationType.PRIVATE:
                                     if (angular.isFunction(_this.providerdata.getUserInfo)) {
-                                        (function (a, b) {
+                                        (function (a) {
                                             _this.providerdata.getUserInfo(a.targetId).then(function (data) {
                                                 a.title = data.name;
                                                 a.portraitUri = data.portraitUri;
-                                                b.conversationTitle = data.name;
-                                                b.portraitUri = data.portraitUri;
                                             });
-                                        }(con, data[i]));
+                                        }(con));
                                     }
                                     break;
                                 case RongIMLib.ConversationType.GROUP:
                                     if (angular.isFunction(_this.providerdata.getGroupInfo)) {
-                                        (function (a, b) {
+                                        (function (a) {
                                             _this.providerdata.getGroupInfo(a.targetId).then(function (data) {
                                                 a.title = data.name;
                                                 a.portraitUri = data.portraitUri;
-                                                b.conversationTitle = data.name;
-                                                b.portraitUri = data.portraitUri;
                                             });
-                                        }(con, data[i]));
+                                        }(con));
                                     }
                                     break;
                                 case RongIMLib.ConversationType.CHATROOM:
@@ -1608,7 +1624,7 @@ var RongWebIMWidget;
                     onError: function (error) {
                         defer.reject(error);
                     }
-                }, null);
+                }, null, _this.widgetConfig.conversationListLength);
                 return defer.promise;
             };
             ConversationListServer.prototype._getConversation = function (type, id) {
@@ -1835,7 +1851,7 @@ var RongWebIMWidget;
                     var msg = RongWebIMWidget.Message.convert(data);
                     if (RongWebIMWidget.Helper.getType(_this.providerdata.getUserInfo) == "function" && msg.content) {
                         _this.providerdata.getUserInfo(msg.senderUserId).then(function (user) {
-                            msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                            msg.content.userInfo = new RongWebIMWidget.UserInfo(user.userId, user.name, user.portraitUri);
                         });
                     }
                     switch (data.messageType) {
@@ -1849,22 +1865,27 @@ var RongWebIMWidget;
                             var voiceBase = _this.providerdata.voiceSound == true
                                 && eleplaysound
                                 && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
-                                && _this.widgetConfig.voiceNotification;
+                                && _this.widgetConfig.voiceNotification
+                                && !data.offLineMessage;
                             var currentConvversationBase = _this.conversationServer.current
                                 && _this.conversationServer.current.targetType == msg.conversationType
                                 && _this.conversationServer.current.targetId == msg.targetId;
                             var notificationBase = (document.hidden || !_this.display)
                                 && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
-                                && _this.widgetConfig.desktopNotification;
+                                && _this.widgetConfig.desktopNotification
+                                && !data.offLineMessage;
                             if ((_this.widgetConfig.displayConversationList && voiceBase) || (!_this.widgetConfig.displayConversationList && voiceBase && currentConvversationBase)) {
                                 eleplaysound["play"]();
                             }
                             if ((notificationBase && _this.widgetConfig.displayConversationList) || (!_this.widgetConfig.displayConversationList && notificationBase && currentConvversationBase)) {
-                                RongWebIMWidget.NotificationHelper.showNotification({
-                                    title: msg.content.userInfo.name,
-                                    icon: "",
-                                    body: RongWebIMWidget.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
-                                });
+                                if (msg.content) {
+                                    msg.content.userInfo = msg.content.userInfo || {};
+                                    RongWebIMWidget.NotificationHelper.showNotification({
+                                        title: msg.content.userInfo.name || "",
+                                        icon: msg.content.userInfo.portraitUri || "",
+                                        body: RongWebIMWidget.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                                    });
+                                }
                             }
                             break;
                         case RongWebIMWidget.MessageType.ContactNotificationMessage:
@@ -1874,7 +1895,8 @@ var RongWebIMWidget;
                             _this.addMessageAndOperation(msg);
                             break;
                         case RongWebIMWidget.MessageType.UnknownMessage:
-                            //未知消息自行处理
+                            // 转成灰条提示消息
+                            _this.addMessageAndOperation(msg);
                             break;
                         case RongWebIMWidget.MessageType.ReadReceiptMessage:
                             if (data.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
@@ -2089,12 +2111,12 @@ var RongWebIMWidget;
             this.conversationServer = conversationServer;
         }
         SelfCustomerService.prototype.sendMessageHandle = function (msg) {
-            if (this.group && this.currentGroupId !== "") {
+            if (this.group) {
                 if (RongWebIMWidget.Helper.isObject(msg.extra)) {
-                    msg.extra.groupid = this.currentGroupId;
+                    msg.extra.groupid = this.currentGroupId || '0';
                 }
                 else {
-                    msg.extra = { "groupid": this.currentGroupId };
+                    msg.extra = { "groupid": this.currentGroupId || '0' };
                 }
             }
         };
@@ -2108,7 +2130,7 @@ var RongWebIMWidget;
             var wmsg = RongWebIMWidget.Message.convert(msg);
             that.conversationServer.addCustomServiceInfo(wmsg);
             if (isHistory) {
-                that.conversationServer.unshiftHistoryMessages(wmsg);
+                that.conversationServer.unshiftHistoryMessages(that.conversationServer.current.targetId, that.conversationServer.current.targetType, wmsg);
             }
             else {
                 that.conversationServer._addHistoryMessages(wmsg);
@@ -2272,11 +2294,12 @@ var RongWebIMWidget;
     function runApp($http, WebIMWidget, WidgetConfig, RongCustomerService) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
         $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function () {
-            $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function () {
-                $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.2.min.js", function () {
+                // $script.get( "../lib/RongIMLib.js", function() {
+                $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.2.min.js", function () {
                     RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
                 });
-                $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function () {
+                $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.2.min.js", function () {
                     RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
                 });
                 if (WidgetConfig._config) {
@@ -2311,12 +2334,12 @@ var RongWebIMWidget;
             $scope.main = WebIMWidget;
             $scope.config = WidgetConfig;
             $scope.data = providerdata;
-            var voicecookie = RongWebIMWidget.Helper.CookieHelper.getCookie("rongcloud.voiceSound");
+            var voicecookie = RongWebIMWidget.Helper.CookieHelper.get("rongcloud.voiceSound");
             providerdata.voiceSound = voicecookie ? (voicecookie == "true") : true;
             $scope.$watch("data.voiceSound", function (newVal, oldVal) {
                 if (newVal === oldVal)
                     return;
-                RongWebIMWidget.Helper.CookieHelper.setCookie("rongcloud.voiceSound", newVal);
+                RongWebIMWidget.Helper.CookieHelper.set("rongcloud.voiceSound", newVal);
             });
             var interval = null;
             $scope.$watch("data.totalUnreadCount", function (newVal, oldVal) {
@@ -2643,6 +2666,13 @@ var RongWebIMWidget;
                     csg.groups = SDKmsg.content.groups;
                     csg.customerServiceId = SDKmsg.content.customerServiceId;
                     msg.content = csg;
+                    break;
+                case RongWebIMWidget.MessageType.UnknownMessage:
+                    var unk = new InformationNotificationMessage();
+                    unk.content = "不支持此类型消息显示请在其他端查看";
+                    msg.messageType = RongWebIMWidget.MessageType.InformationNotificationMessage;
+                    msg.panelType = 2;
+                    msg.content = unk;
                     break;
                 default:
                     break;
@@ -3172,6 +3202,7 @@ var RongWebIMWidget;
     var WidgetConfig = (function () {
         function WidgetConfig() {
             this.displayConversationList = false;
+            this.conversationListLength = 30;
             this.conversationListPosition = RongWebIMWidget.EnumConversationListPosition.left;
             this.displayMinButton = true;
             this.desktopNotification = false;

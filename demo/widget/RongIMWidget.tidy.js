@@ -603,8 +603,13 @@ var RongWebIMWidget;
                     }
                     $scope.scroll.recordedPosition();
                     conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20, true).then(function (data) {
+                        var currentcache = conversationServer._cacheHistory[key];
+                        var last = currentcache[currentcache.length - 1];
+                        if (last && last.sentTime) {
+                            currentcache.unshift(new RongWebIMWidget.TimePanl(last.sentTime));
+                        }
                         if (data.has) {
-                            conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                            currentcache.unshift(new RongWebIMWidget.GetMoreMessagePanel());
                         }
                         setTimeout(function () {
                             $scope.scroll.scrollToRecordPosition();
@@ -615,10 +620,19 @@ var RongWebIMWidget;
                     var key = $scope.conversation.targetType + "_" + $scope.conversation.targetId;
                     conversationServer._cacheHistory[key].shift();
                     conversationServer._cacheHistory[key].shift();
+                    $scope.scroll.recordedPosition();
                     conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20).then(function (data) {
-                        if (data.has) {
-                            conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                        var currentcache = conversationServer._cacheHistory[key];
+                        var last = currentcache[currentcache.length - 1];
+                        if (last && last.sentTime) {
+                            currentcache.unshift(new RongWebIMWidget.TimePanl(last.sentTime));
                         }
+                        if (data.has) {
+                            currentcache.unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                        }
+                        setTimeout(function () {
+                            $scope.scroll.scrollToRecordPosition();
+                        }, 100);
                     });
                 };
                 $scope.switchPerson = function () {
@@ -1548,7 +1562,6 @@ var RongWebIMWidget;
             ConversationListServer.prototype.updateConversations = function () {
                 var defer = this.$q.defer();
                 var _this = this;
-                console.log("updateConversations");
                 RongIMLib.RongIMClient.getInstance().getConversationList({
                     onSuccess: function (data) {
                         var totalUnreadCount = 0;
@@ -1838,7 +1851,7 @@ var RongWebIMWidget;
                     var msg = RongWebIMWidget.Message.convert(data);
                     if (RongWebIMWidget.Helper.getType(_this.providerdata.getUserInfo) == "function" && msg.content) {
                         _this.providerdata.getUserInfo(msg.senderUserId).then(function (user) {
-                            msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                            msg.content.userInfo = new RongWebIMWidget.UserInfo(user.userId, user.name, user.portraitUri);
                         });
                     }
                     switch (data.messageType) {
@@ -1852,22 +1865,27 @@ var RongWebIMWidget;
                             var voiceBase = _this.providerdata.voiceSound == true
                                 && eleplaysound
                                 && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
-                                && _this.widgetConfig.voiceNotification;
+                                && _this.widgetConfig.voiceNotification
+                                && !data.offLineMessage;
                             var currentConvversationBase = _this.conversationServer.current
                                 && _this.conversationServer.current.targetType == msg.conversationType
                                 && _this.conversationServer.current.targetId == msg.targetId;
                             var notificationBase = (document.hidden || !_this.display)
                                 && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
-                                && _this.widgetConfig.desktopNotification;
+                                && _this.widgetConfig.desktopNotification
+                                && !data.offLineMessage;
                             if ((_this.widgetConfig.displayConversationList && voiceBase) || (!_this.widgetConfig.displayConversationList && voiceBase && currentConvversationBase)) {
                                 eleplaysound["play"]();
                             }
                             if ((notificationBase && _this.widgetConfig.displayConversationList) || (!_this.widgetConfig.displayConversationList && notificationBase && currentConvversationBase)) {
-                                RongWebIMWidget.NotificationHelper.showNotification({
-                                    title: msg.content.userInfo.name,
-                                    icon: "",
-                                    body: RongWebIMWidget.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
-                                });
+                                if (msg.content) {
+                                    msg.content.userInfo = msg.content.userInfo || {};
+                                    RongWebIMWidget.NotificationHelper.showNotification({
+                                        title: msg.content.userInfo.name || "",
+                                        icon: msg.content.userInfo.portraitUri || "",
+                                        body: RongWebIMWidget.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                                    });
+                                }
                             }
                             break;
                         case RongWebIMWidget.MessageType.ContactNotificationMessage:
@@ -1877,7 +1895,8 @@ var RongWebIMWidget;
                             _this.addMessageAndOperation(msg);
                             break;
                         case RongWebIMWidget.MessageType.UnknownMessage:
-                            //未知消息自行处理
+                            // 转成灰条提示消息
+                            _this.addMessageAndOperation(msg);
                             break;
                         case RongWebIMWidget.MessageType.ReadReceiptMessage:
                             if (data.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
@@ -2647,6 +2666,13 @@ var RongWebIMWidget;
                     csg.groups = SDKmsg.content.groups;
                     csg.customerServiceId = SDKmsg.content.customerServiceId;
                     msg.content = csg;
+                    break;
+                case RongWebIMWidget.MessageType.UnknownMessage:
+                    var unk = new InformationNotificationMessage();
+                    unk.content = "不支持此类型消息显示请在其他端查看";
+                    msg.messageType = RongWebIMWidget.MessageType.InformationNotificationMessage;
+                    msg.panelType = 2;
+                    msg.content = unk;
                     break;
                 default:
                     break;

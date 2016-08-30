@@ -163,8 +163,13 @@ module RongWebIMWidget.conversation {
                 }
                 $scope.scroll.recordedPosition();
                 conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20, true).then(function(data) {
+                    var currentcache = conversationServer._cacheHistory[key];
+                    var last = currentcache[currentcache.length - 1];
+                    if (last && last.sentTime) {
+                        currentcache.unshift(new RongWebIMWidget.TimePanl(last.sentTime));
+                    }
                     if (data.has) {
-                        conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                        currentcache.unshift(new RongWebIMWidget.GetMoreMessagePanel());
                     }
                     setTimeout(function() {
                         $scope.scroll.scrollToRecordPosition();
@@ -176,11 +181,19 @@ module RongWebIMWidget.conversation {
                 var key = $scope.conversation.targetType + "_" + $scope.conversation.targetId;
                 conversationServer._cacheHistory[key].shift();
                 conversationServer._cacheHistory[key].shift();
-
+                $scope.scroll.recordedPosition();
                 conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20).then(function(data) {
-                    if (data.has) {
-                        conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                    var currentcache = conversationServer._cacheHistory[key];
+                    var last = currentcache[currentcache.length - 1];
+                    if (last && last.sentTime) {
+                        currentcache.unshift(new RongWebIMWidget.TimePanl(last.sentTime));
                     }
+                    if (data.has) {
+                        currentcache.unshift(new RongWebIMWidget.GetMoreMessagePanel());
+                    }
+                    setTimeout(function() {
+                        $scope.scroll.scrollToRecordPosition();
+                    }, 100);
                 });
             }
 

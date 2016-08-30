@@ -214,7 +214,7 @@ module RongWebIMWidget {
                             new RongWebIMWidget.UserInfo(data.userId,
                                 data.name,
                                 data.portraitUri
-                            )
+                            );
                     });
                 }
 
@@ -264,7 +264,7 @@ module RongWebIMWidget {
 
                     if (RongWebIMWidget.Helper.getType(_this.providerdata.getUserInfo) == "function" && msg.content) {
                         _this.providerdata.getUserInfo(msg.senderUserId).then(function(user) {
-                            msg.content.userInfo = new RongWebIMWidget.UserInfo(data.userId, data.name, data.portraitUri);
+                            msg.content.userInfo = new RongWebIMWidget.UserInfo(user.userId, user.name, user.portraitUri);
                         });
                     }
 
@@ -280,7 +280,8 @@ module RongWebIMWidget {
                                 _this.providerdata.voiceSound == true
                                 && eleplaysound
                                 && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
-                                && _this.widgetConfig.voiceNotification;
+                                && _this.widgetConfig.voiceNotification
+                                && !data.offLineMessage;
                             var currentConvversationBase =
                                 _this.conversationServer.current
                                 && _this.conversationServer.current.targetType == msg.conversationType
@@ -288,16 +289,20 @@ module RongWebIMWidget {
                             var notificationBase =
                                 (document.hidden || !_this.display)
                                 && data.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
-                                && _this.widgetConfig.desktopNotification;
+                                && _this.widgetConfig.desktopNotification
+                                && !data.offLineMessage;
                             if ((_this.widgetConfig.displayConversationList && voiceBase) || (!_this.widgetConfig.displayConversationList && voiceBase && currentConvversationBase)) {
                                 eleplaysound["play"]();
                             }
                             if ((notificationBase && _this.widgetConfig.displayConversationList) || (!_this.widgetConfig.displayConversationList && notificationBase && currentConvversationBase)) {
-                                RongWebIMWidget.NotificationHelper.showNotification({
-                                    title: msg.content.userInfo.name,
-                                    icon: "",
-                                    body: RongWebIMWidget.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
-                                });
+                                if (msg.content) {
+                                    msg.content.userInfo = msg.content.userInfo || {};
+                                    RongWebIMWidget.NotificationHelper.showNotification({
+                                        title: msg.content.userInfo.name || "",
+                                        icon: msg.content.userInfo.portraitUri || "",
+                                        body: RongWebIMWidget.Message.messageToNotification(data), data: { targetId: msg.targetId, targetType: msg.conversationType }
+                                    });
+                                }
                             }
                             break;
                         case RongWebIMWidget.MessageType.ContactNotificationMessage:
@@ -307,7 +312,8 @@ module RongWebIMWidget {
                             _this.addMessageAndOperation(msg);
                             break;
                         case RongWebIMWidget.MessageType.UnknownMessage:
-                            //未知消息自行处理
+                            // 转成灰条提示消息
+                            _this.addMessageAndOperation(msg);
                             break;
                         case RongWebIMWidget.MessageType.ReadReceiptMessage:
                             if (data.messageDirection == RongWebIMWidget.MessageDirection.SEND) {

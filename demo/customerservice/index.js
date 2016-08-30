@@ -16,18 +16,18 @@ demo.controller("main", ["$scope","$http","RongCustomerService", function($scope
   }
 
   RongCustomerService.init({
-        // appkey:"3argexb6r934e",//selfe
-        // token:"I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",//selfe kefu
-        // customerServiceId:"KEFU145914839332836",//selfe
+        appkey:"3argexb6r934e",//selfe
+        token:"I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",//selfe kefu
+        customerServiceId:"KEFU145914839332836",//selfe
 
         // appkey:"e5t4ouvptkf6a",//kehu
         // token:"SIs+A1dNqAGzDekNSEhTDFkorAnYm9Nmdw8vnrfMyunoplOHJxCyEHlkzhq1P1A8aR8MDR1+5Us3yH7RcuzUOA15G+GXlZ2T7QWk/DpW1zu94mpXoD3AMQ==",
         // kefuId:"KEFU146787560842415",
 
-        appkey:"e0x9wycfx7flq",//xiaoqiao
-        token:"3+oyaLdUoAQhGjI0NzA6gO9cj/O9TE0XZXnIWiJyFcQqE4cUBSEOqCIBHjDNnDgInXrI6LqQOeqiHcVqQzKdLuqi4w2E+KrN",
+        // appkey:"e0x9wycfx7flq",//xiaoqiao
+        // token:"3+oyaLdUoAQhGjI0NzA6gO9cj/O9TE0XZXnIWiJyFcQqE4cUBSEOqCIBHjDNnDgInXrI6LqQOeqiHcVqQzKdLuqi4w2E+KrN",
         // customerServiceId:"KEFUxiaoqiaoPrestaShop1",
-        customerServiceId:'KEFUxiaoqiaoZhubajie1',
+        // customerServiceId:'KEFUxiaoqiaoZhubajie1',
         // customerServiceGroup:[{id:"1",name:"group1"},{id:"2",name:"group2"}],
         reminder:"在线咨询",
         // displayMinButton:false,

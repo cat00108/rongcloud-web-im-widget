@@ -44,7 +44,7 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope,
     }
 
     WebIMWidget.setUserInfoProvider(function(targetId,obj){
-        obj.onSuccess({name:"陌："+targetId});
+        obj.onSuccess({userId:targetId, name:"陌："+targetId});
     });
 
 

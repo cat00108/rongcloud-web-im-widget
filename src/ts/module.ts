@@ -262,6 +262,13 @@ module RongWebIMWidget {
                     csg.customerServiceId = SDKmsg.content.customerServiceId;
                     msg.content = csg;
                     break;
+                case MessageType.UnknownMessage:
+                    var unk = new InformationNotificationMessage();
+                    unk.content = "不支持此类型消息显示请在其他端查看";
+                    msg.messageType = MessageType.InformationNotificationMessage;
+                    msg.panelType = 2;
+                    msg.content = unk;
+                    break;
                 default:
 
                     break;

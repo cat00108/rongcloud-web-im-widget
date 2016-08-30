@@ -48,7 +48,6 @@ module RongWebIMWidget.conversationlist {
         updateConversations() {
             var defer = this.$q.defer();
             var _this = this;
-            console.log("updateConversations");
             RongIMLib.RongIMClient.getInstance().getConversationList({
                 onSuccess: function(data) {
                     var totalUnreadCount = 0;
