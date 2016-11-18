@@ -1,43 +1,4 @@
 var Polling = {
-        DeleteMsgInput:function(){
-         var a = {};
-         this.setType = function(b){
-           a.type = b;
-         };
-         this.setConversationId = function(b){
-           a.conversationId = b;
-         };
-         this.setMsgs = function(b){
-           a.msgs = b;
-         };
-         this.toArrayBuffer = function () {
-             return a;
-         }
-        },
-        DeleteMsg:function(){
-          var a = {};
-          this.setMsgId = function(b){
-            a.msgId = b;
-          };
-          this.setMsgDataTime = function(b){
-            a.msgDataTime = b;
-          };
-          this.setDirect = function(b){
-            a.direct = b;
-          };
-          this.toArrayBuffer = function () {
-              return a;
-          }
-        },
-        DeleteMsgOutput:function(){
-         var a = {};
-         this.setNothing = function(b){
-           a.nothing = b;
-         };
-         this.toArrayBuffer = function () {
-             return a;
-         }
-        },
         SearchMpInput:function(){
             var a = {};
             this.setType = function (b) {
@@ -177,12 +138,6 @@ var Polling = {
             };
             this.setPushText = function (b) {
                 a.pushText = b
-            };
-            this.setUserId = function(b){
-                a.userId = b;
-            };
-            this.setAppData = function(b){
-                a.appData = b;
             };
             this.toArrayBuffer = function () {
                 return a
@@ -479,9 +434,6 @@ var Polling = {
             this.setKey = function (b) {
                 a.key = b;
             };
-            this.setFileName = function(b){
-                a.fileName = b;
-            };
             this.toArrayBuffer = function () {
                 return a
             }
@@ -652,9 +604,6 @@ var Polling = {
             };
             this.setMsg = function(b){
                 a.msg = b;
-            };
-            this.setCount = function(b){
-              a.count = b;
             };
             this.toArrayBuffer = function () {
                 return a
@@ -1005,18 +954,8 @@ var Polling = {
     }
 }(this));
 
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var RongIMLib;
 (function (RongIMLib) {
-    (function (MentionedType) {
-        MentionedType[MentionedType["ALL"] = 1] = "ALL";
-        MentionedType[MentionedType["PART"] = 2] = "PART";
-    })(RongIMLib.MentionedType || (RongIMLib.MentionedType = {}));
-    var MentionedType = RongIMLib.MentionedType;
     (function (BlacklistStatus) {
         /**
          * 在黑名单中。
@@ -1072,13 +1011,9 @@ var RongIMLib;
          */
         ConnectionStatus[ConnectionStatus["NETWORK_UNAVAILABLE"] = 3] = "NETWORK_UNAVAILABLE";
         /**
-         * 域名错误
+         * 网络不可用。
          */
         ConnectionStatus[ConnectionStatus["DOMAIN_INCORRECT"] = 12] = "DOMAIN_INCORRECT";
-        /**
-        *  连接关闭。
-        */
-        ConnectionStatus[ConnectionStatus["CONNECTION_CLOSED"] = 4] = "CONNECTION_CLOSED";
     })(RongIMLib.ConnectionStatus || (RongIMLib.ConnectionStatus = {}));
     var ConnectionStatus = RongIMLib.ConnectionStatus;
     (function (ConversationNotificationStatus) {
@@ -1328,8 +1263,6 @@ var RongIMLib;
          * 消息漫游服务未开通
          */
         ErrorCode[ErrorCode["MSG_ROAMING_SERVICE_UNAVAILABLE"] = 33007] = "MSG_ROAMING_SERVICE_UNAVAILABLE";
-        ErrorCode[ErrorCode["MSG_INSERT_ERROR"] = 33008] = "MSG_INSERT_ERROR";
-        ErrorCode[ErrorCode["MSG_DEL_ERROR"] = 33009] = "MSG_DEL_ERROR";
         /**
          * 删除会话失败
          */
@@ -1354,8 +1287,6 @@ var RongIMLib;
          * 获取指定用户ID&会话类型未读消息数异常
          */
         ErrorCode[ErrorCode["CONVER_ID_TYPE_UNREAD_ERROR"] = 34006] = "CONVER_ID_TYPE_UNREAD_ERROR";
-        ErrorCode[ErrorCode["CONVER_CLEAR_ERROR"] = 34007] = "CONVER_CLEAR_ERROR";
-        ErrorCode[ErrorCode["CONVER_GET_ERROR"] = 34008] = "CONVER_GET_ERROR";
         //群组异常信息
         /**
          *
@@ -1419,7 +1350,6 @@ var RongIMLib;
          * cookie被禁用
          */
         ErrorCode[ErrorCode["COOKIE_ENABLE"] = 51001] = "COOKIE_ENABLE";
-        ErrorCode[ErrorCode["GET_MESSAGE_BY_ID_ERROR"] = 61001] = "GET_MESSAGE_BY_ID_ERROR";
         // 没有注册DeviveId 也就是用户没有登陆
         ErrorCode[ErrorCode["HAVNODEVICEID"] = 24001] = "HAVNODEVICEID";
         // 已经存在
@@ -1446,75 +1376,11 @@ var RongIMLib;
         ErrorCode[ErrorCode["ALREADY_IN_USE"] = 51002] = "ALREADY_IN_USE";
         ErrorCode[ErrorCode["INVALID_CHANNEL_NAME"] = 51003] = "INVALID_CHANNEL_NAME";
         ErrorCode[ErrorCode["VIDEO_CONTAINER_IS_NULL"] = 51004] = "VIDEO_CONTAINER_IS_NULL";
-        /**
-        * 删除消息数组长度为 0 .
-        */
-        ErrorCode[ErrorCode["DELETE_MESSAGE_ID_IS_NULL"] = 61001] = "DELETE_MESSAGE_ID_IS_NULL";
-        /*!
-        己方取消已发出的通话请求
-        */
-        ErrorCode[ErrorCode["CANCEL"] = 1] = "CANCEL";
-        /*!
-         己方拒绝收到的通话请求
-         */
-        ErrorCode[ErrorCode["REJECT"] = 2] = "REJECT";
-        /*!
-         己方挂断
-         */
-        ErrorCode[ErrorCode["HANGUP"] = 3] = "HANGUP";
-        /*!
-         己方忙碌
-         */
-        ErrorCode[ErrorCode["BUSYLINE"] = 4] = "BUSYLINE";
-        /*!
-         己方未接听
-         */
-        ErrorCode[ErrorCode["NO_RESPONSE"] = 5] = "NO_RESPONSE";
-        /*!
-         己方不支持当前引擎
-         */
-        ErrorCode[ErrorCode["ENGINE_UN_SUPPORTED"] = 6] = "ENGINE_UN_SUPPORTED";
-        /*!
-         己方网络出错
-         */
-        ErrorCode[ErrorCode["NETWORK_ERROR"] = 7] = "NETWORK_ERROR";
-        /*!
-         对方取消已发出的通话请求
-         */
-        ErrorCode[ErrorCode["REMOTE_CANCEL"] = 11] = "REMOTE_CANCEL";
-        /*!
-         对方拒绝收到的通话请求
-         */
-        ErrorCode[ErrorCode["REMOTE_REJECT"] = 12] = "REMOTE_REJECT";
-        /*!
-         通话过程对方挂断
-         */
-        ErrorCode[ErrorCode["REMOTE_HANGUP"] = 13] = "REMOTE_HANGUP";
-        /*!
-         对方忙碌
-         */
-        ErrorCode[ErrorCode["REMOTE_BUSYLINE"] = 14] = "REMOTE_BUSYLINE";
-        /*!
-         对方未接听
-         */
-        ErrorCode[ErrorCode["REMOTE_NO_RESPONSE"] = 15] = "REMOTE_NO_RESPONSE";
-        /*!
-         对方网络错误
-         */
-        ErrorCode[ErrorCode["REMOTE_ENGINE_UN_SUPPORTED"] = 16] = "REMOTE_ENGINE_UN_SUPPORTED";
-        /*!
-         对方网络错误
-         */
-        ErrorCode[ErrorCode["REMOTE_NETWORK_ERROR"] = 17] = "REMOTE_NETWORK_ERROR";
-        /*!
-         VoIP 不可用
-         */
-        ErrorCode[ErrorCode["VOIP_NOT_AVALIABLE"] = 18] = "VOIP_NOT_AVALIABLE";
     })(RongIMLib.ErrorCode || (RongIMLib.ErrorCode = {}));
     var ErrorCode = RongIMLib.ErrorCode;
     (function (VoIPMediaType) {
-        VoIPMediaType[VoIPMediaType["MEDIA_AUDIO"] = 1] = "MEDIA_AUDIO";
-        VoIPMediaType[VoIPMediaType["MEDIA_VEDIO"] = 2] = "MEDIA_VEDIO";
+        VoIPMediaType[VoIPMediaType["CALLMEDIAAUDIO"] = 1] = "CALLMEDIAAUDIO";
+        VoIPMediaType[VoIPMediaType["CALLMEDIAVEDIO"] = 2] = "CALLMEDIAVEDIO";
     })(RongIMLib.VoIPMediaType || (RongIMLib.VoIPMediaType = {}));
     var VoIPMediaType = RongIMLib.VoIPMediaType;
     (function (MediaType) {
@@ -1551,7 +1417,6 @@ var RongIMLib;
         FileType[FileType["IMAGE"] = 1] = "IMAGE";
         FileType[FileType["AUDIO"] = 2] = "AUDIO";
         FileType[FileType["VIDEO"] = 3] = "VIDEO";
-        FileType[FileType["FILE"] = 4] = "FILE";
     })(RongIMLib.FileType || (RongIMLib.FileType = {}));
     var FileType = RongIMLib.FileType;
     (function (RealTimeLocationErrorCode) {
@@ -1629,7 +1494,6 @@ var RongIMLib;
         ReceivedStatus[ReceivedStatus["LISTENED"] = 2] = "LISTENED";
         ReceivedStatus[ReceivedStatus["DOWNLOADED"] = 4] = "DOWNLOADED";
         ReceivedStatus[ReceivedStatus["RETRIEVED"] = 8] = "RETRIEVED";
-        ReceivedStatus[ReceivedStatus["UNREAD"] = 0] = "UNREAD";
     })(RongIMLib.ReceivedStatus || (RongIMLib.ReceivedStatus = {}));
     var ReceivedStatus = RongIMLib.ReceivedStatus;
     (function (SearchType) {
@@ -1705,62 +1569,34 @@ var RongIMLib;
          * @param appKey    开发者后台申请的 AppKey，用来标识应用。
          * @param dataAccessProvider 必须是DataAccessProvider的实例
          */
-        RongIMClient.init = function (appKey, dataAccessProvider, options) {
+        RongIMClient.init = function (appKey, dataAccessProvider) {
             if (!RongIMClient._instance) {
                 RongIMClient._instance = new RongIMClient();
             }
-            var protocol = "//", wsScheme = 'ws://';
-            if (document.location.protocol == "file:") {
-                protocol = 'http://';
+            if (window["SCHEMETYPE"] == "http") {
+                RongIMClient.schemeType = RongIMLib.ConnectionChannel.HTTP;
             }
-            else if (document.location.protocol == 'https:') {
-                wsScheme = 'wss://';
+            else if (window["SCHEMETYPE"] == "https") {
+                RongIMClient.schemeType = RongIMLib.ConnectionChannel.HTTPS;
             }
-            var browser = navigator.appName, b_version = navigator.appVersion, version = b_version.split(";"), isPolling = false;
-            if (version.length > 1) {
-                var trim_Version = parseInt(version[1].replace(/[ ]/g, "").replace(/MSIE/g, ""));
-                if (trim_Version < 10) {
-                    isPolling = true;
-                }
-                if (trim_Version < 8 && trim_Version > 4) {
-                    RongIMClient._storageProvider = new RongIMLib.UserDataProvider();
+            else {
+                if (document.location.protocol == "http:") {
+                    RongIMClient.schemeType = RongIMLib.ConnectionChannel.HTTP;
                 }
                 else {
-                    RongIMClient._storageProvider = new RongIMLib.LocalStorageProvider();
+                    RongIMClient.schemeType = RongIMLib.ConnectionChannel.HTTPS;
                 }
             }
-            else {
-                RongIMClient._storageProvider = new RongIMLib.LocalStorageProvider();
-            }
-            var opts = RongIMLib.ObjectTools.buildOptions(options, {
-                protobuf: protocol + 'cdn.ronghub.com/protobuf-2.1.5.min.js',
-                long: protocol + 'cdn.ronghub.com/Long.js',
-                byteBuffer: protocol + 'cdn.ronghub.com/byteBuffer.js',
-                // navi: protocol + '119.254.111.49:9100',
-                navi: protocol + 'nav.cn.ronghub.com',
-                api: protocol + 'api.cn.ronghub.com',
-                emojiImage: protocol + 'cdn.ronghub.com/css-sprite_bg-2.1.10.png',
-                voiceLibamr: protocol + 'cdn.ronghub.com/libamr-2.0.12.min.js',
-                voicePCMdata: protocol + 'cdn.ronghub.com/pcmdata-2.0.0.min.js',
-                voiceSwfobjct: protocol + 'cdn.ronghub.com/swfobject-2.0.0.min.js',
-                voicePlaySwf: protocol + 'cdn.ronghub.com/player-2.0.2.swf',
-                callFile: protocol + 'cdn.ronghub.com/AgoraRtcAgentSDK-1.4.2.js',
-                isPolling: isPolling,
-                wsScheme: wsScheme,
-                cookieValidity: 1,
-                protocol: protocol,
-                openMp: true,
-                isPrivate: false,
-                postImageUrl: protocol + 'upload.qiniu.com/putb64/-1',
-                fileServer: protocol + 'upload.qiniu.com'
-            }, protocol);
-            if (document.location.protocol == 'https:') {
-                opts.fileServer = 'https://' + (options && options.fileServer || 'upload.qiniu.com');
-                opts.postImageUrl = 'https://' + (options && options.postImageUrl || 'upload.qiniu.com/putb64/-1');
-            }
-            else {
-                opts.fileServer = 'http://' + (options && options.fileServer || 'upload.qiniu.com');
-                opts.postImageUrl = 'https://' + (options && options.postImageUrl || 'upload.qiniu.com/putb64/-1');
+            if (!window["WEB_XHR_POLLING"]) {
+                var browser = navigator.appName;
+                var b_version = navigator.appVersion;
+                var version = b_version.split(";");
+                if (version.length > 1) {
+                    var trim_Version = parseInt(version[1].replace(/[ ]/g, "").replace(/MSIE/g, ""));
+                    if (trim_Version < 10) {
+                        window["WEB_XHR_POLLING"] = true;
+                    }
+                }
             }
             var pather = new RongIMLib.FeaturePatcher();
             pather.patchAll();
@@ -1781,27 +1617,26 @@ var RongIMLib;
                 isUseWebSQLProvider: false,
                 otherDevice: false,
                 custStore: {},
-                converStore: { latestMessage: {} },
-                connectAckTime: 0,
-                voipStategy: 0,
-                isFirstPingMsg: true,
-                depend: opts
+                converStore: {}
             };
+            if ("RongIMAgoraVoIP" in RongIMLib) {
+                eval("RongIMLib.RongIMAgoraVoIP.init(RongIMClient._instance)");
+                RongIMClient._voipProvider = eval("RongIMLib.RongIMAgoraVoIP.getInstance()");
+            }
+            RongIMClient._cookieHelper = RongIMLib.CheckParam.getInstance().checkCookieDisable() ? new RongIMLib.MemeoryProvider() : new RongIMLib.CookieProvider();
             if (dataAccessProvider && Object.prototype.toString.call(dataAccessProvider) == "[object Object]") {
-                // RongIMClient._memoryStore.isUseWebSQLProvider = true;  处理不同存储方案
                 RongIMClient._dataAccessProvider = dataAccessProvider;
+                RongIMClient._memoryStore.isUseWebSQLProvider = true;
             }
             else {
                 RongIMClient._dataAccessProvider = new RongIMLib.ServerDataProvider();
             }
-            RongIMClient._dataAccessProvider.init(appKey);
             RongIMClient.MessageParams = {
                 TextMessage: { objectName: "RC:TxtMsg", msgTag: new RongIMLib.MessageTag(true, true) },
                 ImageMessage: { objectName: "RC:ImgMsg", msgTag: new RongIMLib.MessageTag(true, true) },
                 DiscussionNotificationMessage: { objectName: "RC:DizNtf", msgTag: new RongIMLib.MessageTag(true, true) },
                 VoiceMessage: { objectName: "RC:VcMsg", msgTag: new RongIMLib.MessageTag(true, true) },
                 RichContentMessage: { objectName: "RC:ImgTextMsg", msgTag: new RongIMLib.MessageTag(true, true) },
-                FileMessage: { objectName: "RC:FileMsg", msgTag: new RongIMLib.MessageTag(true, true) },
                 HandshakeMessage: { objectName: "", msgTag: new RongIMLib.MessageTag(true, true) },
                 UnknownMessage: { objectName: "", msgTag: new RongIMLib.MessageTag(true, true) },
                 LocationMessage: { objectName: "RC:LBSMsg", msgTag: new RongIMLib.MessageTag(true, true) },
@@ -1811,18 +1646,9 @@ var RongIMLib;
                 CommandNotificationMessage: { objectName: "RC:CmdNtf", msgTag: new RongIMLib.MessageTag(true, true) },
                 CommandMessage: { objectName: "RC:CmdMsg", msgTag: new RongIMLib.MessageTag(false, false) },
                 TypingStatusMessage: { objectName: "RC:TypSts", msgTag: new RongIMLib.MessageTag(false, false) },
-                PublicServiceRichContentMessage: { objectName: "RC:PSImgTxtMsg", msgTag: new RongIMLib.MessageTag(true, true) },
-                PublicServiceMultiRichContentMessage: { objectName: "RC:PSMultiImgTxtMsg", msgTag: new RongIMLib.MessageTag(true, true) },
-                GroupNotificationMessage: { objectName: "RC:GrpNtf", msgTag: new RongIMLib.MessageTag(false, true) },
-                PublicServiceCommandMessage: { objectName: "RC:PSCmd", msgTag: new RongIMLib.MessageTag(false, false) },
-                RecallCommandMessage: { objectName: "RC:RcCmd", msgTag: new RongIMLib.MessageTag(false, true) },
-                SyncReadStatusMessage: { objectName: "RC:SRSMsg", msgTag: new RongIMLib.MessageTag(false, false) },
-                ReadReceiptRequestMessage: { objectName: "RC:RRReqMsg", msgTag: new RongIMLib.MessageTag(false, false) },
-                ReadReceiptResponseMessage: { objectName: "RC:RRRspMsg", msgTag: new RongIMLib.MessageTag(false, false) },
                 ChangeModeResponseMessage: { objectName: "RC:CsChaR", msgTag: new RongIMLib.MessageTag(false, false) },
                 ChangeModeMessage: { objectName: "RC:CSCha", msgTag: new RongIMLib.MessageTag(false, false) },
                 EvaluateMessage: { objectName: "RC:CsEva", msgTag: new RongIMLib.MessageTag(false, false) },
-                CustomerContact: { objectName: "RC:CsContact", msgTag: new RongIMLib.MessageTag(false, false) },
                 HandShakeMessage: { objectName: "RC:CsHs", msgTag: new RongIMLib.MessageTag(false, false) },
                 HandShakeResponseMessage: { objectName: "RC:CsHsR", msgTag: new RongIMLib.MessageTag(false, false) },
                 SuspendMessage: { objectName: "RC:CsSp", msgTag: new RongIMLib.MessageTag(false, false) },
@@ -1830,15 +1656,15 @@ var RongIMLib;
                 CustomerStatusUpdateMessage: { objectName: "RC:CsUpdate", msgTag: new RongIMLib.MessageTag(false, false) },
                 ReadReceiptMessage: { objectName: "RC:ReadNtf", msgTag: new RongIMLib.MessageTag(false, false) }
             };
-            // if ('RongCallLib' in RongIMLib) {
-            RongIMClient.MessageParams["AcceptMessage"] = { objectName: "RC:VCAccept", msgTag: new RongIMLib.MessageTag(false, false) };
-            RongIMClient.MessageParams["RingingMessage"] = { objectName: "RC:VCRinging", msgTag: new RongIMLib.MessageTag(false, false) };
-            RongIMClient.MessageParams["SummaryMessage"] = { objectName: "RC:VCSummary", msgTag: new RongIMLib.MessageTag(false, false) };
-            RongIMClient.MessageParams["HungupMessage"] = { objectName: "RC:VCHangup", msgTag: new RongIMLib.MessageTag(false, false) };
-            RongIMClient.MessageParams["InviteMessage"] = { objectName: "RC:VCInvite", msgTag: new RongIMLib.MessageTag(false, false) };
-            RongIMClient.MessageParams["MediaModifyMessage"] = { objectName: "RC:VCModifyMedia", msgTag: new RongIMLib.MessageTag(false, false) };
-            RongIMClient.MessageParams["MemberModifyMessage"] = { objectName: "RC:VCModifyMem", msgTag: new RongIMLib.MessageTag(false, false) };
-            // }
+            if ('RongIMAgoraVoIP' in RongIMLib) {
+                RongIMClient.MessageParams["AcceptMessage"] = { objectName: "RC:VCAccept", msgTag: new RongIMLib.MessageTag(false, false) };
+                RongIMClient.MessageParams["RingingMessage"] = { objectName: "RC:VCRinging", msgTag: new RongIMLib.MessageTag(false, false) };
+                RongIMClient.MessageParams["SummaryMessage"] = { objectName: "RC:VCSummary", msgTag: new RongIMLib.MessageTag(false, false) };
+                RongIMClient.MessageParams["HangupMessage"] = { objectName: "RC:VCHangup", msgTag: new RongIMLib.MessageTag(false, false) };
+                RongIMClient.MessageParams["InviteMessage"] = { objectName: "RC:VCInvite", msgTag: new RongIMLib.MessageTag(false, false) };
+                RongIMClient.MessageParams["MediaModifyMessage"] = { objectName: "RC:VCModifyMedia", msgTag: new RongIMLib.MessageTag(false, false) };
+                RongIMClient.MessageParams["MemberModifyMessage"] = { objectName: "RC:VCModifyMem", msgTag: new RongIMLib.MessageTag(false, false) };
+            }
             RongIMClient.MessageType = {
                 TextMessage: "TextMessage",
                 ImageMessage: "ImageMessage",
@@ -1861,16 +1687,11 @@ var RongIMLib;
                 HandShakeResponseMessage: "HandShakeResponseMessage",
                 SuspendMessage: "SuspendMessage",
                 TerminateMessage: "TerminateMessage",
-                CustomerContact: "CustomerContact",
                 CustomerStatusUpdateMessage: "CustomerStatusUpdateMessage",
-                SyncReadStatusMessage: "SyncReadStatusMessage",
-                ReadReceiptRequestMessage: "ReadReceiptRequestMessage",
-                ReadReceiptResponseMessage: "ReadReceiptResponseMessage",
-                FileMessage: 'FileMessage',
                 AcceptMessage: "AcceptMessage",
                 RingingMessage: "RingingMessage",
                 SummaryMessage: "SummaryMessage",
-                HungupMessage: "HungupMessage",
+                HangupMessage: "HangupMessage",
                 InviteMessage: "InviteMessage",
                 MediaModifyMessage: "MediaModifyMessage",
                 MemberModifyMessage: "MemberModifyMessage"
@@ -1882,12 +1703,45 @@ var RongIMLib;
          * @param token     从服务端获取的用户身份令牌（Token）。
          * @param callback  连接回调，返回连接的成功或者失败状态。
          */
-        RongIMClient.connect = function (token, callback, userId) {
-            RongIMLib.CheckParam.getInstance().check(["string", "object", "string|null|object|global|undefined"], "connect", true);
-            RongIMClient._dataAccessProvider.connect(token, callback, userId);
+        RongIMClient.connect = function (token, callback) {
+            RongIMLib.CheckParam.getInstance().check(["string", "object"], "connect", true);
+            RongIMClient.bridge = RongIMLib.Bridge.getInstance();
+            RongIMClient._memoryStore.token = token;
+            RongIMClient._memoryStore.callback = callback;
+            if (!navigator.cookieEnabled) {
+                setTimeout(function () {
+                    callback.onError(RongIMLib.ErrorCode.COOKIE_ENABLE);
+                });
+                return;
+            }
+            RongIMClient.bridge.connect(RongIMClient._memoryStore.appKey, token, {
+                onSuccess: function (data) {
+                    setTimeout(function () {
+                        callback.onSuccess(data);
+                    });
+                },
+                onError: function (e) {
+                    if (e == RongIMLib.ConnectionState.TOKEN_INCORRECT || !e) {
+                        setTimeout(function () {
+                            callback.onTokenIncorrect();
+                        });
+                    }
+                    else {
+                        setTimeout(function () {
+                            callback.onError(e);
+                        });
+                    }
+                }
+            });
+            //循环设置监听事件，追加之后清空存放事件数据
+            for (var i = 0, len = RongIMClient._memoryStore.listenerList.length; i < len; i++) {
+                RongIMClient.bridge["setListener"](RongIMClient._memoryStore.listenerList[i]);
+            }
+            RongIMClient._memoryStore.listenerList.length = 0;
+            return RongIMClient._instance;
         };
         RongIMClient.reconnect = function (callback) {
-            RongIMClient._dataAccessProvider.reconnect(callback);
+            RongIMClient.bridge.reconnect(callback);
         };
         /**
          * 注册消息类型，用于注册用户自定义的消息。
@@ -1896,10 +1750,31 @@ var RongIMLib;
          * @param objectName  消息内置名称
          */
         RongIMClient.registerMessageType = function (messageType, objectName, messageTag, messageContent) {
-            RongIMClient._dataAccessProvider.registerMessageType(messageType, objectName, messageTag, messageContent);
+            if (!messageType) {
+                throw new Error("messageType can't be empty,postion -> registerMessageType");
+            }
+            if (!objectName) {
+                throw new Error("objectName can't be empty,postion -> registerMessageType");
+            }
+            if (Object.prototype.toString.call(messageContent) == "[object Array]") {
+                var regMsg = RongIMLib.ModelUtil.modleCreate(messageContent, messageType);
+                RongIMClient.RegisterMessage[messageType] = regMsg;
+            }
+            else if (Object.prototype.toString.call(messageContent) == "[object Function]" || Object.prototype.toString.call(messageContent) == "[object Object]") {
+                if (!messageContent.encode) {
+                    throw new Error("encode method has not realized or messageName is undefined-> registerMessageType");
+                }
+                if (!messageContent.decode) {
+                    throw new Error("decode method has not realized -> registerMessageType");
+                }
+            }
+            else {
+                throw new Error("The index of 3 parameter was wrong type  must be object or function or array-> registerMessageType");
+            }
             RongIMClient.RegisterMessage[messageType].messageName = messageType;
             RongIMClient.MessageType[messageType] = messageType;
             RongIMClient.MessageParams[messageType] = { objectName: objectName, msgTag: messageTag };
+            registerMessageTypeMapping[objectName] = messageType;
         };
         /**
          * 设置连接状态变化的监听器。
@@ -1907,7 +1782,12 @@ var RongIMLib;
          * @param listener  连接状态变化的监听器。
          */
         RongIMClient.setConnectionStatusListener = function (listener) {
-            RongIMClient._dataAccessProvider.setConnectionStatusListener(listener);
+            if (RongIMClient.bridge) {
+                RongIMClient.bridge.setListener(listener);
+            }
+            else {
+                RongIMClient._memoryStore.listenerList.push(listener);
+            }
         };
         /**
          * 设置接收消息的监听器。
@@ -1915,24 +1795,31 @@ var RongIMLib;
          * @param listener  接收消息的监听器。
          */
         RongIMClient.setOnReceiveMessageListener = function (listener) {
-            RongIMClient._dataAccessProvider.setOnReceiveMessageListener(listener);
+            if (RongIMClient.bridge) {
+                RongIMClient.bridge.setListener(listener);
+            }
+            else {
+                RongIMClient._memoryStore.listenerList.push(listener);
+            }
         };
         /**
          * 清理所有连接相关的变量
          */
         RongIMClient.prototype.logout = function () {
-            RongIMClient._dataAccessProvider.logout();
+            RongIMClient.bridge.disconnect();
+            RongIMClient.bridge = null;
         };
         /**
          * 断开连接。
          */
         RongIMClient.prototype.disconnect = function () {
-            RongIMClient._dataAccessProvider.disconnect();
+            RongIMClient.bridge.disconnect();
         };
-        RongIMClient.prototype.startCustomService = function (custId, callback) {
+        RongIMClient.prototype.startCustomService = function (custId, callback, groupid) {
             if (!custId || !callback)
                 return;
             var msg = new RongIMLib.HandShakeMessage();
+            msg.groupid = groupid || "0";
             var me = this;
             RongIMLib.RongIMClient._memoryStore.custStore["isInit"] = true;
             RongIMClient.getInstance().sendMessage(RongIMLib.ConversationType.CUSTOMER_SERVICE, custId, msg, {
@@ -1989,7 +1876,7 @@ var RongIMLib;
             var session = RongIMClient._memoryStore.custStore[custId];
             if (!session)
                 return;
-            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, isRobotResolved: isRobotResolved, sugest: sugest, type: 0 });
+            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, isresolve: isRobotResolved, suggest: sugest, type: 0 });
             this.sendCustMessage(custId, msg, callback);
         };
         RongIMClient.prototype.evaluateHumanCustomService = function (custId, humanValue, sugest, callback) {
@@ -1998,7 +1885,7 @@ var RongIMLib;
             var session = RongIMClient._memoryStore.custStore[custId];
             if (!session)
                 return;
-            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, humanValue: humanValue, sugest: sugest, type: 1 });
+            var msg = new RongIMLib.EvaluateMessage({ sid: session.sid, uid: session.uid, pid: session.pid, source: humanValue, suggest: sugest, type: 1 });
             this.sendCustMessage(custId, msg, callback);
         };
         RongIMClient.prototype.sendCustMessage = function (custId, msg, callback) {
@@ -2094,7 +1981,7 @@ var RongIMLib;
          * @param callback  获取的回调，返回差值。
          */
         RongIMClient.prototype.getDeltaTime = function () {
-            return RongIMClient._dataAccessProvider.getDelaTime();
+            return RongIMClient._memoryStore.deltaTime;
         };
         // #region Message
         RongIMClient.prototype.getMessage = function (messageId, callback) {
@@ -2140,30 +2027,6 @@ var RongIMLib;
                 }
             });
         };
-        RongIMClient.prototype.deleteRemoteMessages = function (conversationType, targetId, delMsgs, callback) {
-            RongIMLib.CheckParam.getInstance().check(["number", "string", "array", "object"], "deleteRemoteMessages");
-            if (delMsgs.length == 0) {
-                callback.onError(RongIMLib.ErrorCode.DELETE_MESSAGE_ID_IS_NULL);
-                return;
-            }
-            else if (delMsgs.length > 100) {
-                delMsgs.length = 100;
-            }
-            // 后续增加，去掉注释即可
-            callback.onSuccess(true);
-            // var modules = new Modules.DeleteMsgInput();
-            // modules.setType(conversationType);
-            // modules.setConversationId(targetId);
-            // modules.setMsgs(delMsgs);
-            // RongIMClient.bridge.queryMsg(33, MessageUtil.ArrayForm(modules.toArrayBuffer()), Bridge._client.userId, {
-            //     onSuccess: function(info: any) {
-            //         callback.onSuccess(true);
-            //     },
-            //     onError: function(err: any) {
-            //         callback.onError(err);
-            //     }
-            // }, "DeleteMsgOutput");
-        };
         /**
          * [deleteMessages 删除消息记录。]
          * @param  {ConversationType}        conversationType [description]
@@ -2171,8 +2034,8 @@ var RongIMLib;
          * @param  {number[]}                messageIds       [description]
          * @param  {ResultCallback<boolean>} callback         [description]
          */
-        RongIMClient.prototype.deleteMessages = function (conversationType, targetId, delMsgs, callback) {
-            RongIMClient._dataAccessProvider.removeMessage(conversationType, targetId, delMsgs, {
+        RongIMClient.prototype.deleteMessages = function (conversationType, targetId, messageUIds, callback) {
+            RongIMClient._dataAccessProvider.removeMessage(conversationType, targetId, messageUIds, {
                 onSuccess: function (bool) {
                     setTimeout(function () {
                         callback.onSuccess(bool);
@@ -2200,15 +2063,104 @@ var RongIMLib;
          * @param  {string}                  pushContent      []
          * @param  {string}                  pushData         []
          */
-        RongIMClient.prototype.sendMessage = function (conversationType, targetId, messageContent, sendCallback, mentiondMsg, pushText, appData) {
-            RongIMLib.CheckParam.getInstance().check(["number", "string", "object", "object", "undefined|object|null|global|boolean", "undefined|object|null|global|string", "undefined|object|null|global|string"], "sendMessage");
-            RongIMClient._dataAccessProvider.sendMessage(conversationType, targetId, messageContent, sendCallback, mentiondMsg, pushText, appData);
-        };
-        RongIMClient.prototype.sendReceiptResponse = function (conversationType, targetId, sendCallback) {
-            RongIMClient._dataAccessProvider.sendReceiptResponse(conversationType, targetId, sendCallback);
+        RongIMClient.prototype.sendMessage = function (conversationType, targetId, messageContent, sendCallback) {
+            RongIMLib.CheckParam.getInstance().check(["number", "string", "object", "object"], "sendMessage");
+            if (!RongIMLib.Bridge._client.channel) {
+                sendCallback.onError(RongIMLib.ErrorCode.RC_NET_UNAVAILABLE, null);
+                return;
+            }
+            if (!RongIMLib.Bridge._client.channel.socket.socket.connected) {
+                sendCallback.onError(RongIMLib.ErrorCode.TIMEOUT, null);
+                throw new Error("connect is timeout! postion:sendMessage");
+            }
+            var modules = new Modules.UpStreamMessage();
+            modules.setSessionId(RongIMClient.MessageParams[messageContent.messageName].msgTag.getMessageTag());
+            modules.setClassname(RongIMClient.MessageParams[messageContent.messageName].objectName);
+            modules.setContent(messageContent.encode());
+            var content = modules.toArrayBuffer();
+            if (Object.prototype.toString.call(content) == "[object ArrayBuffer]") {
+                content = [].slice.call(new Int8Array(content));
+            }
+            var c = null, me = this, msg = new RongIMLib.Message();
+            this.getConversation(conversationType, targetId, {
+                onSuccess: function (conver) {
+                    c = conver;
+                    if (RongIMClient.MessageParams[msg.messageType].msgTag.getMessageTag() == 3) {
+                        if (!c) {
+                            c = me.createConversation(conversationType, targetId, "");
+                        }
+                        c.sentTime = new Date().getTime();
+                        c.sentStatus = RongIMLib.SentStatus.SENDING;
+                        c.senderUserName = "";
+                        c.senderUserId = RongIMLib.Bridge._client.userId;
+                        c.notificationStatus = RongIMLib.ConversationNotificationStatus.DO_NOT_DISTURB;
+                        c.latestMessage = msg;
+                        c.unreadMessageCount = 0;
+                        RongIMClient._dataAccessProvider.addConversation(c, { onSuccess: function (data) { } });
+                    }
+                    RongIMClient._memoryStore.converStore = c;
+                }
+            });
+            msg.content = messageContent;
+            msg.conversationType = conversationType;
+            msg.senderUserId = RongIMLib.Bridge._client.userId;
+            msg.objectName = RongIMClient.MessageParams[messageContent.messageName].objectName;
+            msg.targetId = targetId;
+            msg.sentTime = new Date().getTime();
+            msg.messageDirection = RongIMLib.MessageDirection.SEND;
+            msg.sentStatus = RongIMLib.SentStatus.SENT;
+            msg.messageType = messageContent.messageName;
+            RongIMClient.bridge.pubMsg(conversationType.valueOf(), content, targetId, {
+                onSuccess: function (data) {
+                    if (RongIMClient.MessageParams[msg.messageType].msgTag.getMessageTag() == 3) {
+                        RongIMClient._memoryStore.converStore.latestMessage = msg;
+                        RongIMClient._dataAccessProvider.addMessage(conversationType, targetId, msg, {
+                            onSuccess: function (ret) {
+                                msg = ret;
+                                msg.messageUId = data.messageUId;
+                                msg.sentTime = data.timestamp;
+                                msg.sentStatus = RongIMLib.SentStatus.SENT;
+                                RongIMClient._dataAccessProvider.updateMessage(msg);
+                            },
+                            onError: function () { }
+                        });
+                    }
+                    setTimeout(function () {
+                        sendCallback.onSuccess(msg);
+                    });
+                },
+                onError: function (errorCode) {
+                    msg.sentStatus = RongIMLib.SentStatus.FAILED;
+                    RongIMClient._memoryStore.converStore.latestMessage = msg;
+                    RongIMClient._dataAccessProvider.addMessage(conversationType, targetId, msg, {
+                        onSuccess: function (ret) {
+                            msg.messageId = ret.messageId;
+                            RongIMClient._dataAccessProvider.updateMessage(msg);
+                        },
+                        onError: function () { }
+                    });
+                    setTimeout(function () {
+                        sendCallback.onError(errorCode, msg);
+                    });
+                }
+            }, null);
         };
         RongIMClient.prototype.sendTypingStatusMessage = function (conversationType, targetId, messageName, sendCallback) {
-            RongIMClient._dataAccessProvider.sendTypingStatusMessage(conversationType, targetId, messageName, sendCallback);
+            var me = this;
+            if (messageName in RongIMClient.MessageParams) {
+                me.sendMessage(conversationType, targetId, RongIMLib.TypingStatusMessage.obtain(RongIMClient.MessageParams[messageName].objectName, ""), {
+                    onSuccess: function () {
+                        setTimeout(function () {
+                            sendCallback.onSuccess();
+                        });
+                    },
+                    onError: function (errorCode) {
+                        setTimeout(function () {
+                            sendCallback.onError(errorCode, null);
+                        });
+                    }
+                });
+            }
         };
         /**
          * [sendStatusMessage description]
@@ -2225,7 +2177,8 @@ var RongIMLib;
          * @param  {ResultCallback<Message>} resultCallback [返回值，参数回调]
          */
         RongIMClient.prototype.sendTextMessage = function (conversationType, targetId, content, sendMessageCallback) {
-            RongIMClient._dataAccessProvider.sendTextMessage(conversationType, targetId, content, sendMessageCallback);
+            var msgContent = RongIMLib.TextMessage.obtain(content);
+            this.sendMessage(conversationType, targetId, msgContent, sendMessageCallback);
         };
         /**
          * [insertMessage 向本地插入一条消息，不发送到服务器。]
@@ -2243,7 +2196,6 @@ var RongIMLib;
             msg.content = content;
             msg.sentTime = +new Date;
             msg.messageType = content.messageName;
-            msg.objectName = RongIMClient.MessageParams[content.messageName].objectName;
             RongIMClient._dataAccessProvider.addMessage(conversationType, targetId, msg, callback);
         };
         /**
@@ -2283,7 +2235,37 @@ var RongIMLib;
                 callback.onError(RongIMLib.ErrorCode.RC_CONN_PROTO_VERSION_ERROR);
                 return;
             }
-            RongIMClient._dataAccessProvider.getRemoteHistoryMessages(conversationType, targetId, timestamp, count, callback);
+            var modules = new Modules.HistoryMessageInput(), self = this;
+            modules.setTargetId(targetId);
+            if (timestamp === 0) {
+                modules.setDataTime(timestamp);
+            }
+            else {
+                modules.setDataTime(RongIMClient._memoryStore.lastReadTime.get(conversationType + targetId));
+            }
+            modules.setSize(count);
+            RongIMClient.bridge.queryMsg(HistoryMsgType[conversationType], RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), targetId, {
+                onSuccess: function (data) {
+                    RongIMClient._memoryStore.lastReadTime.set(conversationType + targetId, RongIMLib.MessageUtil.int64ToTimestamp(data.syncTime));
+                    var list = data.list.reverse();
+                    for (var i = 0, len = list.length; i < len; i++) {
+                        list[i] = RongIMLib.MessageUtil.messageParser(list[i]);
+                    }
+                    setTimeout(function () {
+                        callback.onSuccess(list, !!data.hasMsg);
+                    });
+                },
+                onError: function (error) {
+                    setTimeout(function () {
+                        if (error === RongIMLib.ErrorCode.TIMEOUT) {
+                            callback.onError(error);
+                        }
+                        else {
+                            callback.onSuccess([], false);
+                        }
+                    });
+                }
+            }, "HistoryMessagesOuput");
         };
         /**
          * [hasRemoteUnreadMessages 是否有未接收的消息，jsonp方法]
@@ -2292,9 +2274,20 @@ var RongIMLib;
          * @param  {ConnectCallback} callback [返回值，参数回调]
          */
         RongIMClient.prototype.hasRemoteUnreadMessages = function (token, callback) {
-            RongIMClient._dataAccessProvider.hasRemoteUnreadMessages(token, callback);
+            var xss = null;
+            window.RCCallback = function (x) {
+                setTimeout(function () { callback.onSuccess(!!+x.status); });
+                xss.parentNode.removeChild(xss);
+            };
+            xss = document.createElement("script");
+            xss.src = RongIMLib.MessageUtil.schemeArrs[RongIMClient.schemeType][0] + "://api.cn.ronghub.com/message/exist.js?appKey=" + encodeURIComponent(RongIMClient._memoryStore.appKey) + "&token=" + encodeURIComponent(token) + "&callBack=RCCallback&_=" + Date.now();
+            document.body.appendChild(xss);
+            xss.onerror = function () {
+                setTimeout(function () { callback.onError(RongIMLib.ErrorCode.UNKNOWN); });
+                xss.parentNode.removeChild(xss);
+            };
         };
-        RongIMClient.prototype.getTotalUnreadCount = function (callback, conversationTypes) {
+        RongIMClient.prototype.getTotalUnreadCount = function (callback) {
             RongIMClient._dataAccessProvider.getTotalUnreadCount({
                 onSuccess: function (count) {
                     setTimeout(function () {
@@ -2306,7 +2299,7 @@ var RongIMLib;
                         callback.onError(errorCode);
                     });
                 }
-            }, conversationTypes);
+            });
         };
         /**
          * [getConversationUnreadCount 指定多种会话类型获取未读消息数]
@@ -2365,10 +2358,6 @@ var RongIMLib;
                     });
                 }
             });
-        };
-        RongIMClient.prototype.clearLocalStorage = function (callback) {
-            RongIMClient._storageProvider.clearItem();
-            callback();
         };
         RongIMClient.prototype.setMessageExtra = function (messageId, value, callback) {
             RongIMClient._dataAccessProvider.setMessageExtra(messageId, value, {
@@ -2452,12 +2441,6 @@ var RongIMLib;
         };
         // #endregion TextMessage Draft
         // #region Conversation
-        RongIMClient.prototype.searchConversationByContent = function (keyword, callback, conversationTypes) {
-            RongIMClient._dataAccessProvider.searchConversationByContent(keyword, callback, conversationTypes);
-        };
-        RongIMClient.prototype.searchMessageByContent = function (conversationType, targetId, keyword, timestamp, count, total, callback) {
-            RongIMClient._dataAccessProvider.searchMessageByContent(conversationType, targetId, keyword, timestamp, count, total, callback);
-        };
         RongIMClient.prototype.clearConversations = function (callback) {
             var conversationTypes = [];
             for (var _i = 1; _i < arguments.length; _i++) {
@@ -2532,14 +2515,9 @@ var RongIMLib;
                     conver.receivedTime = conver.latestMessage.receiveTime;
                     conver.sentStatus = conver.latestMessage.sentStatus;
                     conver.sentTime = conver.latestMessage.sentTime;
-                    var mentioneds = RongIMClient._storageProvider.getItem("mentioneds_" + RongIMLib.Bridge._client.userId + '_' + conver.conversationType + '_' + conver.targetId);
-                    if (mentioneds) {
-                        var info = JSON.parse(mentioneds);
-                        conver.mentionedMsg = info[tempConver.type + "_" + tempConver.userId];
-                    }
                     if (!isUseReplace) {
                         if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                            var count = RongIMClient._storageProvider.getItem("cu" + RongIMLib.Bridge._client.userId + tempConver.type + tempConver.userId);
+                            var count = RongIMLib.LocalStorageProvider.getInstance().getItem("cu" + RongIMLib.Bridge._client.userId + tempConver.type + tempConver.userId);
                             conver.unreadMessageCount = Number(count);
                         }
                         else {
@@ -2572,13 +2550,13 @@ var RongIMLib;
         };
         RongIMClient.prototype.sortConversationList = function (conversationList) {
             var convers = [];
-            for (var i = 0; i < conversationList.length; i++) {
+            for (var i = 0, len = conversationList.length; i < len; i++) {
                 if (conversationList[i].isTop) {
                     convers.push(conversationList[i]);
                     conversationList.splice(i, 1);
                     continue;
                 }
-                for (var j = 0; j < conversationList.length - i - 1; j++) {
+                for (var j = 0; j < len - i - 1; j++) {
                     if (conversationList[j].sentTime < conversationList[j + 1].sentTime) {
                         var swap = conversationList[j];
                         conversationList[j] = conversationList[j + 1];
@@ -2586,19 +2564,22 @@ var RongIMLib;
                     }
                 }
             }
-            return RongIMClient._memoryStore.conversationList = convers.concat(conversationList);
+            RongIMClient._memoryStore.conversationList = convers.concat(conversationList);
         };
-        RongIMClient.prototype.getConversationList = function (callback, conversationTypes, count, isGetHiddenConvers) {
-            RongIMLib.CheckParam.getInstance().check(["object", "null|array|object|global", "number|undefined|null|object|global", "boolean|undefined|null|object|global"], "getConversationList");
+        RongIMClient.prototype.getConversationList = function (callback, conversationTypes) {
+            RongIMLib.CheckParam.getInstance().check(["object", "null|array|object|global"], "getConversationList");
             var me = this;
             RongIMClient._dataAccessProvider.getConversationList({
                 onSuccess: function (data) {
-                    if (conversationTypes || RongIMClient._dataAccessProvider) {
+                    if (conversationTypes) {
                         setTimeout(function () {
                             callback.onSuccess(data);
                         });
                     }
                     else {
+                        if (RongIMClient._memoryStore.isUseWebSQLProvide) {
+                            me.sortConversationList(RongIMClient._memoryStore.conversationList);
+                        }
                         setTimeout(function () {
                             callback.onSuccess(RongIMClient._memoryStore.conversationList);
                         });
@@ -2612,11 +2593,43 @@ var RongIMLib;
                         callback.onSuccess([]);
                     }
                 }
-            }, conversationTypes, count,isGetHiddenConvers);
+            }, conversationTypes);
         };
-        RongIMClient.prototype.getRemoteConversationList = function (callback, conversationTypes, count, isGetHiddenConvers) {
-            RongIMLib.CheckParam.getInstance().check(["object", "null|array|object|global", "number|undefined|null|object|global", "boolean|undefined|null|object|global"], "getRemoteConversationList");
-            RongIMClient._dataAccessProvider.getRemoteConversationList(callback, conversationTypes, count,isGetHiddenConvers);
+        RongIMClient.prototype.getRemoteConversationList = function (callback, conversationTypes) {
+            RongIMLib.CheckParam.getInstance().check(["object", "null|array|object|global"], "getRemoteConversationList");
+            var modules = new Modules.RelationsInput(), self = this;
+            modules.setType(1);
+            RongIMClient.bridge.queryMsg(26, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function (list) {
+                    if (list.info) {
+                        for (var i = 0, len = list.info.length; i < len; i++) {
+                            self.pottingConversation(list.info[i]);
+                        }
+                    }
+                    if (conversationTypes) {
+                        var convers = [];
+                        Array.forEach(conversationTypes, function (converType) {
+                            Array.forEach(RongIMClient._memoryStore.conversationList, function (item) {
+                                if (item.conversationType == converType) {
+                                    convers.push(item);
+                                }
+                            });
+                        });
+                        callback.onSuccess(convers);
+                    }
+                    else {
+                        callback.onSuccess(RongIMClient._memoryStore.conversationList);
+                    }
+                },
+                onError: function (error) {
+                    if (error === RongIMLib.ErrorCode.TIMEOUT) {
+                        callback.onError(error);
+                    }
+                    else {
+                        callback.onSuccess([]);
+                    }
+                }
+            }, "RelationsOutput");
         };
         RongIMClient.prototype.updateConversation = function (conversation) {
             return RongIMClient._dataAccessProvider.updateConversation(conversation);
@@ -2641,11 +2654,28 @@ var RongIMLib;
         //TODO 删除本地和服务器、删除本地和服务器分开
         RongIMClient.prototype.removeConversation = function (conversationType, targetId, callback) {
             RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "removeConversation");
-            RongIMClient._dataAccessProvider.removeConversation(conversationType, targetId, callback);
-        };
-        RongIMClient.prototype.setConversationHidden = function (conversationType, targetId, isHidden) {
-            RongIMLib.CheckParam.getInstance().check(["number", "string", "boolean"], "setConversationHidden");
-            RongIMClient._dataAccessProvider.setConversationHidden(conversationType, targetId, isHidden);
+            var mod = new Modules.RelationsInput();
+            mod.setType(conversationType);
+            RongIMClient.bridge.queryMsg(27, RongIMLib.MessageUtil.ArrayForm(mod.toArrayBuffer()), targetId, {
+                onSuccess: function () {
+                    RongIMClient._dataAccessProvider.removeConversation(conversationType, targetId, {
+                        onSuccess: function () {
+                            setTimeout(function () {
+                                callback.onSuccess(true);
+                            });
+                        },
+                        onError: function () {
+                            setTimeout(function () {
+                                callback.onError(RongIMLib.ErrorCode.CONVER_REMOVE_ERROR);
+                            });
+                        }
+                    });
+                }, onError: function () {
+                    setTimeout(function () {
+                        callback.onError(RongIMLib.ErrorCode.CONVER_REMOVE_ERROR);
+                    });
+                }
+            });
         };
         RongIMClient.prototype.setConversationToTop = function (conversationType, targetId, callback) {
             RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "setConversationToTop");
@@ -2713,7 +2743,20 @@ var RongIMLib;
          */
         RongIMClient.prototype.addMemberToDiscussion = function (discussionId, userIdList, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "array", "object"], "addMemberToDiscussion");
-            RongIMClient._dataAccessProvider.addMemberToDiscussion(discussionId, userIdList, callback);
+            var modules = new Modules.ChannelInvitationInput();
+            modules.setUsers(userIdList);
+            RongIMClient.bridge.queryMsg(0, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
+                onSuccess: function () {
+                    setTimeout(function () {
+                        callback.onSuccess();
+                    });
+                },
+                onError: function () {
+                    setTimeout(function () {
+                        callback.onError(RongIMLib.ErrorCode.JOIN_IN_DISCUSSION);
+                    });
+                }
+            });
         };
         /**
          * [createDiscussion 创建讨论组]
@@ -2723,7 +2766,30 @@ var RongIMLib;
          */
         RongIMClient.prototype.createDiscussion = function (name, userIdList, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "array", "object"], "createDiscussion");
-            RongIMClient._dataAccessProvider.createDiscussion(name, userIdList, callback);
+            var modules = new Modules.CreateDiscussionInput(), self = this;
+            modules.setName(name);
+            RongIMClient.bridge.queryMsg(1, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function (discussId) {
+                    if (userIdList.length > 0) {
+                        self.addMemberToDiscussion(discussId, userIdList, {
+                            onSuccess: function () { },
+                            onError: function (error) {
+                                setTimeout(function () {
+                                    callback.onError(error);
+                                });
+                            }
+                        });
+                    }
+                    setTimeout(function () {
+                        callback.onSuccess(discussId);
+                    });
+                },
+                onError: function () {
+                    setTimeout(function () {
+                        callback.onError(RongIMLib.ErrorCode.CREATE_DISCUSSION);
+                    });
+                }
+            }, "CreateDiscussionOutput");
         };
         /**
          * [getDiscussion 获取讨论组信息]
@@ -2732,7 +2798,20 @@ var RongIMLib;
          */
         RongIMClient.prototype.getDiscussion = function (discussionId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "object"], "getDiscussion");
-            RongIMClient._dataAccessProvider.getDiscussion(discussionId, callback);
+            var modules = new Modules.ChannelInfoInput();
+            modules.setNothing(1);
+            RongIMClient.bridge.queryMsg(4, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
+                onSuccess: function (data) {
+                    setTimeout(function () {
+                        callback.onSuccess(data);
+                    });
+                },
+                onError: function (errorCode) {
+                    setTimeout(function () {
+                        callback.onError(errorCode);
+                    });
+                }
+            }, "ChannelInfoOutput");
         };
         /**
          * [quitDiscussion 退出讨论组]
@@ -2741,7 +2820,9 @@ var RongIMLib;
          */
         RongIMClient.prototype.quitDiscussion = function (discussionId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "object"], "quitDiscussion");
-            RongIMClient._dataAccessProvider.quitDiscussion(discussionId, callback);
+            var modules = new Modules.LeaveChannelInput();
+            modules.setNothing(1);
+            RongIMClient.bridge.queryMsg(7, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, callback);
         };
         /**
          * [removeMemberFromDiscussion 将指定成员移除讨论租]
@@ -2751,7 +2832,9 @@ var RongIMLib;
          */
         RongIMClient.prototype.removeMemberFromDiscussion = function (discussionId, userId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "string", "object"], "removeMemberFromDiscussion");
-            RongIMClient._dataAccessProvider.removeMemberFromDiscussion(discussionId, userId, callback);
+            var modules = new Modules.ChannelEvictionInput();
+            modules.setUser(userId);
+            RongIMClient.bridge.queryMsg(9, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, callback);
         };
         /**
          * [setDiscussionInviteStatus 设置讨论组邀请状态]
@@ -2761,7 +2844,19 @@ var RongIMLib;
          */
         RongIMClient.prototype.setDiscussionInviteStatus = function (discussionId, status, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "number", "object"], "setDiscussionInviteStatus");
-            RongIMClient._dataAccessProvider.setDiscussionInviteStatus(discussionId, status, callback);
+            var modules = new Modules.ModifyPermissionInput();
+            modules.setOpenStatus(status.valueOf());
+            RongIMClient.bridge.queryMsg(11, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
+                onSuccess: function (x) {
+                    setTimeout(function () {
+                        callback.onSuccess();
+                    });
+                }, onError: function () {
+                    setTimeout(function () {
+                        callback.onError(RongIMLib.ErrorCode.INVITE_DICUSSION);
+                    });
+                }
+            });
         };
         /**
          * [setDiscussionName 设置讨论组名称]
@@ -2771,7 +2866,18 @@ var RongIMLib;
          */
         RongIMClient.prototype.setDiscussionName = function (discussionId, name, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "string", "object"], "setDiscussionName");
-            RongIMClient._dataAccessProvider.setDiscussionName(discussionId, name, callback);
+            var modules = new Modules.RenameChannelInput();
+            modules.setName(name);
+            RongIMClient.bridge.queryMsg(12, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
+                onSuccess: function () {
+                    setTimeout(function () {
+                        callback.onSuccess();
+                    });
+                },
+                onError: function (errcode) {
+                    callback.onError(errcode);
+                }
+            });
         };
         // #endregion Discussion
         // #region Group
@@ -2783,7 +2889,21 @@ var RongIMLib;
          */
         RongIMClient.prototype.joinGroup = function (groupId, groupName, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "string", "object"], "joinGroup");
-            RongIMClient._dataAccessProvider.joinGroup(groupId, groupName, callback);
+            var modules = new Modules.GroupInfo();
+            modules.setId(groupId);
+            modules.setName(groupName);
+            var _mod = new Modules.GroupInput();
+            _mod.setGroupInfo([modules]);
+            RongIMClient.bridge.queryMsg(6, RongIMLib.MessageUtil.ArrayForm(_mod.toArrayBuffer()), groupId, {
+                onSuccess: function () {
+                    setTimeout(function () {
+                        callback.onSuccess();
+                    });
+                },
+                onError: function (errcode) {
+                    callback.onError(errcode);
+                }
+            }, "GroupOutput");
         };
         /**
          * [退出群组]
@@ -2792,7 +2912,18 @@ var RongIMLib;
          */
         RongIMClient.prototype.quitGroup = function (groupId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "object"], "quitGroup");
-            RongIMClient._dataAccessProvider.quitGroup(groupId, callback);
+            var modules = new Modules.LeaveChannelInput();
+            modules.setNothing(1);
+            RongIMClient.bridge.queryMsg(8, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), groupId, {
+                onSuccess: function () {
+                    setTimeout(function () {
+                        callback.onSuccess();
+                    });
+                },
+                onError: function (errcode) {
+                    callback.onError(errcode);
+                }
+            });
         };
         /**
          * [同步群组信息]
@@ -2801,7 +2932,50 @@ var RongIMLib;
          */
         RongIMClient.prototype.syncGroup = function (groups, callback) {
             RongIMLib.CheckParam.getInstance().check(["array", "object"], "syncGroup");
-            RongIMClient._dataAccessProvider.syncGroup(groups, callback);
+            //去重操作
+            for (var i = 0, part = [], info = [], len = groups.length; i < len; i++) {
+                if (part.length === 0 || !(groups[i].id in part)) {
+                    part.push(groups[i].id);
+                    var groupinfo = new Modules.GroupInfo();
+                    groupinfo.setId(groups[i].id);
+                    groupinfo.setName(groups[i].name);
+                    info.push(groupinfo);
+                }
+            }
+            var modules = new Modules.GroupHashInput();
+            modules.setUserId(RongIMLib.Bridge._client.userId);
+            modules.setGroupHashCode(md5(part.sort().join("")));
+            RongIMClient.bridge.queryMsg(13, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function (result) {
+                    //1为群信息不匹配需要发送给服务器进行同步，0不需要同步
+                    if (result === 1) {
+                        var val = new Modules.GroupInput();
+                        val.setGroupInfo(info);
+                        RongIMClient.bridge.queryMsg(20, RongIMLib.MessageUtil.ArrayForm(val.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                            onSuccess: function () {
+                                setTimeout(function () {
+                                    callback.onSuccess();
+                                });
+                            },
+                            onError: function () {
+                                setTimeout(function () {
+                                    callback.onError(RongIMLib.ErrorCode.GROUP_MATCH_ERROR);
+                                });
+                            }
+                        }, "GroupOutput");
+                    }
+                    else {
+                        setTimeout(function () {
+                            callback.onSuccess();
+                        });
+                    }
+                },
+                onError: function () {
+                    setTimeout(function () {
+                        callback.onError(RongIMLib.ErrorCode.GROUP_SYNC_ERROR);
+                    });
+                }
+            }, "GroupHashOutput");
         };
         // #endregion Group
         // #region ChatRoom
@@ -2819,11 +2993,65 @@ var RongIMLib;
                 });
                 return;
             }
-            RongIMClient._dataAccessProvider.joinChatRoom(chatroomId, messageCount, callback);
+            var e = new Modules.ChrmInput();
+            e.setNothing(1);
+            RongIMLib.Bridge._client.chatroomId = chatroomId;
+            RongIMClient.bridge.queryMsg(19, RongIMLib.MessageUtil.ArrayForm(e.toArrayBuffer()), chatroomId, {
+                onSuccess: function () {
+                    callback.onSuccess();
+                    var modules = new Modules.ChrmPullMsg();
+                    messageCount == 0 && (messageCount = -1);
+                    modules.setCount(messageCount);
+                    modules.setSyncTime(0);
+                    RongIMLib.Bridge._client.queryMessage("chrmPull", RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), chatroomId, 1, {
+                        onSuccess: function (collection) {
+                            var sync = RongIMLib.MessageUtil.int64ToTimestamp(collection.syncTime);
+                            RongIMClient._cookieHelper.setItem(chatroomId + RongIMLib.Bridge._client.userId + "CST", sync);
+                            var list = collection.list;
+                            if (RongIMClient._memoryStore.filterMessages.length > 0) {
+                                for (var i = 0, mlen = list.length; i < mlen; i++) {
+                                    for (var j = 0, flen = RongIMClient._memoryStore.filterMessages.length; j < flen; j++) {
+                                        if (RongIMClient.MessageParams[RongIMClient._memoryStore.filterMessages[j]].objectName != list[i].classname) {
+                                            RongIMLib.Bridge._client.handler.onReceived(list[i]);
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                for (var i = 0, len = list.length; i < len; i++) {
+                                    RongIMLib.Bridge._client.handler.onReceived(list[i]);
+                                }
+                            }
+                        },
+                        onError: function (x) {
+                            setTimeout(function () {
+                                callback.onError(RongIMLib.ErrorCode.CHATROOM_HISMESSAGE_ERROR);
+                            });
+                        }
+                    }, "DownStreamMessages");
+                },
+                onError: function () {
+                    setTimeout(function () {
+                        callback.onError(RongIMLib.ErrorCode.CHARTOOM_JOIN_ERROR);
+                    });
+                }
+            }, "ChrmOutput");
         };
         RongIMClient.prototype.getChatRoomInfo = function (chatRoomId, count, order, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "number", "number", "object"], "getChatRoomInfo");
-            RongIMClient._dataAccessProvider.getChatRoomInfo(chatRoomId, count, order, callback);
+            var modules = new Modules.QueryChatroomInfoInput();
+            modules.setCount(count);
+            modules.setOrder(order);
+            RongIMClient.bridge.queryMsg("queryChrmI", RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), chatRoomId, {
+                onSuccess: function (list) {
+                    setTimeout(function () {
+                        callback.onSuccess(list);
+                    });
+                },
+                onError: function (errcode) {
+                    callback.onError(errcode);
+                }
+            }, "QueryChatroomInfoOutput");
         };
         /**
          * [退出聊天室]
@@ -2832,40 +3060,47 @@ var RongIMLib;
          */
         RongIMClient.prototype.quitChatRoom = function (chatroomId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "object"], "quitChatRoom");
-            RongIMClient._dataAccessProvider.quitChatRoom(chatroomId, callback);
+            var e = new Modules.ChrmInput();
+            e.setNothing(1);
+            RongIMClient.bridge.queryMsg(17, RongIMLib.MessageUtil.ArrayForm(e.toArrayBuffer()), chatroomId, {
+                onSuccess: function () {
+                    setTimeout(function () {
+                        callback.onSuccess();
+                    });
+                },
+                onError: function (errcode) {
+                    callback.onError(errcode);
+                }
+            }, "ChrmOutput");
         };
         // #endregion ChatRoom
         // #region Public Service
         RongIMClient.prototype.getRemotePublicServiceList = function (mpId, conversationType, pullMessageTime, callback) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                var modules = new Modules.PullMpInput(), self = this;
-                if (!pullMessageTime) {
-                    modules.setTime(0);
-                }
-                else {
-                    modules.setTime(RongIMClient._memoryStore.lastReadTime.get(conversationType + RongIMLib.Bridge._client.userId));
-                }
-                modules.setMpid("");
-                RongIMClient.bridge.queryMsg(28, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                    onSuccess: function (data) {
-                        //TODO 找出最大时间
-                        // self.lastReadTime.set(conversationType + targetId, MessageUtil.int64ToTimestamp(data.syncTime));
-                        RongIMClient._memoryStore.publicServiceMap.publicServiceList.length = 0;
-                        RongIMClient._memoryStore.publicServiceMap.publicServiceList = data;
-                    },
-                    onError: function () { }
-                }, "PullMpOutput");
+            var modules = new Modules.PullMpInput(), self = this;
+            if (!pullMessageTime) {
+                modules.setTime(0);
             }
+            else {
+                modules.setTime(RongIMClient._memoryStore.lastReadTime.get(conversationType + RongIMLib.Bridge._client.userId));
+            }
+            modules.setMpid("");
+            RongIMClient.bridge.queryMsg(28, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function (data) {
+                    //TODO 找出最大时间
+                    // self.lastReadTime.set(conversationType + targetId, MessageUtil.int64ToTimestamp(data.syncTime));
+                    RongIMClient._memoryStore.publicServiceMap.publicServiceList.length = 0;
+                    RongIMClient._memoryStore.publicServiceMap.publicServiceList = data;
+                },
+                onError: function () { }
+            }, "PullMpOutput");
         };
         /**
          * [getPublicServiceList ]获取已经的公共账号列表
          * @param  {ResultCallback<PublicServiceProfile[]>} callback [返回值，参数回调]
          */
         RongIMClient.prototype.getPublicServiceList = function (callback) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                RongIMLib.CheckParam.getInstance().check(["object"], "getPublicServiceList");
-                callback.onSuccess(RongIMClient._memoryStore.publicServiceMap.publicServiceList);
-            }
+            RongIMLib.CheckParam.getInstance().check(["object"], "getPublicServiceList");
+            callback.onSuccess(RongIMClient._memoryStore.publicServiceMap.publicServiceList);
         };
         /**
          * [getPublicServiceProfile ]   获取某公共服务信息。
@@ -2874,11 +3109,9 @@ var RongIMLib;
          * @param  {ResultCallback<PublicServiceProfile>} callback          [公共账号信息回调。]
          */
         RongIMClient.prototype.getPublicServiceProfile = function (publicServiceType, publicServiceId, callback) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "getPublicServiceProfile");
-                var profile = RongIMClient._memoryStore.publicServiceMap.get(publicServiceType, publicServiceId);
-                callback.onSuccess(profile);
-            }
+            RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "getPublicServiceProfile");
+            var profile = RongIMClient._memoryStore.publicServiceMap.get(publicServiceType, publicServiceId);
+            callback.onSuccess(profile);
         };
         /**
          * [pottingPublicSearchType ] 公众好查询类型
@@ -2886,37 +3119,35 @@ var RongIMLib;
          * @param  {number} searchType    [0-exact 1-fuzzy]
          */
         RongIMClient.prototype.pottingPublicSearchType = function (bussinessType, searchType) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                var bits = 0;
-                if (bussinessType == 0) {
-                    bits |= 3;
-                    if (searchType == 0) {
-                        bits |= 12;
-                    }
-                    else {
-                        bits |= 48;
-                    }
-                }
-                else if (bussinessType == 1) {
-                    bits |= 1;
-                    if (searchType == 0) {
-                        bits |= 8;
-                    }
-                    else {
-                        bits |= 32;
-                    }
+            var bits = 0;
+            if (bussinessType == 0) {
+                bits |= 3;
+                if (searchType == 0) {
+                    bits |= 12;
                 }
                 else {
-                    bits |= 2;
-                    if (bussinessType == 0) {
-                        bits |= 4;
-                    }
-                    else {
-                        bits |= 16;
-                    }
+                    bits |= 48;
                 }
-                return bits;
             }
+            else if (bussinessType == 1) {
+                bits |= 1;
+                if (searchType == 0) {
+                    bits |= 8;
+                }
+                else {
+                    bits |= 32;
+                }
+            }
+            else {
+                bits |= 2;
+                if (bussinessType == 0) {
+                    bits |= 4;
+                }
+                else {
+                    bits |= 16;
+                }
+            }
+            return bits;
         };
         /**
          * [searchPublicService ]按公众服务类型搜索公众服务。
@@ -2925,13 +3156,11 @@ var RongIMLib;
          * @param  {ResultCallback<PublicServiceProfile[]>} callback   [搜索结果回调。]
          */
         RongIMClient.prototype.searchPublicService = function (searchType, keywords, callback) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "searchPublicService");
-                var modules = new Modules.SearchMpInput();
-                modules.setType(this.pottingPublicSearchType(0, searchType));
-                modules.setId(keywords);
-                RongIMClient.bridge.queryMsg(29, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, callback, "SearchMpOutput");
-            }
+            RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "searchPublicService");
+            var modules = new Modules.SearchMpInput();
+            modules.setType(this.pottingPublicSearchType(0, searchType));
+            modules.setId(keywords);
+            RongIMClient.bridge.queryMsg(29, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, callback, "SearchMpOutput");
         };
         /**
          * [searchPublicServiceByType ]按公众服务类型搜索公众服务。
@@ -2941,14 +3170,12 @@ var RongIMLib;
          * @param  {ResultCallback<PublicServiceProfile[]>} callback          [搜索结果回调。]
          */
         RongIMClient.prototype.searchPublicServiceByType = function (publicServiceType, searchType, keywords, callback) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                RongIMLib.CheckParam.getInstance().check(["number", "number", "string", "object"], "searchPublicServiceByType");
-                var type = publicServiceType == RongIMLib.ConversationType.APP_PUBLIC_SERVICE ? 2 : 1;
-                var modules = new Modules.SearchMpInput();
-                modules.setType(this.pottingPublicSearchType(type, searchType));
-                modules.setId(keywords);
-                RongIMClient.bridge.queryMsg(29, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, callback, "SearchMpOutput");
-            }
+            RongIMLib.CheckParam.getInstance().check(["number", "number", "string", "object"], "searchPublicServiceByType");
+            var type = publicServiceType == RongIMLib.ConversationType.APP_PUBLIC_SERVICE ? 2 : 1;
+            var modules = new Modules.SearchMpInput();
+            modules.setType(this.pottingPublicSearchType(type, searchType));
+            modules.setId(keywords);
+            RongIMClient.bridge.queryMsg(29, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, callback, "SearchMpOutput");
         };
         /**
          * [subscribePublicService ] 订阅公众号。
@@ -2957,23 +3184,21 @@ var RongIMLib;
          * @param  {OperationCallback} callback          [订阅公众号回调。]
          */
         RongIMClient.prototype.subscribePublicService = function (publicServiceType, publicServiceId, callback) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "subscribePublicService");
-                var modules = new Modules.MPFollowInput(), me = this, follow = publicServiceType == RongIMLib.ConversationType.APP_PUBLIC_SERVICE ? "mcFollow" : "mpFollow";
-                modules.setId(publicServiceId);
-                RongIMClient.bridge.queryMsg(follow, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                    onSuccess: function () {
-                        me.getRemotePublicServiceList(null, null, null, {
-                            onSuccess: function () { },
-                            onError: function () { }
-                        });
-                        callback.onSuccess();
-                    },
-                    onError: function () {
-                        callback.onError(RongIMLib.ErrorCode.SUBSCRIBE_ERROR);
-                    }
-                }, "MPFollowOutput");
-            }
+            RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "subscribePublicService");
+            var modules = new Modules.MPFollowInput(), me = this, follow = publicServiceType == RongIMLib.ConversationType.APP_PUBLIC_SERVICE ? "mcFollow" : "mpFollow";
+            modules.setId(publicServiceId);
+            RongIMClient.bridge.queryMsg(follow, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function () {
+                    me.getRemotePublicServiceList(null, null, null, {
+                        onSuccess: function () { },
+                        onError: function () { }
+                    });
+                    callback.onSuccess();
+                },
+                onError: function () {
+                    callback.onError(RongIMLib.ErrorCode.SUBSCRIBE_ERROR);
+                }
+            }, "MPFollowOutput");
         };
         /**
          * [unsubscribePublicService ] 取消订阅公众号。
@@ -2982,20 +3207,18 @@ var RongIMLib;
          * @param  {OperationCallback} callback          [取消订阅公众号回调。]
          */
         RongIMClient.prototype.unsubscribePublicService = function (publicServiceType, publicServiceId, callback) {
-            if (RongIMClient._memoryStore.depend.openMp) {
-                RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "unsubscribePublicService");
-                var modules = new Modules.MPFollowInput(), me = this, follow = publicServiceType == RongIMLib.ConversationType.APP_PUBLIC_SERVICE ? "mcUnFollow" : "mpUnFollow";
-                modules.setId(publicServiceId);
-                RongIMClient.bridge.queryMsg(follow, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                    onSuccess: function () {
-                        RongIMClient._memoryStore.publicServiceMap.remove(publicServiceType, publicServiceId);
-                        callback.onSuccess();
-                    },
-                    onError: function () {
-                        callback.onError(RongIMLib.ErrorCode.SUBSCRIBE_ERROR);
-                    }
-                }, "MPFollowOutput");
-            }
+            RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "unsubscribePublicService");
+            var modules = new Modules.MPFollowInput(), me = this, follow = publicServiceType == RongIMLib.ConversationType.APP_PUBLIC_SERVICE ? "mcUnFollow" : "mpUnFollow";
+            modules.setId(publicServiceId);
+            RongIMClient.bridge.queryMsg(follow, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function () {
+                    RongIMClient._memoryStore.publicServiceMap.remove(publicServiceType, publicServiceId);
+                    callback.onSuccess();
+                },
+                onError: function () {
+                    callback.onError(RongIMLib.ErrorCode.SUBSCRIBE_ERROR);
+                }
+            }, "MPFollowOutput");
         };
         // #endregion Public Service
         // #region Blacklist
@@ -3006,7 +3229,16 @@ var RongIMLib;
          */
         RongIMClient.prototype.addToBlacklist = function (userId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "object"], "addToBlacklist");
-            RongIMClient._dataAccessProvider.addToBlacklist(userId, callback);
+            var modules = new Modules.Add2BlackListInput();
+            modules.setUserId(userId);
+            RongIMClient.bridge.queryMsg(21, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
+                onSuccess: function () {
+                    callback.onSuccess();
+                },
+                onError: function () {
+                    callback.onError(RongIMLib.ErrorCode.BLACK_ADD_ERROR);
+                }
+            });
         };
         /**
          * [获取黑名单列表]
@@ -3014,7 +3246,9 @@ var RongIMLib;
          */
         RongIMClient.prototype.getBlacklist = function (callback) {
             RongIMLib.CheckParam.getInstance().check(["object"], "getBlacklist");
-            RongIMClient._dataAccessProvider.getBlacklist(callback);
+            var modules = new Modules.QueryBlackListInput();
+            modules.setNothing(1);
+            RongIMClient.bridge.queryMsg(23, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, callback, "QueryBlackListOutput");
         };
         /**
          * [得到指定人员再黑名单中的状态]
@@ -3024,7 +3258,19 @@ var RongIMLib;
         //TODO 如果人员不在黑名单中，获取状态会出现异常
         RongIMClient.prototype.getBlacklistStatus = function (userId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "object"], "getBlacklistStatus");
-            RongIMClient._dataAccessProvider.getBlacklistStatus(userId, callback);
+            var modules = new Modules.BlackListStatusInput();
+            modules.setUserId(userId);
+            RongIMClient.bridge.queryMsg(24, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
+                onSuccess: function (status) {
+                    setTimeout(function () {
+                        callback.onSuccess(RongIMLib.BlacklistStatus[status]);
+                    });
+                }, onError: function () {
+                    setTimeout(function () {
+                        callback.onError(RongIMLib.ErrorCode.BLACK_GETSTATUS_ERROR);
+                    });
+                }
+            });
         };
         /**
          * [将指定用户移除黑名单]
@@ -3033,15 +3279,57 @@ var RongIMLib;
          */
         RongIMClient.prototype.removeFromBlacklist = function (userId, callback) {
             RongIMLib.CheckParam.getInstance().check(["string", "object"], "removeFromBlacklist");
-            RongIMClient._dataAccessProvider.removeFromBlacklist(userId, callback);
+            var modules = new Modules.RemoveFromBlackListInput();
+            modules.setUserId(userId);
+            RongIMClient.bridge.queryMsg(22, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
+                onSuccess: function () {
+                    callback.onSuccess();
+                },
+                onError: function () {
+                    callback.onError(RongIMLib.ErrorCode.BLACK_REMOVE_ERROR);
+                }
+            });
         };
         RongIMClient.prototype.getFileToken = function (fileType, callback) {
             RongIMLib.CheckParam.getInstance().check(["number", "object"], "getQnTkn");
-            RongIMClient._dataAccessProvider.getFileToken(fileType, callback);
+            if (!(/(1|2|3)/.test(fileType.toString()))) {
+                callback.onError(RongIMLib.ErrorCode.QNTKN_FILETYPE_ERROR);
+                return;
+            }
+            var modules = new Modules.GetQNupTokenInput();
+            modules.setType(fileType);
+            RongIMClient.bridge.queryMsg(30, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function (data) {
+                    setTimeout(function () {
+                        callback.onSuccess(data);
+                    });
+                },
+                onError: function (errcode) {
+                    callback.onError(errcode);
+                }
+            }, "GetQNupTokenOutput");
         };
-        RongIMClient.prototype.getFileUrl = function (fileType, fileName, oriName, callback) {
-            RongIMLib.CheckParam.getInstance().check(["number", "string", "string|global|object|null", "object"], "getQnTkn");
-            RongIMClient._dataAccessProvider.getFileUrl(fileType, fileName, oriName, callback);
+        RongIMClient.prototype.getFileUrl = function (fileType, fileName, callback) {
+            RongIMLib.CheckParam.getInstance().check(["number", "string", "object"], "getQnTkn");
+            if (!(/(1|2|3)/.test(fileType.toString()))) {
+                setTimeout(function () {
+                    callback.onError(RongIMLib.ErrorCode.QNTKN_FILETYPE_ERROR);
+                });
+                return;
+            }
+            var modules = new Modules.GetQNdownloadUrlInput();
+            modules.setType(fileType);
+            modules.setKey(fileName);
+            RongIMClient.bridge.queryMsg(31, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
+                onSuccess: function (data) {
+                    setTimeout(function () {
+                        callback.onSuccess(data);
+                    });
+                },
+                onError: function (errcode) {
+                    callback.onError(errcode);
+                }
+            }, "GetQNdownloadUrlOutput");
         };
         ;
         // #endregion Blacklist
@@ -3072,67 +3360,35 @@ var RongIMLib;
         };
         // #endregion Real-time Location Service
         // # startVoIP
-        RongIMClient.prototype.startCall = function (converType, targetId, userIds, mediaType, extra, callback) {
-            RongIMLib.CheckParam.getInstance().check(["number", "string", "array", "number", "string", "object"], "startCall");
-            if (RongIMClient._memoryStore.voipStategy) {
-                RongIMClient._voipProvider.startCall(converType, targetId, userIds, mediaType, extra, callback);
-            }
-            else {
-                callback.onError(RongIMLib.ErrorCode.VOIP_NOT_AVALIABLE);
-            }
+        RongIMClient.prototype.startCall = function (converType, targetId, userIds, mediaType, extra, opt, callback) {
+            RongIMLib.CheckParam.getInstance().check(["number", "string", "array", "number", "string", "object", "object"], "startCall");
+            RongIMClient._voipProvider.startCall(converType, targetId, userIds, mediaType, extra, opt, callback);
         };
-        RongIMClient.prototype.joinCall = function (mediaType, callback) {
-            RongIMLib.CheckParam.getInstance().check(['number', 'object'], "joinCall");
-            if (RongIMClient._memoryStore.voipStategy) {
-                RongIMClient._voipProvider.joinCall(mediaType, callback);
-            }
-            else {
-                callback.onError(RongIMLib.ErrorCode.VOIP_NOT_AVALIABLE);
-            }
-        };
-        RongIMClient.prototype.hungupCall = function (converType, targetId, reason) {
-            RongIMLib.CheckParam.getInstance().check(["number", "string", "number"], "hungupCall");
-            if (RongIMClient._memoryStore.voipStategy) {
-                RongIMClient._voipProvider.hungupCall(converType, targetId, reason);
-            }
-        };
-        RongIMClient.prototype.changeMediaType = function (converType, targetId, mediaType, callback) {
-            RongIMLib.CheckParam.getInstance().check(["number", "string", "number", "object"], "changeMediaType");
-            if (RongIMClient._memoryStore.voipStategy) {
-                RongIMClient._voipProvider.changeMediaType(converType, targetId, mediaType, callback);
-            }
-            else {
-                callback.onError(RongIMLib.ErrorCode.VOIP_NOT_AVALIABLE);
-            }
+        RongIMClient.prototype.joinCall = function (message, mediaType, callback) {
+            RongIMLib.CheckParam.getInstance().check(['object', 'number', 'object'], "joinCall");
+            RongIMClient._voipProvider.joinCall(message, mediaType, callback);
         };
         RongIMClient.MessageType = {};
         RongIMClient.RegisterMessage = {};
         RongIMClient._memoryStore = {};
         RongIMClient.isNotPullMsg = false;
         return RongIMClient;
-    }());
+    })();
     RongIMLib.RongIMClient = RongIMClient;
     //兼容AMD CMD
     if ("function" === typeof require && "object" === typeof module && module && module.id && "object" === typeof exports && exports) {
         module.exports = RongIMLib;
     }
     else if ("function" === typeof define && define.amd) {
-        var browser = navigator.appName, b_version = navigator.appVersion, version = b_version.split(";"), isPolling = false;
-        if (version.length > 1) {
-            var trim_Version = parseInt(version[1].replace(/[ ]/g, "").replace(/MSIE/g, ""));
-            if (trim_Version < 10) {
-                isPolling = true;
-            }
-        }
-        if (isPolling) {
+        if (window["WEB_XHR_POLLING"]) {
             define("RongIMLib", ['md5'], function () {
                 return RongIMLib;
             });
         }
         else {
-            var lurl = RongIMClient._memoryStore.depend.long;
-            var burl = RongIMClient._memoryStore.depend.byteBuffer;
-            var purl = RongIMClient._memoryStore.depend.protobuf;
+            var lurl = window["SCHEMETYPE"] ? window["SCHEMETYPE"] + "://cdn.ronghub.com/Long.js" : "//cdn.ronghub.com/Long.js";
+            var burl = window["SCHEMETYPE"] ? window["SCHEMETYPE"] + "://cdn.ronghub.com/byteBuffer.js" : "//cdn.ronghub.com/byteBuffer.js";
+            var purl = window["SCHEMETYPE"] ? window["SCHEMETYPE"] + "://cdn.ronghub.com/protobuf-2.1.2.min.js" : "//cdn.ronghub.com/protobuf-2.1.2.min.js";
             define("RongIMLib", ['md5', lurl, burl, purl], function () {
                 return RongIMLib;
             });
@@ -3171,7 +3427,7 @@ var RongIMLib;
     var Type = RongIMLib.Type;
     var _topic = ["invtDiz", "crDiz", "qnUrl", "userInf", "dizInf", "userInf", "joinGrp", "quitDiz", "exitGrp", "evctDiz",
         ["", "ppMsgP", "pdMsgP", "pgMsgP", "chatMsg", "pcMsgP", "", "pmcMsgN", "pmpMsgN"], "pdOpen", "rename", "uGcmpr", "qnTkn", "destroyChrm",
-        "createChrm", "exitChrm", "queryChrm", "joinChrm", "pGrps", "addBlack", "rmBlack", "getBlack", "blackStat", "addRelation", "qryRelation", "delRelation", "pullMp", "schMp", "qnTkn", "qnUrl", "qryVoipK", "delMsg"];
+        "createChrm", "exitChrm", "queryChrm", "joinChrm", "pGrps", "addBlack", "rmBlack", "getBlack", "blackStat", "addRelation", "qryRelation", "delRelation", "pullMp", "schMp", "qnTkn", "qnUrl", "qryVoipK"];
     var Channel = (function () {
         function Channel(address, cb, self) {
             this.connectionStatus = -1;
@@ -3186,28 +3442,7 @@ var RongIMLib;
                 me.socket.on("StatusChanged", function (code) {
                     me.connectionStatus = code;
                     if (code === RongIMLib.ConnectionStatus.NETWORK_UNAVAILABLE) {
-                        var temp = RongIMLib.RongIMClient._storageProvider.getItemKey("navi");
-                        var naviServer = RongIMLib.RongIMClient._storageProvider.getItem(temp);
-                        var naviPort = naviServer.split(",")[0].split(":")[1];
-                        naviPort && naviPort.length < 4 || RongIMLib.RongIMClient._storageProvider.setItem("rongSDK", "");
-                        // TODO  判断拆分 naviServer 后的数组长度。
-                        if (!RongIMLib.RongIMClient._memoryStore.depend.isPolling && naviPort && naviPort.length < 4) {
-                            Bridge._client.handler.connectCallback.pauseTimer();
-                            var temp = RongIMLib.RongIMClient._storageProvider.getItemKey("navi");
-                            var server = RongIMLib.RongIMClient._storageProvider.getItem("RongBackupServer");
-                            if (server) {
-                                var arrs = server.split(",");
-                                if (arrs.length < 2) {
-                                    throw new Error("navi server is empty,postion:StatusChanged");
-                                }
-                                RongIMLib.RongIMClient._storageProvider.setItem(temp, RongIMLib.RongIMClient._storageProvider.getItem("RongBackupServer"));
-                                var url = RongIMLib.Bridge._client.channel.socket.currentURL;
-                                Bridge._client.channel.socket.currentURL = arrs[0] + url.substring(url.indexOf("/"), url.length);
-                                if (Bridge._client.channel && Bridge._client.channel.connectionStatus != RongIMLib.ConnectionStatus.CONNECTED && Bridge._client.channel.connectionStatus != RongIMLib.ConnectionStatus.CONNECTING) {
-                                    RongIMLib.RongIMClient.connect(RongIMLib.RongIMClient._memoryStore.token, RongIMLib.RongIMClient._memoryStore.callback);
-                                }
-                            }
-                        }
+                        RongIMLib.RongIMClient._cookieHelper.setItem("rongSDK", "");
                     }
                     if (code === RongIMLib.ConnectionStatus.DISCONNECTED && !RongIMLib.RongIMClient._memoryStore.otherDevice) {
                         Channel._ConnectionStatusListener.onChanged(RongIMLib.ConnectionStatus.DISCONNECTED);
@@ -3250,7 +3485,7 @@ var RongIMLib;
             this.socket.disconnect(status);
         };
         return Channel;
-    }());
+    })();
     RongIMLib.Channel = Channel;
     var Socket = (function () {
         function Socket() {
@@ -3263,7 +3498,7 @@ var RongIMLib;
         Socket.prototype.connect = function (url, cb) {
             if (this.socket) {
                 if (url) {
-                    RongIMLib.RongIMClient._storageProvider.setItem("rongSDK", this.checkTransport());
+                    RongIMLib.RongIMClient._cookieHelper.setItem("rongSDK", this.checkTransport());
                     this.on("connect", cb || new Function);
                 }
                 if (url) {
@@ -3320,9 +3555,10 @@ var RongIMLib;
         };
         /**
          * [checkTransport 返回通道类型]
+         * WEB_XHR_POLLING:是否选择comet方式进行连接
          */
         Socket.prototype.checkTransport = function () {
-            if (RongIMLib.RongIMClient._memoryStore.depend.isPolling) {
+            if (RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"]) {
                 RongIMLib.Transportations._TransportType = Socket.XHR_POLLING;
             }
             return RongIMLib.Transportations._TransportType;
@@ -3358,7 +3594,7 @@ var RongIMLib;
             return this;
         };
         Socket.prototype._encode = function (x) {
-            var str = "?messageid=" + x.getMessageId() + "&header=" + x.getHeaderFlag() + "&sessionid=" + RongIMLib.RongIMClient._storageProvider.getItem("sId" + RongIMLib.Navigation.Endpoint.userId);
+            var str = "?messageid=" + x.getMessageId() + "&header=" + x.getHeaderFlag() + "&sessionid=" + RongIMLib.RongIMClient._cookieHelper.getItem(RongIMLib.Navigation.Endpoint.userId + "sId");
             if (!/(PubAckMessage|QueryConMessage)/.test(x._name)) {
                 str += "&topic=" + x.getTopic() + "&targetid=" + (x.getTargetId() || "");
             }
@@ -3371,21 +3607,20 @@ var RongIMLib;
         Socket.XHR_POLLING = "xhr-polling";
         Socket.WEBSOCKET = "websocket";
         return Socket;
-    }());
+    })();
     RongIMLib.Socket = Socket;
     //连接端消息累
     var Client = (function () {
         function Client(token, appId) {
             this.timeoutMillis = 100000;
             this.timeout_ = 0;
-            this.sdkVer = "2.2.4";
+            this.sdkVer = "2.1.3";
             this.apiVer = Math.floor(Math.random() * 1e6);
             this.channel = null;
             this.handler = null;
             this.userId = "";
             this.reconnectObj = {};
             this.heartbeat = 0;
-            this.pullMsgHearbeat = 0;
             this.chatroomId = "";
             this.SyncTimeQueue = [];
             this.cacheMessageIds = [];
@@ -3443,44 +3678,20 @@ var RongIMLib;
                 _callback.onError(RongIMLib.ConnectionState.NOT_AUTHORIZED);
             }
         };
-        Client.prototype.checkSocket = function (callback) {
-            var me = this;
-            me.channel.writeAndFlush(new RongIMLib.PingReqMessage());
-            var checkTimeout = setInterval(function () {
-                if (!RongIMLib.RongIMClient._memoryStore.isFirstPingMsg) {
-                    callback.onSuccess();
-                    clearInterval(checkTimeout);
-                }
-                else {
-                    if (count > 15) {
-                        callback.onError();
-                    }
-                }
-                count++;
-            }, 200), count = 0;
-        };
         Client.prototype.keepLive = function () {
             if (this.heartbeat > 0) {
                 clearInterval(this.heartbeat);
             }
             var me = this;
-            me.heartbeat = setInterval(function () {
+            this.heartbeat = setInterval(function () {
                 me.resumeTimer();
                 me.channel.writeAndFlush(new RongIMLib.PingReqMessage());
             }, 30000);
-            if (me.pullMsgHearbeat > 0) {
-                clearInterval(me.pullMsgHearbeat);
-            }
-            me.pullMsgHearbeat = setInterval(function () {
-                me.syncTime(undefined, undefined, undefined, false);
-            }, 180000);
         };
         Client.prototype.clearHeartbeat = function () {
             clearInterval(this.heartbeat);
             this.heartbeat = 0;
             this.pauseTimer();
-            clearInterval(this.pullMsgHearbeat);
-            this.pullMsgHearbeat = 0;
         };
         Client.prototype.publishMessage = function (_topic, _data, _targetId, _callback, _msg) {
             var msgId = RongIMLib.MessageIdHandler.messageIdPlus(this.channel.reconnect);
@@ -3515,7 +3726,7 @@ var RongIMLib;
             this.handler.putCallback(new RongIMLib.QueryCallback(_callback.onSuccess, _callback.onError), msg.getMessageId(), pbtype);
             this.channel.writeAndFlush(msg);
         };
-        Client.prototype.invoke = function (isPullMsg, chrmId, offlineMsg) {
+        Client.prototype.invoke = function (isPullMsg, chrmId) {
             var time, modules, str, me = this, target, temp = this.SyncTimeQueue.shift();
             if (temp == undefined) {
                 return;
@@ -3523,7 +3734,7 @@ var RongIMLib;
             this.SyncTimeQueue.state = "pending";
             if (temp.type != 2) {
                 //普通消息
-                time = RongIMLib.RongIMClient._storageProvider.getItem(this.userId) || "0";
+                time = RongIMLib.RongIMClient._cookieHelper.getItem(this.userId) || "0";
                 modules = new Modules.SyncRequestMsg();
                 modules.setIspolling(false);
                 str = "pullMsg";
@@ -3532,7 +3743,7 @@ var RongIMLib;
             else {
                 //聊天室消息
                 target = chrmId || me.chatroomId;
-                time = RongIMLib.RongIMClient._storageProvider.getItem(target + Bridge._client.userId + "CST") || "0";
+                time = RongIMLib.RongIMClient._cookieHelper.getItem(target + Bridge._client.userId + "CST") || "0";
                 modules = new Modules.ChrmPullMsg();
                 modules.setCount(0);
                 str = "chrmPull";
@@ -3546,7 +3757,7 @@ var RongIMLib;
                 this.invoke(isPullMsg, target);
                 return;
             }
-            if (isPullMsg && 'setIsPullSend' in modules) {
+            if (isPullMsg) {
                 modules.setIsPullSend(true);
             }
             modules.setSyncTime(time);
@@ -3560,31 +3771,31 @@ var RongIMLib;
                     //防止因离线消息造成会话列表不为空而无法从服务器拉取会话列表。
                     RongIMLib.RongIMClient._memoryStore.isSyncRemoteConverList = true;
                     //把返回时间戳存入本地，普通消息key为userid，聊天室消息key为userid＋'CST'；value都为服务器返回的时间戳
-                    RongIMLib.RongIMClient._storageProvider.setItem(symbol, sync);
+                    RongIMLib.RongIMClient._cookieHelper.setItem(symbol, sync);
                     me.SyncTimeQueue.state = "complete";
                     me.invoke(isPullMsg, target);
                     //把拉取到的消息逐条传给消息监听器
                     var list = collection.list;
                     for (var i = 0, len = list.length; i < len; i++) {
                         if (!(list[i].msgId in me.cacheMessageIds)) {
-                            Bridge._client.handler.onReceived(list[i], undefined, offlineMsg);
+                            Bridge._client.handler.onReceived(list[i]);
                             var arrLen = me.cacheMessageIds.unshift(list[i].msgId);
                             if (arrLen > 20)
                                 me.cacheMessageIds.length = 20;
                         }
                     }
                 },
-                onError: function (error) {
+                onError: function () {
                     me.SyncTimeQueue.state = "complete";
                     me.invoke(isPullMsg, target);
                 }
             }, "DownStreamMessages");
         };
-        Client.prototype.syncTime = function (_type, pullTime, chrmId, offlineMsg) {
+        Client.prototype.syncTime = function (_type, pullTime, chrmId) {
             this.SyncTimeQueue.push({ type: _type, pulltime: pullTime });
             //如果队列中只有一个成员并且状态已经完成就执行invoke方法
             if (this.SyncTimeQueue.length == 1 && this.SyncTimeQueue.state == "complete") {
-                this.invoke(!_type, chrmId, offlineMsg);
+                this.invoke(!_type, chrmId);
             }
         };
         Client.prototype.__init = function (f) {
@@ -3592,7 +3803,7 @@ var RongIMLib;
         };
         Client.userInfoMapping = {};
         return Client;
-    }());
+    })();
     RongIMLib.Client = Client;
     //连接类，实现imclient与connect_client的连接
     var Bridge = (function () {
@@ -3639,7 +3850,7 @@ var RongIMLib;
             Bridge._client.publishMessage(_topic[10][topic], content, targetId, callback, msg);
         };
         return Bridge;
-    }());
+    })();
     RongIMLib.Bridge = Bridge;
     var MessageHandler = (function () {
         function MessageHandler(client) {
@@ -3668,16 +3879,16 @@ var RongIMLib;
                 this.connectCallback.resumeTimer();
             }
         };
-        MessageHandler.prototype.onReceived = function (msg, pubAckItem, offlineMsg) {
+        MessageHandler.prototype.onReceived = function (msg, pubAckItem) {
             //实体对象
-            var entity, 
+            var entity,
             //解析完成的消息对象
-            message, 
+            message,
             //会话对象
             con;
             if (msg._name != "PublishMessage") {
                 entity = msg;
-                RongIMLib.RongIMClient._storageProvider.setItem(this._client.userId, RongIMLib.MessageUtil.int64ToTimestamp(entity.dataTime));
+                RongIMLib.RongIMClient._cookieHelper.setItem(this._client.userId, RongIMLib.MessageUtil.int64ToTimestamp(entity.dataTime));
             }
             else {
                 if (msg.getTopic() == "s_ntf") {
@@ -3687,7 +3898,7 @@ var RongIMLib;
                 }
                 else if (msg.getTopic() == "s_msg") {
                     entity = Modules.DownStreamMessage.decode(msg.getData());
-                    RongIMLib.RongIMClient._storageProvider.setItem(this._client.userId, RongIMLib.MessageUtil.int64ToTimestamp(entity.dataTime));
+                    RongIMLib.RongIMClient._cookieHelper.setItem(this._client.userId, RongIMLib.MessageUtil.int64ToTimestamp(entity.dataTime));
                 }
                 else {
                     if (Bridge._client.sdkVer && Bridge._client.sdkVer == "1.0.0") {
@@ -3721,7 +3932,7 @@ var RongIMLib;
                 }
             }
             //解析实体对象为消息对象。
-            message = RongIMLib.MessageUtil.messageParser(entity, this._onReceived, offlineMsg);
+            message = RongIMLib.MessageUtil.messageParser(entity, this._onReceived);
             if (pubAckItem) {
                 message.messageUId = pubAckItem.getMessageUId();
                 message.sentTime = pubAckItem.getTimestamp();
@@ -3729,50 +3940,21 @@ var RongIMLib;
             if (message === null) {
                 return;
             }
-            // 设置会话时间戳并且判断是否传递 message  发送消息未处理会话时间戳
-            // key：'converST_' + 当前用户 + conversationType + targetId
-            // RongIMClient._storageProvider.setItem('converST_' + Bridge._client.userId + message.conversationType + message.targetId, message.sentTime);
-            var stKey = 'converST_' + Bridge._client.userId + message.conversationType + message.targetId, stValue = RongIMLib.RongIMClient._storageProvider.getItem(stKey);
-            if (stValue) {
-                if (message.sentTime > stValue) {
-                    RongIMLib.RongIMClient._storageProvider.setItem(stKey, message.sentTime);
-                }
-                else {
-                    return;
-                }
-            }
-            else {
-                RongIMLib.RongIMClient._storageProvider.setItem(stKey, message.sentTime);
-            }
             if (RongIMLib.RongIMClient.MessageParams[message.messageType].msgTag.getMessageTag() == 3) {
                 RongIMLib.RongIMClient._dataAccessProvider.getConversation(message.conversationType, message.targetId, {
                     onSuccess: function (con) {
                         if (!con) {
                             con = RongIMLib.RongIMClient.getInstance().createConversation(message.conversationType, message.targetId, "");
                         }
-                        if (message.messageDirection == RongIMLib.MessageDirection.RECEIVE && (entity.status & 64) == 64) {
-                            var mentioneds = RongIMLib.RongIMClient._storageProvider.getItem("mentioneds_" + Bridge._client.userId + '_' + message.conversationType + '_' + message.targetId);
-                            var key = message.conversationType + '_' + message.targetId, info = {};
-                            if (message.content && message.content.mentionedInfo) {
-                                info[key] = { uid: message.messageUId, time: message.sentTime, mentionedInfo: message.content.mentionedInfo };
-                                RongIMLib.RongIMClient._storageProvider.setItem("mentioneds_" + Bridge._client.userId + '_' + message.conversationType + '_' + message.targetId, JSON.stringify(info));
-                                mentioneds = JSON.stringify(info);
-                            }
-                            if (mentioneds) {
-                                var info = JSON.parse(mentioneds);
-                                con.mentionedMsg = info[key];
-                            }
-                        }
-                        if (con.conversationType != 0 && message.senderUserId != Bridge._client.userId && message.receivedStatus != RongIMLib.ReceivedStatus.RETRIEVED && message.messageType != RongIMLib.RongIMClient.MessageType["ReadReceiptRequestMessage"] && message.messageType != RongIMLib.RongIMClient.MessageType["ReadReceiptResponseMessage"]) {
+                        if (con.conversationType != 0 && message.senderUserId != Bridge._client.userId && message.receivedStatus != RongIMLib.ReceivedStatus.RETRIEVED) {
                             con.unreadMessageCount = con.unreadMessageCount + 1;
                             if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                                var count = RongIMLib.RongIMClient._storageProvider.getItem("cu" + Bridge._client.userId + con.conversationType + con.targetId); // 与本地存储会话合并
-                                RongIMLib.RongIMClient._storageProvider.setItem("cu" + Bridge._client.userId + con.conversationType + message.targetId, Number(count) + 1);
+                                var count = RongIMLib.LocalStorageProvider.getInstance().getItem("cu" + Bridge._client.userId + con.conversationType + con.targetId); // 与本地存储会话合并
+                                RongIMLib.LocalStorageProvider.getInstance().setItem("cu" + Bridge._client.userId + con.conversationType + message.targetId, Number(count) + 1);
                             }
                         }
                         con.receivedTime = new Date().getTime();
-                        con.receivedStatus = RongIMLib.ReceivedStatus.UNREAD;
-                        message.receivedStatus = RongIMLib.ReceivedStatus.UNREAD;
+                        con.receivedStatus = RongIMLib.ReceivedStatus.READ;
                         con.senderUserId = message.sendUserId;
                         con.notificationStatus = RongIMLib.ConversationNotificationStatus.DO_NOT_DISTURB;
                         con.latestMessageId = message.messageId;
@@ -3784,14 +3966,14 @@ var RongIMLib;
                 });
             }
             if (message.conversationType == RongIMLib.ConversationType.CUSTOMER_SERVICE && (message.messageType == "ChangeModeResponseMessage" || message.messageType == "SuspendMessage" || message.messageType == "HandShakeResponseMessage" ||
-                message.messageType == "TerminateMessage" || message.messageType == "CustomerStatusUpdateMessage" || message.messageType == "TextMessage" || message.messageType == "InformationNotificationMessage")) {
+                message.messageType == "TerminateMessage" || message.messageType == "CustomerStatusUpdateMessage" || message.messageType == "TextMessage")) {
                 if (!RongIMLib.RongIMClient._memoryStore.custStore["isInit"]) {
                     return;
                 }
             }
             if (message.conversationType == RongIMLib.ConversationType.CUSTOMER_SERVICE && message.messageType != "HandShakeResponseMessage") {
                 if (!RongIMLib.RongIMClient._memoryStore.custStore[message.targetId]) {
-                    return;
+                    // return;
                 }
                 if (message.messageType == "TerminateMessage") {
                     if (RongIMLib.RongIMClient._memoryStore.custStore[message.targetId].sid != message.content.sid) {
@@ -3811,69 +3993,9 @@ var RongIMLib;
                     }
                 }
             }
-            var d = new Date(), m = d.getMonth() + 1, date = d.getFullYear() + '/' + (m.toString().length == 1 ? '0' + m : m) + '/' + d.getDate();
-            //new Date(date).getTime() - message.sentTime < 1 逻辑判断 超过 1 天未收的 ReadReceiptRequestMessage 离线消息自动忽略。
-            var dealtime = new Date(date).getTime() - message.sentTime < 0;
-            if (RongIMLib.MessageUtil.supportLargeStorage() && message.messageType === RongIMLib.RongIMClient.MessageType["ReadReceiptRequestMessage"] && dealtime && message.messageDirection == RongIMLib.MessageDirection.SEND) {
-                var sentkey = Bridge._client.userId + message.content.messageUId + "SENT";
-                RongIMLib.RongIMClient._storageProvider.setItem(sentkey, JSON.stringify({ count: 0, dealtime: message.sentTime, userIds: {} }));
-            }
-            else if (RongIMLib.MessageUtil.supportLargeStorage() && message.messageType === RongIMLib.RongIMClient.MessageType["ReadReceiptRequestMessage"] && dealtime) {
-                var reckey = Bridge._client.userId + message.conversationType + message.targetId + 'RECEIVED', recData = JSON.parse(RongIMLib.RongIMClient._storageProvider.getItem(reckey));
-                if (recData) {
-                    if (message.senderUserId in recData) {
-                        if (recData[message.senderUserId].uIds && recData[message.senderUserId].uIds && recData[message.senderUserId].uIds.indexOf(message.content.messageUId) == -1) {
-                            // 如果是前一天的 MessaageUId 把数组清空。
-                            new Date(date).getTime() - recData[message.senderUserId].dealtime < 0 || (recData[message.senderUserId].uIds.length = 0);
-                            recData[message.senderUserId].uIds.push(message.content.messageUId);
-                            recData[message.senderUserId].dealtime = message.sentTime;
-                            recData[message.senderUserId].isResponse = false;
-                            RongIMLib.RongIMClient._storageProvider.setItem(reckey, JSON.stringify(recData));
-                        }
-                        else {
-                            return;
-                        }
-                    }
-                    else {
-                        var objSon = { uIds: [message.content.messageUId], dealtime: message.sentTime, isResponse: false };
-                        recData[message.senderUserId] = objSon;
-                        RongIMLib.RongIMClient._storageProvider.setItem(reckey, JSON.stringify(recData));
-                    }
-                }
-                else {
-                    var obj = {};
-                    obj[message.senderUserId] = { uIds: [message.content.messageUId], dealtime: message.sentTime, isResponse: false };
-                    RongIMLib.RongIMClient._storageProvider.setItem(reckey, JSON.stringify(obj));
-                }
-            }
-            if (RongIMLib.MessageUtil.supportLargeStorage() && message.messageType === RongIMLib.RongIMClient.MessageType["ReadReceiptResponseMessage"] && dealtime) {
-                var receiptResponseMsg = message.content, uIds = receiptResponseMsg.receiptMessageDic[Bridge._client.userId], sentkey = "", sentObj;
-                message.receiptResponse || (message.receiptResponse = {});
-                if (uIds) {
-                    var cbuIds = [];
-                    for (var i = 0, len = uIds.length; i < len; i++) {
-                        sentkey = Bridge._client.userId + uIds[i] + "SENT";
-                        sentObj = JSON.parse(RongIMLib.RongIMClient._storageProvider.getItem(sentkey));
-                        if (sentObj && !(message.senderUserId in sentObj.userIds)) {
-                            if (new Date(date).getTime() - sentObj.dealtime > 0) {
-                                RongIMLib.RongIMClient._storageProvider.removeItem(sentkey);
-                            }
-                            else {
-                                cbuIds.push(uIds[i]);
-                                sentObj.count += 1;
-                                sentObj.userIds[message.senderUserId] = message.sentTime;
-                                message.receiptResponse[uIds[i]] = sentObj.count;
-                                RongIMLib.RongIMClient._storageProvider.setItem(sentkey, JSON.stringify(sentObj));
-                            }
-                        }
-                    }
-                    receiptResponseMsg.receiptMessageDic[Bridge._client.userId] = cbuIds;
-                    message.content = receiptResponseMsg;
-                }
-            }
             var that = this;
-            if (RongIMLib.RongIMClient._voipProvider && ['AcceptMessage', 'RingingMessage', 'HungupMessage', 'InviteMessage', 'MediaModifyMessage', 'MemberModifyMessage'].indexOf(message.messageType) > -1) {
-                RongIMLib.RongIMClient._voipProvider.onReceived(message);
+            if (RongIMLib.RongIMClient._voipProvider && ['AcceptMessage', 'RingingMessage', 'HangupMessage', 'InviteMessage', 'MediaModifyMessage', 'MemberModifyMessage'].indexOf(message.messageType) > -1) {
+                RongIMLib.RongIMClient._voipProvider.onReceived(message, that._onReceived);
             }
             else {
                 RongIMLib.RongIMClient._dataAccessProvider.addMessage(message.conversationType, message.targetId, message, {
@@ -3899,7 +4021,7 @@ var RongIMLib;
                         Bridge._client.channel.writeAndFlush(new RongIMLib.PubAckMessage(msg.getMessageId()));
                     }
                     // TODO && ->
-                    if (msg.getSyncMsg() && !RongIMLib.RongIMClient._memoryStore.depend.isPolling) {
+                    if (msg.getSyncMsg() && !RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"]) {
                         Bridge._client.handler.syncMsgMap[msg.getMessageId()] = msg;
                     }
                     else {
@@ -3921,7 +4043,7 @@ var RongIMLib;
                 case "PubAckMessage":
                     var item = Bridge._client.handler.map[msg.getMessageId()];
                     if (item) {
-                        item.Callback.process(msg.getStatus() || 0, msg.getMessageUId(), msg.getTimestamp(), item.Message, msg.getMessageId());
+                        item.Callback.process(msg.getStatus() || 0, msg.getMessageUId(), msg.getTimestamp(), item.Message);
                         delete Bridge._client.handler.map[msg.getMessageId()];
                     }
                     else {
@@ -3930,12 +4052,7 @@ var RongIMLib;
                     }
                     break;
                 case "PingRespMessage":
-                    if (RongIMLib.RongIMClient._memoryStore.isFirstPingMsg) {
-                        RongIMLib.RongIMClient._memoryStore.isFirstPingMsg = false;
-                    }
-                    else {
-                        Bridge._client.pauseTimer();
-                    }
+                    Bridge._client.pauseTimer();
                     break;
                 case "DisconnectMessage":
                     Bridge._client.channel.disconnect(msg.getStatus());
@@ -3944,9 +4061,14 @@ var RongIMLib;
             }
         };
         return MessageHandler;
-    }());
+    })();
     RongIMLib.MessageHandler = MessageHandler;
 })(RongIMLib || (RongIMLib = {}));
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 /// <reference path="../dts/helper.d.ts"/>
 var RongIMLib;
 (function (RongIMLib) {
@@ -3985,7 +4107,7 @@ var RongIMLib;
             }
         };
         return MessageCallback;
-    }());
+    })();
     RongIMLib.MessageCallback = MessageCallback;
     var CallbackMapping = (function () {
         function CallbackMapping() {
@@ -4050,7 +4172,7 @@ var RongIMLib;
             }
         };
         return CallbackMapping;
-    }());
+    })();
     RongIMLib.CallbackMapping = CallbackMapping;
     var PublishCallback = (function (_super) {
         __extends(PublishCallback, _super);
@@ -4059,14 +4181,14 @@ var RongIMLib;
             this._cb = _cb;
             this._timeout = _timeout;
         }
-        PublishCallback.prototype.process = function (_status, messageUId, timestamp, _msg, messageId) {
+        PublishCallback.prototype.process = function (_status, messageUId, timestamp, _msg) {
             this.readTimeOut();
             if (_status == 0) {
                 if (_msg) {
                     _msg.setSentStatus = _status;
                 }
-                RongIMLib.RongIMClient._storageProvider.setItem(RongIMLib.Bridge._client.userId, timestamp);
-                this._cb({ messageUId: messageUId, timestamp: timestamp, messageId: messageId });
+                RongIMLib.RongIMClient._cookieHelper.setItem(RongIMLib.Bridge._client.userId, timestamp);
+                this._cb({ messageUId: messageUId, timestamp: timestamp });
             }
             else {
                 this._timeout(_status);
@@ -4076,7 +4198,7 @@ var RongIMLib;
             MessageCallback.prototype.readTimeOut.call(this, x);
         };
         return PublishCallback;
-    }(MessageCallback));
+    })(MessageCallback);
     RongIMLib.PublishCallback = PublishCallback;
     var QueryCallback = (function (_super) {
         __extends(QueryCallback, _super);
@@ -4109,7 +4231,7 @@ var RongIMLib;
             MessageCallback.prototype.readTimeOut.call(this, x);
         };
         return QueryCallback;
-    }(MessageCallback));
+    })(MessageCallback);
     RongIMLib.QueryCallback = QueryCallback;
     var ConnectAck = (function (_super) {
         __extends(ConnectAck, _super);
@@ -4122,90 +4244,19 @@ var RongIMLib;
         ConnectAck.prototype.process = function (status, userId, timestamp) {
             this.readTimeOut();
             if (status == 0) {
-                if (RongIMLib.RongIMClient._memoryStore.depend.isPrivate) {
-                    var date = new Date();
-                    var qryOpt, dateStr = date.getFullYear() + "" + (date.getMonth() + 1) + "" + date.getDate();
-                    if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                        qryOpt = RongIMLib.RongIMClient._storageProvider.getItem("RongQryOpt" + dateStr);
-                    }
-                    else {
-                        qryOpt = RongIMLib.RongIMClient._storageProvider.getItem("RongQryOpt" + dateStr);
-                    }
-                    if (!qryOpt) {
-                        var modules = new Modules.GetUserInfoInput();
-                        modules.setNothing(0);
-                        RongIMLib.RongIMClient.bridge.queryMsg("qryCfg", RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
-                            onSuccess: function (data) {
-                                if (!data)
-                                    return;
-                                var naviArrs = RongIMLib.RongIMClient._memoryStore.depend.navi.split('//');
-                                new RongIMLib.RongAjax({
-                                    url: "https://stats.cn.ronghub.com/active.json",
-                                    appKey: RongIMLib.RongIMClient._memoryStore.appKey,
-                                    deviceId: Math.floor(Math.random() * 10000),
-                                    timestamp: new Date().getTime(),
-                                    deviceInfo: "",
-                                    privateInfo: {
-                                        code: encodeURIComponent(data.name),
-                                        ip: RongIMLib.RongIMClient._storageProvider._host,
-                                        customId: data.id,
-                                        nip: naviArrs.length > 1 ? naviArrs[1] : ""
-                                    }
-                                }).send(function () {
-                                    if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                                        qryOpt = RongIMLib.RongIMClient._storageProvider.setItem("RongQryOpt" + dateStr, dateStr);
-                                    }
-                                    else {
-                                        qryOpt = RongIMLib.RongIMClient._storageProvider.setItem("RongQryOpt" + dateStr, dateStr);
-                                    }
-                                });
-                            },
-                            onError: function () { }
-                        }, "GroupInfo");
-                    }
-                }
-                var naviStr = RongIMLib.RongIMClient._storageProvider.getItem(RongIMLib.RongIMClient._storageProvider.getItemKey("navi"));
-                var naviKey = RongIMLib.RongIMClient._storageProvider.getItemKey("navi");
+                var naviStr = RongIMLib.RongIMClient._cookieHelper.getItem(RongIMLib.RongIMClient._cookieHelper.getItemKey("navi"));
+                var naviKey = RongIMLib.RongIMClient._cookieHelper.getItemKey("navi");
                 var arr = decodeURIComponent(naviStr).split(",");
                 if (!arr[1]) {
                     naviStr = encodeURIComponent(naviStr) + userId;
-                    RongIMLib.RongIMClient._storageProvider.setItem(naviKey, naviStr);
+                    RongIMLib.RongIMClient._cookieHelper.setItem(naviKey, naviStr);
                 }
                 if (RongIMLib.RongIMClient._memoryStore.isUseWebSQLProvider) {
                     RongIMLib.RongIMClient._dataAccessProvider.database.init(userId);
                 }
                 this._client.userId = userId;
-                var self = this, temp = RongIMLib.RongIMClient._storageProvider.getItemKey("navi");
-                var naviServer = RongIMLib.RongIMClient._storageProvider.getItem(temp);
-                // TODO  判断拆分 naviServer 后的数组长度。
-                var naviPort = naviServer.split(",")[0].split(":")[1];
-                if (!RongIMLib.RongIMClient._memoryStore.depend.isPolling && RongIMLib.RongIMClient._memoryStore.isFirstPingMsg && naviPort.length < 4) {
-                    RongIMLib.Bridge._client.checkSocket({
-                        onSuccess: function () {
-                            if (!RongIMLib.RongIMClient.isNotPullMsg) {
-                                self._client.syncTime(undefined, undefined, undefined, true);
-                            }
-                        },
-                        onError: function () {
-                            RongIMLib.RongIMClient._memoryStore.isFirstPingMsg = false;
-                            RongIMLib.RongIMClient.getInstance().disconnect();
-                            var temp = RongIMLib.RongIMClient._storageProvider.getItemKey("navi");
-                            var server = RongIMLib.RongIMClient._storageProvider.getItem("RongBackupServer");
-                            var arrs = server.split(",");
-                            if (arrs.length < 2) {
-                                throw new Error("navi server is empty");
-                            }
-                            RongIMLib.RongIMClient._storageProvider.setItem(temp, RongIMLib.RongIMClient._storageProvider.getItem("RongBackupServer"));
-                            var url = RongIMLib.Bridge._client.channel.socket.currentURL;
-                            RongIMLib.Bridge._client.channel.socket.currentURL = arrs[0] + url.substring(url.indexOf("/"), url.length);
-                            RongIMLib.RongIMClient.connect(RongIMLib.RongIMClient._memoryStore.token, RongIMLib.RongIMClient._memoryStore.callback);
-                        }
-                    });
-                }
-                else {
-                    if (!RongIMLib.RongIMClient.isNotPullMsg) {
-                        self._client.syncTime(undefined, undefined, undefined, true);
-                    }
+                if (!RongIMLib.RongIMClient.isNotPullMsg) {
+                    this._client.syncTime();
                 }
                 if (this._client.reconnectObj.onSuccess) {
                     this._client.reconnectObj.onSuccess(userId);
@@ -4216,7 +4267,6 @@ var RongIMLib;
                     setTimeout(function () { me._cb(userId); }, 500);
                 }
                 RongIMLib.Bridge._client.channel.socket.fire("StatusChanged", 0);
-                RongIMLib.RongIMClient._memoryStore.connectAckTime = timestamp;
                 if (!(new Date().getTime() - timestamp)) {
                     RongIMLib.RongIMClient._memoryStore.deltaTime = 0;
                 }
@@ -4225,7 +4275,7 @@ var RongIMLib;
                 }
             }
             else if (status == 6) {
-                //重定向 连错 CMP
+                //重定向
                 var x = {};
                 var me = this;
                 new RongIMLib.Navigation().getServerEndpoint(this._client.token, this._client.appId, function () {
@@ -4251,7 +4301,7 @@ var RongIMLib;
             MessageCallback.prototype.readTimeOut.call(this, x);
         };
         return ConnectAck;
-    }(MessageCallback));
+    })(MessageCallback);
     RongIMLib.ConnectAck = ConnectAck;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -4260,35 +4310,24 @@ var RongIMLib;
         function Navigation() {
             window.getServerEndpoint = function (x) {
                 //把导航返回的server字段赋值给CookieHelper._host，因为flash widget需要使用 decodeURIComponent
-                RongIMLib.RongIMClient._storageProvider._host = Navigation.Endpoint.host = x["server"];
-                RongIMLib.RongIMClient._storageProvider.setItem("RongBackupServer", x["backupServer"] + "," + (x.userId || ""));
+                RongIMLib.RongIMClient._cookieHelper._host = Navigation.Endpoint.host = x["server"];
                 //设置当前用户 Id 只有 comet 使用。
                 Navigation.Endpoint.userId = x["userId"];
-                if (x["voipCallInfo"]) {
-                    var callInfo = JSON.parse(x["voipCallInfo"]);
-                    RongIMLib.RongIMClient._memoryStore.voipStategy = callInfo.strategy;
-                    RongIMLib.RongIMClient._storageProvider.setItem("voipStrategy", callInfo.strategy);
-                }
                 //替换本地存储的导航信息
-                var temp = RongIMLib.RongIMClient._storageProvider.getItemKey("navi");
-                temp !== null && RongIMLib.RongIMClient._storageProvider.removeItem(temp);
-                var md5Token = md5(RongIMLib.Bridge._client.token).slice(8, 16), openMp = x['openMp'] == 0 ? 0 : 1;
-                RongIMLib.RongIMClient._storageProvider.setItem("navi" + md5Token, x["server"] + "," + (x.userId || ""));
-                RongIMLib.RongIMClient._storageProvider.setItem('openMp' + md5Token, openMp);
-                if (!openMp) {
-                    RongIMLib.RongIMClient._memoryStore.depend.openMp = false;
-                }
+                var temp = RongIMLib.RongIMClient._cookieHelper.getItemKey("navi");
+                temp !== null && RongIMLib.RongIMClient._cookieHelper.removeItem(temp);
+                RongIMLib.RongIMClient._cookieHelper.setItem("navi" + md5(RongIMLib.Bridge._client.token).slice(8, 16), x["server"] + "," + (x.userId || ""));
             };
         }
         Navigation.prototype.connect = function (appId, token, callback) {
-            var oldAppId = RongIMLib.RongIMClient._storageProvider.getItem("appId");
+            var oldAppId = RongIMLib.RongIMClient._cookieHelper.getItem("appId");
             //如果appid和本地存储的不一样，清空所有本地存储数据
             if (oldAppId && oldAppId != appId) {
-                RongIMLib.RongIMClient._storageProvider.clearItem();
-                RongIMLib.RongIMClient._storageProvider.setItem("appId", appId);
+                RongIMLib.RongIMClient._cookieHelper.clearItem();
+                RongIMLib.RongIMClient._cookieHelper.setItem("appId", appId);
             }
             if (!oldAppId) {
-                RongIMLib.RongIMClient._storageProvider.setItem("appId", appId);
+                RongIMLib.RongIMClient._cookieHelper.setItem("appId", appId);
             }
             var client = new RongIMLib.Client(token, appId);
             var me = this;
@@ -4301,15 +4340,11 @@ var RongIMLib;
             if (unignore) {
                 //根据token生成MD5截取8-16下标的数据与本地存储的导航信息进行比对
                 //如果信息和上次的通道类型都一样，不执行navi请求，用本地存储的导航信息连接服务器
-                var naviStr = md5(_token).slice(8, 16), _old = RongIMLib.RongIMClient._storageProvider.getItem(RongIMLib.RongIMClient._storageProvider.getItemKey("navi")), _new = RongIMLib.RongIMClient._storageProvider.getItem("navi" + naviStr);
-                if (_old == _new && _new !== null && RongIMLib.RongIMClient._storageProvider.getItem("rongSDK") == RongIMLib.Transportations._TransportType) {
+                var naviStr = md5(_token).slice(8, 16), _old = RongIMLib.RongIMClient._cookieHelper.getItem(RongIMLib.RongIMClient._cookieHelper.getItemKey("navi")), _new = RongIMLib.RongIMClient._cookieHelper.getItem("navi" + naviStr);
+                if (_old == _new && _new !== null && RongIMLib.RongIMClient._cookieHelper.getItem("rongSDK") == RongIMLib.Transportations._TransportType) {
                     var obj = decodeURIComponent(_old).split(",");
                     setTimeout(function () {
-                        RongIMLib.RongIMClient._storageProvider._host = Navigation.Endpoint.host = obj[0];
-                        RongIMLib.RongIMClient._memoryStore.voipStategy = RongIMLib.RongIMClient._storageProvider.getItem("voipStrategy");
-                        if (!RongIMLib.RongIMClient._storageProvider.getItem('openMp' + naviStr)) {
-                            RongIMLib.RongIMClient._memoryStore.depend.openMp = false;
-                        }
+                        RongIMLib.RongIMClient._cookieHelper._host = Navigation.Endpoint.host = obj[0];
                         Navigation.Endpoint.userId = obj[1];
                         _onsuccess();
                     }, 500);
@@ -4317,9 +4352,14 @@ var RongIMLib;
                 }
             }
             //导航信息，切换Url对象的key进行线上线下测试操作
-            var xss = document.createElement("script");
+            var Url = {
+                //测试环境
+                "navUrl-Debug": RongIMLib.MessageUtil.schemeArrs[RongIMLib.RongIMClient.schemeType][0] + "://119.254.111.49:9100/",
+                //线上环境
+                "navUrl-Release": RongIMLib.MessageUtil.schemeArrs[RongIMLib.RongIMClient.schemeType][0] + "://nav.cn.ronghub.com/"
+            }, xss = document.createElement("script");
             //进行jsonp请求
-            xss.src = RongIMLib.RongIMClient._memoryStore.depend.navi + (RongIMLib.RongIMClient._memoryStore.depend.isPolling ? "/cometnavi.js" : "/navi.js") + "?appId=" + _appId + "&token=" + encodeURIComponent(_token) + "&" + "callBack=getServerEndpoint&t=" + (new Date).getTime();
+            xss.src = Url["navUrl-Debug"] + (RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"] ? "cometnavi.js" : "navi.js") + "?appId=" + _appId + "&token=" + encodeURIComponent(_token) + "&" + "callBack=getServerEndpoint&t=" + (new Date).getTime();
             document.body.appendChild(xss);
             xss.onerror = function () {
                 _onerror(RongIMLib.ConnectionState.TOKEN_INCORRECT);
@@ -4335,7 +4375,7 @@ var RongIMLib;
         };
         Navigation.Endpoint = new Object;
         return Navigation;
-    }());
+    })();
     RongIMLib.Navigation = Navigation;
 })(RongIMLib || (RongIMLib = {}));
 // TODO: 统一变量、方法等命名规范
@@ -4422,7 +4462,7 @@ var RongIMLib;
             }
         };
         return BaseMessage;
-    }());
+    })();
     RongIMLib.BaseMessage = BaseMessage;
     /**
      *连接消息类型
@@ -4517,7 +4557,7 @@ var RongIMLib;
             return stream;
         };
         return ConnectMessage;
-    }(BaseMessage));
+    })(BaseMessage);
     RongIMLib.ConnectMessage = ConnectMessage;
     /**
      *连接应答类型
@@ -4618,7 +4658,7 @@ var RongIMLib;
             return this.timestrap;
         };
         return ConnAckMessage;
-    }(BaseMessage));
+    })(BaseMessage);
     RongIMLib.ConnAckMessage = ConnAckMessage;
     /**
      *断开消息类型
@@ -4668,7 +4708,7 @@ var RongIMLib;
         };
         ;
         return DisconnectMessage;
-    }(BaseMessage));
+    })(BaseMessage);
     RongIMLib.DisconnectMessage = DisconnectMessage;
     /**
      *请求消息信令
@@ -4680,7 +4720,7 @@ var RongIMLib;
             this._name = "PingReqMessage";
         }
         return PingReqMessage;
-    }(BaseMessage));
+    })(BaseMessage);
     RongIMLib.PingReqMessage = PingReqMessage;
     /**
      *响应消息信令
@@ -4692,7 +4732,7 @@ var RongIMLib;
             this._name = "PingRespMessage";
         }
         return PingRespMessage;
-    }(BaseMessage));
+    })(BaseMessage);
     RongIMLib.PingRespMessage = PingRespMessage;
     /**
      *封装MesssageId
@@ -4724,7 +4764,7 @@ var RongIMLib;
             return this.messageId;
         };
         return RetryableMessage;
-    }(BaseMessage));
+    })(BaseMessage);
     RongIMLib.RetryableMessage = RetryableMessage;
     /**
      *发送消息应答（双向）
@@ -4781,7 +4821,7 @@ var RongIMLib;
             return this.messageUId;
         };
         return PubAckMessage;
-    }(RetryableMessage));
+    })(RetryableMessage);
     RongIMLib.PubAckMessage = PubAckMessage;
     /**
      *发布消息
@@ -4858,7 +4898,7 @@ var RongIMLib;
             return this.date;
         };
         return PublishMessage;
-    }(RetryableMessage));
+    })(RetryableMessage);
     RongIMLib.PublishMessage = PublishMessage;
     /**
      *请求查询
@@ -4920,7 +4960,7 @@ var RongIMLib;
             return this.targetId;
         };
         return QueryMessage;
-    }(RetryableMessage));
+    })(RetryableMessage);
     RongIMLib.QueryMessage = QueryMessage;
     /**
      *请求查询确认
@@ -4935,7 +4975,7 @@ var RongIMLib;
             }
         }
         return QueryConMessage;
-    }(RetryableMessage));
+    })(RetryableMessage);
     RongIMLib.QueryConMessage = QueryConMessage;
     /**
      *请求查询应答
@@ -4975,7 +5015,7 @@ var RongIMLib;
             this.data = x;
         };
         return QueryAckMessage;
-    }(RetryableMessage));
+    })(RetryableMessage);
     RongIMLib.QueryAckMessage = QueryAckMessage;
 })(RongIMLib || (RongIMLib = {}));
 /// <reference path="../../dts/helper.d.ts"/>
@@ -4996,7 +5036,7 @@ var RongIMLib;
             }
         };
         return MessageOutputStream;
-    }());
+    })();
     RongIMLib.MessageOutputStream = MessageOutputStream;
     /**
      * 流转换为消息对象
@@ -5065,7 +5105,7 @@ var RongIMLib;
             return this.msg;
         };
         return MessageInputStream;
-    }());
+    })();
     RongIMLib.MessageInputStream = MessageInputStream;
     var Header = (function () {
         function Header(_type, _retain, _qos, _dup) {
@@ -5119,7 +5159,7 @@ var RongIMLib;
             return "Header [type=" + this.type + ",retain=" + this.retain + ",qos=" + this.qos + ",dup=" + this.dup + "]";
         };
         return Header;
-    }());
+    })();
     RongIMLib.Header = Header;
     /**
      * 二进制帮助对象
@@ -5203,7 +5243,7 @@ var RongIMLib;
             return this.writeUTF(str);
         };
         return BinaryHelper;
-    }());
+    })();
     RongIMLib.BinaryHelper = BinaryHelper;
     var RongIMStream = (function () {
         function RongIMStream(arr) {
@@ -5328,7 +5368,7 @@ var RongIMLib;
             return this.pool;
         };
         return RongIMStream;
-    }());
+    })();
     RongIMLib.RongIMStream = RongIMStream;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -5358,7 +5398,7 @@ var RongIMLib;
             }
             ;
             this.url = url;
-            this.socket = new WebSocket(RongIMLib.RongIMClient._memoryStore.depend.wsScheme + url);
+            this.socket = new WebSocket(RongIMLib.MessageUtil.schemeArrs[RongIMLib.RongIMClient.schemeType][1] + "://" + url);
             this.socket.binaryType = "arraybuffer";
             this.addEvent();
             return this.socket;
@@ -5374,8 +5414,7 @@ var RongIMLib;
                 return;
             }
             if (this.isClose) {
-                this._socket.fire("StatusChanged", RongIMLib.ConnectionStatus.CONNECTION_CLOSED);
-                return;
+                throw new Error("The Connection is closed,Please open the Connection!!!");
             }
             var stream = new RongIMLib.RongIMStream([]), msg = new RongIMLib.MessageOutputStream(stream);
             msg.writeMessage(data);
@@ -5417,6 +5456,7 @@ var RongIMLib;
          * @param {any} error [抛出异常]
          */
         SocketTransportation.prototype.onError = function (error) {
+            console.log(error);
             throw new Error(error);
         };
         /**
@@ -5477,7 +5517,7 @@ var RongIMLib;
             this.createTransport(this.url);
         };
         return SocketTransportation;
-    }());
+    })();
     RongIMLib.SocketTransportation = SocketTransportation;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -5497,7 +5537,7 @@ var RongIMLib;
             }
             ;
             this.url = url;
-            var sid = RongIMLib.RongIMClient._storageProvider.getItem("sId" + RongIMLib.Navigation.Endpoint.userId), me = this;
+            var sid = RongIMLib.RongIMClient._cookieHelper.getItem(RongIMLib.Navigation.Endpoint.userId + "sId"), me = this;
             if (sid) {
                 setTimeout(function () {
                     me.onSuccess("{\"status\":0,\"userId\":\"" + RongIMLib.Navigation.Endpoint.userId + "\",\"headerCode\":32,\"messageId\":0,\"sessionid\":\"" + sid + "\"}");
@@ -5514,7 +5554,7 @@ var RongIMLib;
                 reqest.multipart = true;
             }
             reqest.timeout = 60000;
-            reqest.open(method || "GET", RongIMLib.RongIMClient._memoryStore.depend.protocol + url);
+            reqest.open(method || "GET", RongIMLib.MessageUtil.schemeArrs[RongIMLib.RongIMClient.schemeType][0] + "://" + url);
             if (method == "POST" && "setRequestHeader" in reqest) {
                 reqest.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=utf-8");
             }
@@ -5593,7 +5633,7 @@ var RongIMLib;
                 RongIMLib.Navigation.Endpoint.userId = val.userId;
             }
             if (header) {
-                RongIMLib.RongIMClient._storageProvider.setItem("sId" + RongIMLib.Navigation.Endpoint.userId, header);
+                RongIMLib.RongIMClient._cookieHelper.setItem(RongIMLib.Navigation.Endpoint.userId + "sId", header);
             }
             if (!RongIMLib.MessageUtil.isArray(val)) {
                 val = [val];
@@ -5638,8 +5678,8 @@ var RongIMLib;
             }
         };
         PollingTransportation.prototype.disconnect = function () {
-            RongIMLib.RongIMClient._storageProvider.removeItem("sId" + RongIMLib.Navigation.Endpoint.userId);
-            RongIMLib.RongIMClient._storageProvider.removeItem(RongIMLib.Navigation.Endpoint.userId + "msgId");
+            RongIMLib.RongIMClient._cookieHelper.removeItem(RongIMLib.Navigation.Endpoint.userId + "sId");
+            RongIMLib.RongIMClient._cookieHelper.removeItem(RongIMLib.Navigation.Endpoint.userId + "msgId");
             this.onClose();
         };
         PollingTransportation.prototype.reconnect = function () {
@@ -5650,23 +5690,23 @@ var RongIMLib;
             var txt = responseText.match(/"sessionid":"\S+?(?=")/);
             this.onData(responseText, txt ? txt[0].slice(13) : 0);
             if (/"headerCode":-32,/.test(responseText)) {
-                RongIMLib.RongIMClient._storageProvider.removeItem("sId" + RongIMLib.Navigation.Endpoint.userId);
-                RongIMLib.RongIMClient._storageProvider.removeItem(RongIMLib.Navigation.Endpoint.userId + "msgId");
+                RongIMLib.RongIMClient._cookieHelper.removeItem(RongIMLib.Navigation.Endpoint.userId + "sId");
+                RongIMLib.RongIMClient._cookieHelper.removeItem(RongIMLib.Navigation.Endpoint.userId + "msgId");
                 return;
             }
-            this.getRequest(RongIMLib.Navigation.Endpoint.host + "/pullmsg.js?sessionid=" + RongIMLib.RongIMClient._storageProvider.getItem("sId" + RongIMLib.Navigation.Endpoint.userId) + "&timestrap=" + encodeURIComponent(new Date().getTime() + Math.random() + ""));
+            this.getRequest(RongIMLib.Navigation.Endpoint.host + "/pullmsg.js?sessionid=" + RongIMLib.RongIMClient._cookieHelper.getItem(RongIMLib.Navigation.Endpoint.userId + "sId") + "&timestrap=" + encodeURIComponent(new Date().getTime() + Math.random() + ""));
             this.connected = true;
             isconnect && this.socket.fire("connect");
         };
         PollingTransportation.prototype.onError = function () {
-            RongIMLib.RongIMClient._storageProvider.removeItem("sId" + RongIMLib.Navigation.Endpoint.userId);
-            RongIMLib.RongIMClient._storageProvider.removeItem(RongIMLib.Navigation.Endpoint.userId + "msgId");
+            RongIMLib.RongIMClient._cookieHelper.removeItem(RongIMLib.Navigation.Endpoint.userId + "sId");
+            RongIMLib.RongIMClient._cookieHelper.removeItem(RongIMLib.Navigation.Endpoint.userId + "msgId");
             this.onClose();
             this.connected = false;
             this.socket.fire("disconnect");
         };
         return PollingTransportation;
-    }());
+    })();
     RongIMLib.PollingTransportation = PollingTransportation;
 })(RongIMLib || (RongIMLib = {}));
 //objectname映射
@@ -5675,7 +5715,6 @@ var typeMapping = {
     "RC:ImgMsg": "ImageMessage",
     "RC:VcMsg": "VoiceMessage",
     "RC:ImgTextMsg": "RichContentMessage",
-    "RC:FileMsg": "FileMessage",
     "RC:LBSMsg": "LocationMessage",
     "RC:InfoNtf": "InformationNotificationMessage",
     "RC:ContactNtf": "ContactNotificationMessage",
@@ -5693,20 +5732,11 @@ var typeMapping = {
     "RC:VCAccept": "AcceptMessage",
     "RC:VCRinging": "RingingMessage",
     "RC:VCSummary": "SummaryMessage",
-    "RC:VCHangup": "HungupMessage",
+    "RC:VCHangup": "HangupMessage",
     "RC:VCInvite": "InviteMessage",
     "RC:VCModifyMedia": "MediaModifyMessage",
-    "RC:VCModifyMem": "MemberModifyMessage",
-    "RC:CsContact": "CustomerContact",
-    "RC:PSImgTxtMsg": "PublicServiceRichContentMessage",
-    "RC:PSMultiImgTxtMsg": "PublicServiceMultiRichContentMessage",
-    "RC:GrpNtf": "GroupNotificationMessage",
-    "RC:PSCmd": "PublicServiceCommandMessage",
-    "RC:RcCmd": "RecallCommandMessage",
-    "RC:SRSMsg": "SyncReadStatusMessage",
-    "RC:RRReqMsg": "ReadReceiptRequestMessage",
-    "RC:RRRspMsg": "ReadReceiptResponseMessage"
-}, 
+    "RC:VCModifyMem": "MemberModifyMessage"
+},
 //自定义消息类型
 registerMessageTypeMapping = {}, HistoryMsgType = {
     4: "qryCMsg",
@@ -5728,8 +5758,107 @@ var RongIMLib;
         }
         Transportations._TransportType = RongIMLib.Socket.WEBSOCKET;
         return Transportations;
-    }());
+    })();
     RongIMLib.Transportations = Transportations;
+    var PublicServiceMap = (function () {
+        function PublicServiceMap() {
+            this.publicServiceList = [];
+        }
+        PublicServiceMap.prototype.get = function (publicServiceType, publicServiceId) {
+            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
+                if (this.publicServiceList[i].conversationType == publicServiceType && publicServiceId == this.publicServiceList[i].publicServiceId) {
+                    return this.publicServiceList[i];
+                }
+            }
+        };
+        PublicServiceMap.prototype.add = function (publicServiceProfile) {
+            var isAdd = true, me = this;
+            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
+                if (me.publicServiceList[i].conversationType == publicServiceProfile.conversationType && publicServiceProfile.publicServiceId == me.publicServiceList[i].publicServiceId) {
+                    this.publicServiceList.unshift(this.publicServiceList.splice(i, 1)[0]);
+                    isAdd = false;
+                    break;
+                }
+            }
+            if (isAdd) {
+                this.publicServiceList.unshift(publicServiceProfile);
+            }
+        };
+        PublicServiceMap.prototype.replace = function (publicServiceProfile) {
+            var me = this;
+            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
+                if (me.publicServiceList[i].conversationType == publicServiceProfile.conversationType && publicServiceProfile.publicServiceId == me.publicServiceList[i].publicServiceId) {
+                    me.publicServiceList.splice(i, 1, publicServiceProfile);
+                    break;
+                }
+            }
+        };
+        PublicServiceMap.prototype.remove = function (conversationType, publicServiceId) {
+            var me = this;
+            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
+                if (me.publicServiceList[i].conversationType == conversationType && publicServiceId == me.publicServiceList[i].publicServiceId) {
+                    this.publicServiceList.splice(i, 1);
+                    break;
+                }
+            }
+        };
+        return PublicServiceMap;
+    })();
+    RongIMLib.PublicServiceMap = PublicServiceMap;
+    /**
+     * 会话工具类。
+     */
+    var ConversationMap = (function () {
+        function ConversationMap() {
+            this.conversationList = [];
+        }
+        ConversationMap.prototype.get = function (conversavtionType, targetId) {
+            for (var i = 0, len = this.conversationList.length; i < len; i++) {
+                if (this.conversationList[i].conversationType == conversavtionType && this.conversationList[i].targetId == targetId) {
+                    return this.conversationList[i];
+                }
+            }
+            return null;
+        };
+        ConversationMap.prototype.add = function (conversation) {
+            var isAdd = true;
+            for (var i = 0, len = this.conversationList.length; i < len; i++) {
+                if (this.conversationList[i].conversationType === conversation.conversationType && this.conversationList[i].targetId === conversation.targetId) {
+                    this.conversationList.unshift(this.conversationList.splice(i, 1)[0]);
+                    isAdd = false;
+                    break;
+                }
+            }
+            if (isAdd) {
+                this.conversationList.unshift(conversation);
+            }
+        };
+        /**
+         * [replace 替换会话]
+         * 会话数组存在的情况下调用add方法会是当前会话被替换且返回到第一个位置，导致用户本地一些设置失效，所以提供replace方法
+         */
+        ConversationMap.prototype.replace = function (conversation) {
+            for (var i = 0, len = this.conversationList.length; i < len; i++) {
+                if (this.conversationList[i].conversationType === conversation.conversationType && this.conversationList[i].targetId === conversation.targetId) {
+                    this.conversationList.splice(i, 1, conversation);
+                    break;
+                }
+            }
+        };
+        ConversationMap.prototype.remove = function (conversation) {
+            for (var i = 0, len = this.conversationList.length; i < len; i++) {
+                if (this.conversationList[i].conversationType === conversation.conversationType && this.conversationList[i].targetId === conversation.targetId) {
+                    this.conversationList.splice(i, 1);
+                    break;
+                }
+            }
+        };
+        return ConversationMap;
+    })();
+    RongIMLib.ConversationMap = ConversationMap;
+    /**
+     * 工具类
+     */
     var MessageUtil = (function () {
         function MessageUtil() {
         }
@@ -5746,22 +5875,6 @@ var RongIMLib;
          */
         MessageUtil.checkStorageSize = function () {
             return JSON.stringify(localStorage).length < 4680000;
-        };
-        MessageUtil.getFirstKey = function (obj) {
-            var str = "";
-            for (var key in obj) {
-                str = key;
-                break;
-            }
-            return str;
-        };
-        MessageUtil.isEmpty = function (obj) {
-            var empty = true;
-            for (var key in obj) {
-                empty = false;
-                break;
-            }
-            return empty;
         };
         MessageUtil.ArrayForm = function (typearray) {
             if (Object.prototype.toString.call(typearray) == "[object ArrayBuffer]") {
@@ -5827,10 +5940,10 @@ var RongIMLib;
             return timestamp;
         };
         //消息转换方法
-        MessageUtil.messageParser = function (entity, onReceived, offlineMsg) {
+        MessageUtil.messageParser = function (entity, onReceived) {
             var message = new RongIMLib.Message(), content = entity.content, de, objectName = entity.classname, val, isUseDef = false;
             try {
-                if (RongIMLib.RongIMClient._memoryStore.depend.isPolling) {
+                if (RongIMLib.RongIMClient._memoryStore.global["WEB_XHR_POLLING"]) {
                     val = new RongIMLib.BinaryHelper().readUTF(content.offset ? MessageUtil.ArrayForm(content.buffer).slice(content.offset, content.limit) : content);
                     de = JSON.parse(val);
                 }
@@ -5863,14 +5976,8 @@ var RongIMLib;
                 message.content = new RongIMLib.UnknownMessage({ content: de, objectName: objectName });
                 message.messageType = "UnknownMessage";
             }
-            //根据实体对象设置message对象]
-            var dateTime = MessageUtil.int64ToTimestamp(entity.dataTime);
-            if (dateTime > 0) {
-                message.sentTime = dateTime;
-            }
-            else {
-                message.sentTime = +new Date;
-            }
+            //根据实体对象设置message对象
+            message.sentTime = MessageUtil.int64ToTimestamp(entity.dataTime);
             message.senderUserId = entity.fromUserId;
             message.conversationType = entity.type;
             if (entity.fromUserId == RongIMLib.Bridge._client.userId) {
@@ -5898,52 +6005,106 @@ var RongIMLib;
             message.receivedTime = new Date().getTime();
             message.messageId = (message.conversationType + "_" + ~~(Math.random() * 0xffffff));
             message.objectName = objectName;
-            message.receivedStatus = RongIMLib.ReceivedStatus.READ;
-            message.offLineMessage = offlineMsg ? true : false;
-            if (!offlineMsg) {
-                if (RongIMLib.RongIMClient._memoryStore.connectAckTime > message.sentTime) {
-                    message.offLineMessage = true;
-                }
+            if (objectName == "RC:CsHs") {
+              RongIMLib.RongIMClient._memoryStore.custStore["isInit"] = true;
             }
             return message;
         };
         //适配SSL
-        // static schemeArrs: Array<any> = [["http", "ws"], ["https", "wss"]];
+        MessageUtil.schemeArrs = [["http", "ws"], ["https", "wss"]];
         MessageUtil.sign = { converNum: 1, msgNum: 1, isMsgStart: true, isConvStart: true };
         return MessageUtil;
-    }());
+    })();
     RongIMLib.MessageUtil = MessageUtil;
-    /**
-     * 工具类
-     */
     var MessageIdHandler = (function () {
         function MessageIdHandler() {
         }
         MessageIdHandler.init = function () {
-            this.messageId = +(RongIMLib.RongIMClient._storageProvider.getItem(RongIMLib.Navigation.Endpoint.userId + "msgId") || RongIMLib.RongIMClient._storageProvider.setItem(RongIMLib.Navigation.Endpoint.userId + "msgId", 0) || 0);
+            this.messageId = +(RongIMLib.RongIMClient._cookieHelper.getItem(RongIMLib.Navigation.Endpoint.userId + "msgId") || RongIMLib.RongIMClient._cookieHelper.setItem(RongIMLib.Navigation.Endpoint.userId + "msgId", 0) || 0);
         };
         MessageIdHandler.messageIdPlus = function (method) {
-            RongIMLib.RongIMClient._memoryStore.depend.isPolling && this.init();
+            this.isXHR && this.init();
             if (this.messageId >= 65535) {
                 method();
                 return false;
             }
             this.messageId++;
-            RongIMLib.RongIMClient._memoryStore.depend.isPolling && RongIMLib.RongIMClient._storageProvider.setItem(RongIMLib.Navigation.Endpoint.userId + "msgId", this.messageId);
+            this.isXHR && RongIMLib.RongIMClient._cookieHelper.setItem(RongIMLib.Navigation.Endpoint.userId + "msgId", this.messageId);
             return this.messageId;
         };
         MessageIdHandler.clearMessageId = function () {
             this.messageId = 0;
-            RongIMLib.RongIMClient._memoryStore.depend.isPolling && RongIMLib.RongIMClient._storageProvider.setItem(RongIMLib.Navigation.Endpoint.userId + "msgId", this.messageId);
+            this.isXHR && RongIMLib.RongIMClient._cookieHelper.setItem(RongIMLib.Navigation.Endpoint.userId + "msgId", this.messageId);
         };
         MessageIdHandler.getMessageId = function () {
-            RongIMLib.RongIMClient._memoryStore.depend.isPolling && this.init();
+            this.isXHR && this.init();
             return this.messageId;
         };
         MessageIdHandler.messageId = 0;
+        MessageIdHandler.isXHR = window["WEB_XHR_POLLING"];
         return MessageIdHandler;
-    }());
+    })();
     RongIMLib.MessageIdHandler = MessageIdHandler;
+    var CheckParam = (function () {
+        function CheckParam() {
+        }
+        CheckParam.getInstance = function () {
+            return new CheckParam();
+        };
+        CheckParam.prototype.check = function (f, position, d) {
+            var c = arguments.callee.caller;
+            if ("_client" in RongIMLib.Bridge || d) {
+                for (var g = 0, e = c.arguments.length; g < e; g++) {
+                    if (!new RegExp(this.getType(c.arguments[g])).test(f[g])) {
+                        throw new Error("The index of " + g + " parameter was wrong type " + this.getType(c.arguments[g]) + " [" + f[g] + "] -> position:" + position);
+                    }
+                }
+            }
+            else {
+                throw new Error("The parameter is incorrect or was not yet instantiated RongIMClient -> position:" + position);
+            }
+        };
+        CheckParam.prototype.getType = function (str) {
+            var temp = Object.prototype.toString.call(str).toLowerCase();
+            return temp.slice(8, temp.length - 1);
+        };
+        CheckParam.prototype.checkCookieDisable = function () {
+            document.cookie = "checkCookie=1";
+            var arr = document.cookie.match(new RegExp("(^| )checkCookie=([^;]*)(;|$)")), isDisable = false;
+            if (!arr) {
+                isDisable = true;
+            }
+            document.cookie = "checkCookie=1;expires=Thu, 01-Jan-1970 00:00:01 GMT";
+            return isDisable;
+        };
+        return CheckParam;
+    })();
+    RongIMLib.CheckParam = CheckParam;
+    var LimitableMap = (function () {
+        function LimitableMap(limit) {
+            this.map = {};
+            this.keys = [];
+            this.limit = limit || 10;
+        }
+        LimitableMap.prototype.set = function (key, value) {
+            if (this.map.hasOwnProperty(key)) {
+                if (this.keys.length === this.limit) {
+                    var firstKey = this.keys.shift();
+                    delete this.map[firstKey];
+                }
+                this.keys.push(key);
+            }
+            this.map[key] = value;
+        };
+        LimitableMap.prototype.get = function (key) {
+            return this.map[key] || 0;
+        };
+        LimitableMap.prototype.remove = function (key) {
+            delete this.map[key];
+        };
+        return LimitableMap;
+    })();
+    RongIMLib.LimitableMap = LimitableMap;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
@@ -5955,7 +6116,7 @@ var RongIMLib;
             throw new Error("This method is abstract, you must implement this method in inherited class.");
         };
         return MessageContent;
-    }());
+    })();
     RongIMLib.MessageContent = MessageContent;
     var NotificationMessage = (function (_super) {
         __extends(NotificationMessage, _super);
@@ -5963,7 +6124,7 @@ var RongIMLib;
             _super.apply(this, arguments);
         }
         return NotificationMessage;
-    }(MessageContent));
+    })(MessageContent);
     RongIMLib.NotificationMessage = NotificationMessage;
     var StatusMessage = (function (_super) {
         __extends(StatusMessage, _super);
@@ -5971,7 +6132,7 @@ var RongIMLib;
             _super.apply(this, arguments);
         }
         return StatusMessage;
-    }(MessageContent));
+    })(MessageContent);
     RongIMLib.StatusMessage = StatusMessage;
     var ModelUtil = (function () {
         function ModelUtil() {
@@ -6004,7 +6165,7 @@ var RongIMLib;
             return Object;
         };
         return ModelUtil;
-    }());
+    })();
     RongIMLib.ModelUtil = ModelUtil;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -6021,7 +6182,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return CustomerStatusMessage;
-    }());
+    })();
     RongIMLib.CustomerStatusMessage = CustomerStatusMessage;
     /**
      * 客服转换响应消息的类型名
@@ -6040,7 +6201,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return ChangeModeResponseMessage;
-    }());
+    })();
     RongIMLib.ChangeModeResponseMessage = ChangeModeResponseMessage;
     /**
      * 客服转换消息的类型名
@@ -6060,7 +6221,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return ChangeModeMessage;
-    }());
+    })();
     RongIMLib.ChangeModeMessage = ChangeModeMessage;
     var CustomerStatusUpdateMessage = (function () {
         function CustomerStatusUpdateMessage(message) {
@@ -6075,7 +6236,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return CustomerStatusUpdateMessage;
-    }());
+    })();
     RongIMLib.CustomerStatusUpdateMessage = CustomerStatusUpdateMessage;
     var HandShakeMessage = (function () {
         function HandShakeMessage() {
@@ -6088,23 +6249,8 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return HandShakeMessage;
-    }());
+    })();
     RongIMLib.HandShakeMessage = HandShakeMessage;
-    var CustomerContact = (function () {
-        function CustomerContact(message) {
-            this.messageName = "CustomerContact";
-            this.page = message.page;
-            this.nickName = message.nickName;
-            this.routingInfo = message.routingInfo;
-            this.info = message.info;
-            this.requestInfo = message.requestInfo;
-        }
-        CustomerContact.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return CustomerContact;
-    }());
-    RongIMLib.CustomerContact = CustomerContact;
     var EvaluateMessage = (function () {
         function EvaluateMessage(message) {
             this.messageName = "EvaluateMessage";
@@ -6115,6 +6261,7 @@ var RongIMLib;
             this.suggest = message.suggest;
             this.isresolve = message.isresolve;
             this.type = message.type;
+            this.groupid = message.groupid;
         }
         EvaluateMessage.obtain = function () {
             return null;
@@ -6123,7 +6270,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return EvaluateMessage;
-    }());
+    })();
     RongIMLib.EvaluateMessage = EvaluateMessage;
     /**
      * 客服握手响应消息的类型名
@@ -6142,7 +6289,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return HandShakeResponseMessage;
-    }());
+    })();
     RongIMLib.HandShakeResponseMessage = HandShakeResponseMessage;
     var SuspendMessage = (function () {
         function SuspendMessage(message) {
@@ -6158,7 +6305,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return SuspendMessage;
-    }());
+    })();
     RongIMLib.SuspendMessage = SuspendMessage;
     var TerminateMessage = (function () {
         function TerminateMessage(message) {
@@ -6174,7 +6321,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return TerminateMessage;
-    }());
+    })();
     RongIMLib.TerminateMessage = TerminateMessage;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -6191,7 +6338,7 @@ var RongIMLib;
             return null;
         };
         return IsTypingStatusMessage;
-    }());
+    })();
     RongIMLib.IsTypingStatusMessage = IsTypingStatusMessage;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -6215,7 +6362,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return InformationNotificationMessage;
-    }());
+    })();
     RongIMLib.InformationNotificationMessage = InformationNotificationMessage;
     var CommandMessage = (function () {
         function CommandMessage(message) {
@@ -6244,7 +6391,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return CommandMessage;
-    }());
+    })();
     RongIMLib.CommandMessage = CommandMessage;
     var ContactNotificationMessage = (function () {
         function ContactNotificationMessage(message) {
@@ -6271,7 +6418,7 @@ var RongIMLib;
         ContactNotificationMessage.CONTACT_OPERATION_REJECT_RESPONSE = "ContactOperationRejectResponse";
         ContactNotificationMessage.CONTACT_OPERATION_REQUEST = "ContactOperationRequest";
         return ContactNotificationMessage;
-    }());
+    })();
     RongIMLib.ContactNotificationMessage = ContactNotificationMessage;
     var ProfileNotificationMessage = (function () {
         function ProfileNotificationMessage(message) {
@@ -6303,7 +6450,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return ProfileNotificationMessage;
-    }());
+    })();
     RongIMLib.ProfileNotificationMessage = ProfileNotificationMessage;
     var CommandNotificationMessage = (function () {
         function CommandNotificationMessage(message) {
@@ -6335,7 +6482,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return CommandNotificationMessage;
-    }());
+    })();
     RongIMLib.CommandNotificationMessage = CommandNotificationMessage;
     var DiscussionNotificationMessage = (function () {
         function DiscussionNotificationMessage(message) {
@@ -6357,25 +6504,8 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return DiscussionNotificationMessage;
-    }());
+    })();
     RongIMLib.DiscussionNotificationMessage = DiscussionNotificationMessage;
-    var GroupNotificationMessage = (function () {
-        function GroupNotificationMessage(msg) {
-            this.messageName = "GroupNotificationMessage";
-            if (arguments.length == 0) {
-                throw new Error("Can not instantiate with empty parameters, use obtain method instead -> GroupNotificationMessage.");
-            }
-            msg.operatorUserId && (this.operatorUserId = msg.operatorUserId);
-            msg.operation && (this.operation = msg.operation);
-            msg.data && (this.data = msg.data);
-            msg.message && (this.message = msg.message);
-        }
-        GroupNotificationMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return GroupNotificationMessage;
-    }());
-    RongIMLib.GroupNotificationMessage = GroupNotificationMessage;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
@@ -6390,9 +6520,6 @@ var RongIMLib;
             if (message.user) {
                 this.user = message.user;
             }
-            if (message.mentionedInfo) {
-                this.mentionedInfo = message.mentionedInfo;
-            }
         }
         TextMessage.obtain = function (text) {
             return new TextMessage({ extra: "", content: text });
@@ -6401,7 +6528,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return TextMessage;
-    }());
+    })();
     RongIMLib.TextMessage = TextMessage;
     var TypingStatusMessage = (function () {
         function TypingStatusMessage(message) {
@@ -6419,7 +6546,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return TypingStatusMessage;
-    }());
+    })();
     RongIMLib.TypingStatusMessage = TypingStatusMessage;
     var ReadReceiptMessage = (function () {
         function ReadReceiptMessage(message) {
@@ -6438,7 +6565,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return ReadReceiptMessage;
-    }());
+    })();
     RongIMLib.ReadReceiptMessage = ReadReceiptMessage;
     var VoiceMessage = (function () {
         function VoiceMessage(message) {
@@ -6452,9 +6579,6 @@ var RongIMLib;
             if (message.user) {
                 this.user = message.user;
             }
-            if (message.mentionedInfo) {
-                this.mentionedInfo = message.mentionedInfo;
-            }
         }
         VoiceMessage.obtain = function (base64Content, duration) {
             return new VoiceMessage({ content: base64Content, duration: duration, extra: "" });
@@ -6463,20 +6587,8 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return VoiceMessage;
-    }());
+    })();
     RongIMLib.VoiceMessage = VoiceMessage;
-    var RecallCommandMessage = (function () {
-        function RecallCommandMessage(message) {
-            this.messageName = "RecallCommandMessage";
-            message.messageUId && (this.messageUId = message.messageUId);
-            message.user && (this.user = message.user);
-        }
-        RecallCommandMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return RecallCommandMessage;
-    }());
-    RongIMLib.RecallCommandMessage = RecallCommandMessage;
     var ImageMessage = (function () {
         function ImageMessage(message) {
             this.messageName = "ImageMessage";
@@ -6485,10 +6597,9 @@ var RongIMLib;
             }
             this.content = message.content;
             this.imageUri = message.imageUri;
-            message.extra && (this.extra = message.extra);
-            message.user && (this.user = message.user);
-            if (message.mentionedInfo) {
-                this.mentionedInfo = message.mentionedInfo;
+            this.extra = message.extra;
+            if (message.user) {
+                this.user = message.user;
             }
         }
         ImageMessage.obtain = function (content, imageUri) {
@@ -6498,7 +6609,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return ImageMessage;
-    }());
+    })();
     RongIMLib.ImageMessage = ImageMessage;
     var LocationMessage = (function () {
         function LocationMessage(message) {
@@ -6506,7 +6617,7 @@ var RongIMLib;
             if (arguments.length == 0) {
                 throw new Error("Can not instantiate with empty parameters, use obtain method instead -> LocationMessage.");
             }
-            this.latitude = message.latitude;
+            this.latiude = message.latitude;
             this.longitude = message.longitude;
             this.poi = message.poi;
             this.content = message.content;
@@ -6514,18 +6625,15 @@ var RongIMLib;
             if (message.user) {
                 this.user = message.user;
             }
-            if (message.mentionedInfo) {
-                this.mentionedInfo = message.mentionedInfo;
-            }
         }
         LocationMessage.obtain = function (latitude, longitude, poi, content) {
-            return new LocationMessage({ latitude: latitude, longitude: longitude, poi: poi, content: content, extra: "" });
+            return new LocationMessage({ latitude: longitude, longitude: longitude, poi: poi, content: content, extra: "" });
         };
         LocationMessage.prototype.encode = function () {
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return LocationMessage;
-    }());
+    })();
     RongIMLib.LocationMessage = LocationMessage;
     var RichContentMessage = (function () {
         function RichContentMessage(message) {
@@ -6549,7 +6657,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return RichContentMessage;
-    }());
+    })();
     RongIMLib.RichContentMessage = RichContentMessage;
     var UnknownMessage = (function () {
         function UnknownMessage(message) {
@@ -6563,7 +6671,7 @@ var RongIMLib;
             return "";
         };
         return UnknownMessage;
-    }());
+    })();
     RongIMLib.UnknownMessage = UnknownMessage;
     var PublicServiceCommandMessage = (function () {
         function PublicServiceCommandMessage(message) {
@@ -6577,9 +6685,6 @@ var RongIMLib;
             if (message.user) {
                 this.user = message.user;
             }
-            if (message.mentionedInfo) {
-                this.mentionedInfo = message.mentionedInfo;
-            }
         }
         PublicServiceCommandMessage.obtain = function (item) {
             return new PublicServiceCommandMessage({ content: "", command: "", menuItem: item, extra: "" });
@@ -6588,7 +6693,7 @@ var RongIMLib;
             return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
         };
         return PublicServiceCommandMessage;
-    }());
+    })();
     RongIMLib.PublicServiceCommandMessage = PublicServiceCommandMessage;
     var PublicServiceMultiRichContentMessage = (function () {
         function PublicServiceMultiRichContentMessage(messages) {
@@ -6599,211 +6704,36 @@ var RongIMLib;
             return null;
         };
         return PublicServiceMultiRichContentMessage;
-    }());
+    })();
     RongIMLib.PublicServiceMultiRichContentMessage = PublicServiceMultiRichContentMessage;
-    var SyncReadStatusMessage = (function () {
-        function SyncReadStatusMessage(message) {
-            this.messageName = "SyncReadStatusMessage";
-            message.lastMessageSendTime && (this.lastMessageSendTime = message.lastMessageSendTime);
-        }
-        SyncReadStatusMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return SyncReadStatusMessage;
-    }());
-    RongIMLib.SyncReadStatusMessage = SyncReadStatusMessage;
-    var ReadReceiptRequestMessage = (function () {
-        function ReadReceiptRequestMessage(message) {
-            this.messageName = "ReadReceiptRequestMessage";
-            message.messageUId && (this.messageUId = message.messageUId);
-        }
-        ReadReceiptRequestMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return ReadReceiptRequestMessage;
-    }());
-    RongIMLib.ReadReceiptRequestMessage = ReadReceiptRequestMessage;
-    var ReadReceiptResponseMessage = (function () {
-        function ReadReceiptResponseMessage(message) {
-            this.messageName = "ReadReceiptResponseMessage";
-            message.receiptMessageDic && (this.receiptMessageDic = message.receiptMessageDic);
-        }
-        ReadReceiptResponseMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return ReadReceiptResponseMessage;
-    }());
-    RongIMLib.ReadReceiptResponseMessage = ReadReceiptResponseMessage;
     var PublicServiceRichContentMessage = (function () {
         function PublicServiceRichContentMessage(message) {
             this.messageName = "PublicServiceRichContentMessage";
             this.richContentMessage = message;
         }
         PublicServiceRichContentMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
+            return null;
         };
         return PublicServiceRichContentMessage;
-    }());
+    })();
     RongIMLib.PublicServiceRichContentMessage = PublicServiceRichContentMessage;
-    var FileMessage = (function () {
-        function FileMessage(message) {
-            this.messageName = "FileMessage";
-            message.name && (this.name = message.name);
-            message.size && (this.size = message.size);
-            message.type && (this.type = message.type);
-            message.fileUrl && (this.fileUrl = message.fileUrl);
-            message.extra && (this.extra = message.extra);
-            message.user && (this.user = message.user);
-        }
-        FileMessage.obtain = function (msg) {
-            return new FileMessage({ name: msg.name, size: msg.size, type: msg.type, fileUrl: msg.fileUrl });
-        };
-        FileMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return FileMessage;
-    }());
-    RongIMLib.FileMessage = FileMessage;
-    var ChannelInfo = (function () {
-        function ChannelInfo(Id, Key) {
-            this.Id = Id;
-            this.Key = Key;
-        }
-        return ChannelInfo;
-    }());
-    RongIMLib.ChannelInfo = ChannelInfo;
-    var AcceptMessage = (function () {
-        function AcceptMessage(message) {
-            this.messageName = "AcceptMessage";
-            this.callId = message.callId;
-            this.mediaType = message.mediaType;
-        }
-        AcceptMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return AcceptMessage;
-    }());
-    RongIMLib.AcceptMessage = AcceptMessage;
-    var RingingMessage = (function () {
-        function RingingMessage(message) {
-            this.messageName = "RingingMessage";
-            this.callId = message.callId;
-        }
-        RingingMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return RingingMessage;
-    }());
-    RongIMLib.RingingMessage = RingingMessage;
-    var SummaryMessage = (function () {
-        function SummaryMessage(message) {
-            this.messageName = "SummaryMessage";
-            this.caller = message.caller;
-            this.inviter = message.inviter;
-            this.mediaType = message.mediaType;
-            this.memberIdList = message.memberIdList;
-            this.startTime = message.startTime;
-            this.connectedTime = message.connectedTime;
-            this.duration = message.duration;
-            this.status = message.status;
-        }
-        SummaryMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return SummaryMessage;
-    }());
-    RongIMLib.SummaryMessage = SummaryMessage;
-    var HungupMessage = (function () {
-        function HungupMessage(message) {
-            this.messageName = "HungupMessage";
-            this.callId = message.callId;
-            this.reason = message.reason;
-        }
-        HungupMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return HungupMessage;
-    }());
-    RongIMLib.HungupMessage = HungupMessage;
-    var InviteMessage = (function () {
-        function InviteMessage(message) {
-            this.messageName = "InviteMessage";
-            this.callId = message.callId;
-            this.engineType = message.engineType;
-            this.channelInfo = message.channelInfo;
-            this.mediaType = message.mediaType;
-            this.extra = message.extra;
-            this.inviteUserIds = message.inviteUserIds;
-        }
-        InviteMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return InviteMessage;
-    }());
-    RongIMLib.InviteMessage = InviteMessage;
-    var MediaModifyMessage = (function () {
-        function MediaModifyMessage(message) {
-            this.messageName = "MediaModifyMessage";
-            this.callId = message.callId;
-            this.mediaType = message.mediaType;
-        }
-        MediaModifyMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return MediaModifyMessage;
-    }());
-    RongIMLib.MediaModifyMessage = MediaModifyMessage;
-    var MemberModifyMessage = (function () {
-        function MemberModifyMessage(message) {
-            this.messageName = "MemberModifyMessage";
-            this.modifyMemType = message.modifyMemType;
-            this.callId = message.callId;
-            this.caller = message.caller;
-            this.engineType = message.engineType;
-            this.channelInfo = message.channelInfo;
-            this.mediaType = message.mediaType;
-            this.extra = message.extra;
-            this.inviteUserIds = message.inviteUserIds;
-            this.existedMemberStatusList = message.existedMemberStatusList;
-        }
-        MemberModifyMessage.prototype.encode = function () {
-            return JSON.stringify(RongIMLib.ModelUtil.modelClone(this));
-        };
-        return MemberModifyMessage;
-    }());
-    RongIMLib.MemberModifyMessage = MemberModifyMessage;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
-    var MentionedInfo = (function () {
-        function MentionedInfo(type, userIdList, mentionedContent) {
-        }
-        return MentionedInfo;
-    }());
-    RongIMLib.MentionedInfo = MentionedInfo;
-    var DeleteMessage = (function () {
-        function DeleteMessage(msgId, msgDataTime, direct) {
-            this.msgId = msgId;
-            this.msgDataTime = msgDataTime;
-            this.direct = direct;
-        }
-        return DeleteMessage;
-    }());
-    RongIMLib.DeleteMessage = DeleteMessage;
     var CustomServiceConfig = (function () {
         function CustomServiceConfig(isBlack, companyName, companyUrl) {
         }
         return CustomServiceConfig;
-    }());
+    })();
     RongIMLib.CustomServiceConfig = CustomServiceConfig;
     var CustomServiceSession = (function () {
         function CustomServiceSession(uid, cid, pid, isQuited, type, adminHelloWord, adminOfflineWord) {
         }
         return CustomServiceSession;
-    }());
+    })();
     RongIMLib.CustomServiceSession = CustomServiceSession;
     var Conversation = (function () {
-        function Conversation(conversationTitle, conversationType, draft, isTop, latestMessage, latestMessageId, notificationStatus, objectName, receivedStatus, receivedTime, senderUserId, senderUserName, sentStatus, sentTime, targetId, unreadMessageCount, senderPortraitUri, isHidden, mentionedMsg) {
+        function Conversation(conversationTitle, conversationType, draft, isTop, latestMessage, latestMessageId, notificationStatus, objectName, receivedStatus, receivedTime, senderUserId, senderUserName, sentStatus, sentTime, targetId, unreadMessageCount, senderPortraitUri) {
             this.conversationTitle = conversationTitle;
             this.conversationType = conversationType;
             this.draft = draft;
@@ -6821,14 +6751,12 @@ var RongIMLib;
             this.targetId = targetId;
             this.unreadMessageCount = unreadMessageCount;
             this.senderPortraitUri = senderPortraitUri;
-            this.isHidden = isHidden;
-            this.mentionedMsg = mentionedMsg;
         }
         Conversation.prototype.setTop = function () {
             RongIMLib.RongIMClient._dataAccessProvider.addConversation(this, { onSuccess: function (data) { } });
         };
         return Conversation;
-    }());
+    })();
     RongIMLib.Conversation = Conversation;
     var Discussion = (function () {
         function Discussion(creatorId, id, memberIdList, name, isOpen) {
@@ -6839,7 +6767,7 @@ var RongIMLib;
             this.isOpen = isOpen;
         }
         return Discussion;
-    }());
+    })();
     RongIMLib.Discussion = Discussion;
     var Group = (function () {
         function Group(id, name, portraitUri) {
@@ -6848,10 +6776,10 @@ var RongIMLib;
             this.portraitUri = portraitUri;
         }
         return Group;
-    }());
+    })();
     RongIMLib.Group = Group;
     var Message = (function () {
-        function Message(content, conversationType, extra, objectName, messageDirection, messageId, receivedStatus, receivedTime, senderUserId, sentStatus, sentTime, targetId, messageType, messageUId, isLocalMessage, offLineMessage, receiptResponse) {
+        function Message(content, conversationType, extra, objectName, messageDirection, messageId, receivedStatus, receivedTime, senderUserId, sentStatus, sentTime, targetId, messageType, messageUId, isLocalMessage) {
             this.content = content;
             this.conversationType = conversationType;
             this.extra = extra;
@@ -6867,11 +6795,9 @@ var RongIMLib;
             this.messageType = messageType;
             this.messageUId = messageUId;
             this.isLocalMessage = isLocalMessage;
-            this.offLineMessage = offLineMessage;
-            this.receiptResponse = receiptResponse;
         }
         return Message;
-    }());
+    })();
     RongIMLib.Message = Message;
     var MessageTag = (function () {
         function MessageTag(isCounted, isPersited) {
@@ -6893,7 +6819,7 @@ var RongIMLib;
             }
         };
         return MessageTag;
-    }());
+    })();
     RongIMLib.MessageTag = MessageTag;
     var PublicServiceMenuItem = (function () {
         function PublicServiceMenuItem(id, name, type, sunMenuItems, url) {
@@ -6904,7 +6830,7 @@ var RongIMLib;
             this.url = url;
         }
         return PublicServiceMenuItem;
-    }());
+    })();
     RongIMLib.PublicServiceMenuItem = PublicServiceMenuItem;
     // TODO: TBD
     var PublicServiceProfile = (function () {
@@ -6919,16 +6845,16 @@ var RongIMLib;
             this.isGlobal = isGlobal;
         }
         return PublicServiceProfile;
-    }());
+    })();
     RongIMLib.PublicServiceProfile = PublicServiceProfile;
     var UserInfo = (function () {
-        function UserInfo(id, name, portraitUri) {
-            this.id = id;
+        function UserInfo(userId, name, icon) {
+            this.userId = userId;
             this.name = name;
-            this.portraitUri = portraitUri;
+            this.icon = icon;
         }
         return UserInfo;
-    }());
+    })();
     RongIMLib.UserInfo = UserInfo;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -6937,704 +6863,6 @@ var RongIMLib;
         function ServerDataProvider() {
             this.database = new RongIMLib.DBUtil();
         }
-        ServerDataProvider.prototype.init = function (appKey) {
-            new RongIMLib.FeatureDectector();
-        };
-        ServerDataProvider.prototype.connect = function (token, callback) {
-            RongIMLib.RongIMClient.bridge = RongIMLib.Bridge.getInstance();
-            RongIMLib.RongIMClient._memoryStore.token = token;
-            RongIMLib.RongIMClient._memoryStore.callback = callback;
-            if (RongIMLib.Bridge._client && RongIMLib.Bridge._client.channel && RongIMLib.Bridge._client.channel.connectionStatus == RongIMLib.ConnectionStatus.CONNECTED && RongIMLib.Bridge._client.channel.connectionStatus == RongIMLib.ConnectionStatus.CONNECTING) {
-                return;
-            }
-            RongIMLib.RongIMClient.bridge.connect(RongIMLib.RongIMClient._memoryStore.appKey, token, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (e) {
-                    if (e == RongIMLib.ConnectionState.TOKEN_INCORRECT || !e) {
-                        setTimeout(function () {
-                            callback.onTokenIncorrect();
-                        });
-                    }
-                    else {
-                        setTimeout(function () {
-                            callback.onError(e);
-                        });
-                    }
-                }
-            });
-            //循环设置监听事件，追加之后清空存放事件数据
-            for (var i = 0, len = RongIMLib.RongIMClient._memoryStore.listenerList.length; i < len; i++) {
-                RongIMLib.RongIMClient.bridge["setListener"](RongIMLib.RongIMClient._memoryStore.listenerList[i]);
-            }
-            RongIMLib.RongIMClient._memoryStore.listenerList.length = 0;
-        };
-        ServerDataProvider.prototype.reconnect = function (callback) {
-            if (RongIMLib.Bridge._client && RongIMLib.Bridge._client.channel && RongIMLib.Bridge._client.channel.connectionStatus != RongIMLib.ConnectionStatus.CONNECTED && RongIMLib.Bridge._client.channel.connectionStatus != RongIMLib.ConnectionStatus.CONNECTING) {
-                RongIMLib.RongIMClient.bridge.reconnect(callback);
-            }
-        };
-        ServerDataProvider.prototype.logout = function () {
-            RongIMLib.RongIMClient.bridge.disconnect();
-            RongIMLib.RongIMClient.bridge = null;
-        };
-        ServerDataProvider.prototype.disconnect = function () {
-            RongIMLib.RongIMClient.bridge.disconnect();
-        };
-        ServerDataProvider.prototype.sendReceiptResponse = function (conversationType, targetId, sendCallback) {
-            var rspkey = RongIMLib.Bridge._client.userId + conversationType + targetId + 'RECEIVED', me = this;
-            if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                var valObj = JSON.parse(RongIMLib.RongIMClient._storageProvider.getItem(rspkey));
-                if (valObj) {
-                    var vals = [];
-                    for (var key in valObj) {
-                        var tmp = {};
-                        tmp[key] = valObj[key].uIds;
-                        valObj[key].isResponse || vals.push(tmp);
-                    }
-                    if (vals.length == 0) {
-                        sendCallback.onSuccess();
-                        return;
-                    }
-                    var interval = setInterval(function () {
-                        if (vals.length == 1) {
-                            clearInterval(interval);
-                        }
-                        var obj = vals.splice(0, 1)[0];
-                        var rspMsg = new RongIMLib.ReadReceiptResponseMessage({ receiptMessageDic: obj });
-                        me.sendMessage(conversationType, targetId, rspMsg, {
-                            onSuccess: function (msg) {
-                                var senderUserId = RongIMLib.MessageUtil.getFirstKey(obj);
-                                valObj[senderUserId].isResponse = true;
-                                RongIMLib.RongIMClient._storageProvider.setItem(rspkey, JSON.stringify(valObj));
-                                sendCallback.onSuccess(msg);
-                            },
-                            onError: function (error, msg) {
-                                sendCallback.onError(error, msg);
-                            }
-                        });
-                    }, 200);
-                }
-                else {
-                    sendCallback.onSuccess();
-                }
-            }
-            else {
-                sendCallback.onSuccess();
-            }
-        };
-        ServerDataProvider.prototype.sendTypingStatusMessage = function (conversationType, targetId, messageName, sendCallback) {
-            var me = this;
-            if (messageName in RongIMLib.RongIMClient.MessageParams) {
-                me.sendMessage(conversationType, targetId, RongIMLib.TypingStatusMessage.obtain(RongIMLib.RongIMClient.MessageParams[messageName].objectName, ""), {
-                    onSuccess: function () {
-                        setTimeout(function () {
-                            sendCallback.onSuccess();
-                        });
-                    },
-                    onError: function (errorCode) {
-                        setTimeout(function () {
-                            sendCallback.onError(errorCode, null);
-                        });
-                    }
-                });
-            }
-        };
-        ServerDataProvider.prototype.sendTextMessage = function (conversationType, targetId, content, sendMessageCallback) {
-            var msgContent = RongIMLib.TextMessage.obtain(content);
-            this.sendMessage(conversationType, targetId, msgContent, sendMessageCallback);
-        };
-        ServerDataProvider.prototype.getRemoteHistoryMessages = function (conversationType, targetId, timestamp, count, callback) {
-            var modules = new Modules.HistoryMessageInput(), self = this;
-            modules.setTargetId(targetId);
-            if (timestamp === 0 || timestamp > 0) {
-                modules.setDataTime(timestamp);
-            }
-            else {
-                modules.setDataTime(RongIMLib.RongIMClient._memoryStore.lastReadTime.get(conversationType + targetId));
-            }
-            modules.setSize(count);
-            RongIMLib.RongIMClient.bridge.queryMsg(HistoryMsgType[conversationType], RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), targetId, {
-                onSuccess: function (data) {
-                    RongIMLib.RongIMClient._memoryStore.lastReadTime.set(conversationType + targetId, RongIMLib.MessageUtil.int64ToTimestamp(data.syncTime));
-                    var list = data.list.reverse(), tempMsg = null, tempDir;
-                    if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                        for (var i = 0, len = list.length; i < len; i++) {
-                            tempMsg = RongIMLib.MessageUtil.messageParser(list[i]);
-                            tempDir = JSON.parse(RongIMLib.RongIMClient._storageProvider.getItem(RongIMLib.Bridge._client.userId + tempMsg.messageUId + "SENT"));
-                            if (tempDir) {
-                                tempMsg.receiptResponse || (tempMsg.receiptResponse = {});
-                                tempMsg.receiptResponse[tempMsg.messageUId] = tempDir.count;
-                            }
-                            list[i] = tempMsg;
-                        }
-                    }
-                    else {
-                        for (var i = 0, len = list.length; i < len; i++) {
-                            list[i] = RongIMLib.MessageUtil.messageParser(list[i]);
-                        }
-                    }
-                    setTimeout(function () {
-                        callback.onSuccess(list, !!data.hasMsg);
-                    });
-                },
-                onError: function (error) {
-                    setTimeout(function () {
-                        if (error === RongIMLib.ErrorCode.TIMEOUT) {
-                            callback.onError(error);
-                        }
-                        else {
-                            callback.onSuccess([], false);
-                        }
-                    });
-                }
-            }, "HistoryMessagesOuput");
-        };
-        ServerDataProvider.prototype.hasRemoteUnreadMessages = function (token, callback) {
-            var xss = null;
-            window.RCCallback = function (x) {
-                setTimeout(function () { callback.onSuccess(!!+x.status); });
-                xss.parentNode.removeChild(xss);
-            };
-            xss = document.createElement("script");
-            xss.src = RongIMLib.RongIMClient._memoryStore.depend.api + "/message/exist.js?appKey=" + encodeURIComponent(RongIMLib.RongIMClient._memoryStore.appKey) + "&token=" + encodeURIComponent(token) + "&callBack=RCCallback&_=" + Date.now();
-            document.body.appendChild(xss);
-            xss.onerror = function () {
-                setTimeout(function () { callback.onError(RongIMLib.ErrorCode.UNKNOWN); });
-                xss.parentNode.removeChild(xss);
-            };
-        };
-        ServerDataProvider.prototype.getRemoteConversationList = function (callback, conversationTypes, count) {
-            var modules = new Modules.RelationsInput(), self = this;
-            modules.setType(1);
-            if (typeof count == 'undefined') {
-                modules.setCount(0);
-            }
-            else {
-                modules.setCount(count);
-            }
-            RongIMLib.RongIMClient.bridge.queryMsg(26, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (list) {
-                    RongIMLib.RongIMClient._memoryStore.conversationList.length = 0;
-                    if (list.info) {
-                        list.info = list.info.reverse();
-                        for (var i = 0, len = list.info.length; i < len; i++) {
-                            RongIMLib.RongIMClient.getInstance().pottingConversation(list.info[i]);
-                        }
-                    }
-                    if (conversationTypes) {
-                        var convers = [];
-                        Array.forEach(conversationTypes, function (converType) {
-                            Array.forEach(RongIMLib.RongIMClient._memoryStore.conversationList, function (item) {
-                                if (item.conversationType == converType) {
-                                    convers.push(item);
-                                }
-                            });
-                        });
-                        callback.onSuccess(convers);
-                    }
-                    else {
-                        callback.onSuccess(RongIMLib.RongIMClient._memoryStore.conversationList);
-                    }
-                },
-                onError: function (error) {
-                    if (error === RongIMLib.ErrorCode.TIMEOUT) {
-                        callback.onError(error);
-                    }
-                    else {
-                        callback.onSuccess([]);
-                    }
-                }
-            }, "RelationsOutput");
-        };
-        ServerDataProvider.prototype.addMemberToDiscussion = function (discussionId, userIdList, callback) {
-            var modules = new Modules.ChannelInvitationInput();
-            modules.setUsers(userIdList);
-            RongIMLib.RongIMClient.bridge.queryMsg(0, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.JOIN_IN_DISCUSSION);
-                    });
-                }
-            });
-        };
-        ServerDataProvider.prototype.createDiscussion = function (name, userIdList, callback) {
-            var modules = new Modules.CreateDiscussionInput(), self = this;
-            modules.setName(name);
-            RongIMLib.RongIMClient.bridge.queryMsg(1, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (discussId) {
-                    if (userIdList.length > 0) {
-                        self.addMemberToDiscussion(discussId, userIdList, {
-                            onSuccess: function () { },
-                            onError: function (error) {
-                                setTimeout(function () {
-                                    callback.onError(error);
-                                });
-                            }
-                        });
-                    }
-                    setTimeout(function () {
-                        callback.onSuccess(discussId);
-                    });
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.CREATE_DISCUSSION);
-                    });
-                }
-            }, "CreateDiscussionOutput");
-        };
-        ServerDataProvider.prototype.getDiscussion = function (discussionId, callback) {
-            var modules = new Modules.ChannelInfoInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(4, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (errorCode) {
-                    setTimeout(function () {
-                        callback.onError(errorCode);
-                    });
-                }
-            }, "ChannelInfoOutput");
-        };
-        ServerDataProvider.prototype.quitDiscussion = function (discussionId, callback) {
-            var modules = new Modules.LeaveChannelInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(7, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, callback);
-        };
-        ServerDataProvider.prototype.removeMemberFromDiscussion = function (discussionId, userId, callback) {
-            var modules = new Modules.ChannelEvictionInput();
-            modules.setUser(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(9, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, callback);
-        };
-        ServerDataProvider.prototype.setDiscussionInviteStatus = function (discussionId, status, callback) {
-            var modules = new Modules.ModifyPermissionInput();
-            modules.setOpenStatus(status.valueOf());
-            RongIMLib.RongIMClient.bridge.queryMsg(11, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function (x) {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                }, onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.INVITE_DICUSSION);
-                    });
-                }
-            });
-        };
-        ServerDataProvider.prototype.setDiscussionName = function (discussionId, name, callback) {
-            var modules = new Modules.RenameChannelInput();
-            modules.setName(name);
-            RongIMLib.RongIMClient.bridge.queryMsg(12, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            });
-        };
-        ServerDataProvider.prototype.joinGroup = function (groupId, groupName, callback) {
-            var modules = new Modules.GroupInfo();
-            modules.setId(groupId);
-            modules.setName(groupName);
-            var _mod = new Modules.GroupInput();
-            _mod.setGroupInfo([modules]);
-            RongIMLib.RongIMClient.bridge.queryMsg(6, RongIMLib.MessageUtil.ArrayForm(_mod.toArrayBuffer()), groupId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "GroupOutput");
-        };
-        ServerDataProvider.prototype.quitGroup = function (groupId, callback) {
-            var modules = new Modules.LeaveChannelInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(8, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), groupId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            });
-        };
-        ServerDataProvider.prototype.syncGroup = function (groups, callback) {
-            //去重操作
-            for (var i = 0, part = [], info = [], len = groups.length; i < len; i++) {
-                if (part.length === 0 || !(groups[i].id in part)) {
-                    part.push(groups[i].id);
-                    var groupinfo = new Modules.GroupInfo();
-                    groupinfo.setId(groups[i].id);
-                    groupinfo.setName(groups[i].name);
-                    info.push(groupinfo);
-                }
-            }
-            var modules = new Modules.GroupHashInput();
-            modules.setUserId(RongIMLib.Bridge._client.userId);
-            modules.setGroupHashCode(md5(part.sort().join("")));
-            RongIMLib.RongIMClient.bridge.queryMsg(13, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (result) {
-                    //1为群信息不匹配需要发送给服务器进行同步，0不需要同步
-                    if (result === 1) {
-                        var val = new Modules.GroupInput();
-                        val.setGroupInfo(info);
-                        RongIMLib.RongIMClient.bridge.queryMsg(20, RongIMLib.MessageUtil.ArrayForm(val.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                            onSuccess: function () {
-                                setTimeout(function () {
-                                    callback.onSuccess();
-                                });
-                            },
-                            onError: function () {
-                                setTimeout(function () {
-                                    callback.onError(RongIMLib.ErrorCode.GROUP_MATCH_ERROR);
-                                });
-                            }
-                        }, "GroupOutput");
-                    }
-                    else {
-                        setTimeout(function () {
-                            callback.onSuccess();
-                        });
-                    }
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.GROUP_SYNC_ERROR);
-                    });
-                }
-            }, "GroupHashOutput");
-        };
-        ServerDataProvider.prototype.joinChatRoom = function (chatroomId, messageCount, callback) {
-            var e = new Modules.ChrmInput();
-            e.setNothing(1);
-            RongIMLib.Bridge._client.chatroomId = chatroomId;
-            RongIMLib.RongIMClient.bridge.queryMsg(19, RongIMLib.MessageUtil.ArrayForm(e.toArrayBuffer()), chatroomId, {
-                onSuccess: function () {
-                    callback.onSuccess();
-                    var modules = new Modules.ChrmPullMsg();
-                    messageCount == 0 && (messageCount = -1);
-                    modules.setCount(messageCount);
-                    modules.setSyncTime(0);
-                    RongIMLib.Bridge._client.queryMessage("chrmPull", RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), chatroomId, 1, {
-                        onSuccess: function (collection) {
-                            var sync = RongIMLib.MessageUtil.int64ToTimestamp(collection.syncTime);
-                            RongIMLib.RongIMClient._storageProvider.setItem(chatroomId + RongIMLib.Bridge._client.userId + "CST", sync);
-                            var list = collection.list;
-                            if (RongIMLib.RongIMClient._memoryStore.filterMessages.length > 0) {
-                                for (var i = 0, mlen = list.length; i < mlen; i++) {
-                                    for (var j = 0, flen = RongIMLib.RongIMClient._memoryStore.filterMessages.length; j < flen; j++) {
-                                        if (RongIMLib.RongIMClient.MessageParams[RongIMLib.RongIMClient._memoryStore.filterMessages[j]].objectName != list[i].classname) {
-                                            RongIMLib.Bridge._client.handler.onReceived(list[i]);
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                for (var i = 0, len = list.length; i < len; i++) {
-                                    RongIMLib.Bridge._client.handler.onReceived(list[i]);
-                                }
-                            }
-                        },
-                        onError: function (x) {
-                            setTimeout(function () {
-                                callback.onError(RongIMLib.ErrorCode.CHATROOM_HISMESSAGE_ERROR);
-                            });
-                        }
-                    }, "DownStreamMessages");
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.CHARTOOM_JOIN_ERROR);
-                    });
-                }
-            }, "ChrmOutput");
-        };
-        ServerDataProvider.prototype.getChatRoomInfo = function (chatRoomId, count, order, callback) {
-            var modules = new Modules.QueryChatroomInfoInput();
-            modules.setCount(count);
-            modules.setOrder(order);
-            RongIMLib.RongIMClient.bridge.queryMsg("queryChrmI", RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), chatRoomId, {
-                onSuccess: function (list) {
-                    setTimeout(function () {
-                        callback.onSuccess(list);
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "QueryChatroomInfoOutput");
-        };
-        ServerDataProvider.prototype.quitChatRoom = function (chatroomId, callback) {
-            var e = new Modules.ChrmInput();
-            e.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(17, RongIMLib.MessageUtil.ArrayForm(e.toArrayBuffer()), chatroomId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "ChrmOutput");
-        };
-        ServerDataProvider.prototype.addToBlacklist = function (userId, callback) {
-            var modules = new Modules.Add2BlackListInput();
-            modules.setUserId(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(21, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
-                onSuccess: function () {
-                    callback.onSuccess();
-                },
-                onError: function () {
-                    callback.onError(RongIMLib.ErrorCode.BLACK_ADD_ERROR);
-                }
-            });
-        };
-        ServerDataProvider.prototype.getBlacklist = function (callback) {
-            var modules = new Modules.QueryBlackListInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(23, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, callback, "QueryBlackListOutput");
-        };
-        ServerDataProvider.prototype.getBlacklistStatus = function (userId, callback) {
-            var modules = new Modules.BlackListStatusInput();
-            modules.setUserId(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(24, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
-                onSuccess: function (status) {
-                    setTimeout(function () {
-                        callback.onSuccess(RongIMLib.BlacklistStatus[status]);
-                    });
-                }, onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.BLACK_GETSTATUS_ERROR);
-                    });
-                }
-            });
-        };
-        ServerDataProvider.prototype.removeFromBlacklist = function (userId, callback) {
-            var modules = new Modules.RemoveFromBlackListInput();
-            modules.setUserId(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(22, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
-                onSuccess: function () {
-                    callback.onSuccess();
-                },
-                onError: function () {
-                    callback.onError(RongIMLib.ErrorCode.BLACK_REMOVE_ERROR);
-                }
-            });
-        };
-        ServerDataProvider.prototype.getFileToken = function (fileType, callback) {
-            if (!(/(1|2|3|4)/.test(fileType.toString()))) {
-                callback.onError(RongIMLib.ErrorCode.QNTKN_FILETYPE_ERROR);
-                return;
-            }
-            var modules = new Modules.GetQNupTokenInput();
-            modules.setType(fileType);
-            RongIMLib.RongIMClient.bridge.queryMsg(30, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "GetQNupTokenOutput");
-        };
-        ServerDataProvider.prototype.getFileUrl = function (fileType, fileName, oriName, callback) {
-            if (!(/(1|2|3|4)/.test(fileType.toString()))) {
-                setTimeout(function () {
-                    callback.onError(RongIMLib.ErrorCode.QNTKN_FILETYPE_ERROR);
-                });
-                return;
-            }
-            var modules = new Modules.GetQNdownloadUrlInput();
-            modules.setType(fileType);
-            modules.setKey(fileName);
-            if (oriName) {
-                modules.setFileName(oriName);
-            }
-            RongIMLib.RongIMClient.bridge.queryMsg(31, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "GetQNdownloadUrlOutput");
-        };
-        ServerDataProvider.prototype.sendMessage = function (conversationType, targetId, messageContent, sendCallback, mentiondMsg, pushText, appData) {
-            if (!RongIMLib.Bridge._client.channel) {
-                sendCallback.onError(RongIMLib.ErrorCode.RC_NET_UNAVAILABLE, null);
-                return;
-            }
-            if (!RongIMLib.Bridge._client.channel.socket.socket.connected) {
-                sendCallback.onError(RongIMLib.ErrorCode.TIMEOUT, null);
-                throw new Error("connect is timeout! postion:sendMessage");
-            }
-            var modules = new Modules.UpStreamMessage();
-            if (mentiondMsg && (conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP)) {
-                modules.setSessionId(7);
-            }
-            else {
-                modules.setSessionId(RongIMLib.RongIMClient.MessageParams[messageContent.messageName].msgTag.getMessageTag());
-            }
-            pushText && modules.setPushText(pushText);
-            appData && modules.setAppData(appData);
-            if ((conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP) && messageContent.messageName == RongIMLib.RongIMClient.MessageType["ReadReceiptResponseMessage"]) {
-                var rspMsg = messageContent;
-                if (rspMsg.receiptMessageDic) {
-                    var ids = [];
-                    for (var key in rspMsg.receiptMessageDic) {
-                        ids.push(key);
-                    }
-                    modules.setUserId(ids);
-                }
-            }
-            if ((conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP) && messageContent.messageName == RongIMLib.RongIMClient.MessageType["SyncReadStatusMessage"]) {
-                modules.setUserId(RongIMLib.Bridge._client.userId);
-            }
-            modules.setClassname(RongIMLib.RongIMClient.MessageParams[messageContent.messageName].objectName);
-            modules.setContent(messageContent.encode());
-            var content = modules.toArrayBuffer();
-            if (Object.prototype.toString.call(content) == "[object ArrayBuffer]") {
-                content = [].slice.call(new Int8Array(content));
-            }
-            var c = null, me = this, msg = new RongIMLib.Message();
-            this.getConversation(conversationType, targetId, {
-                onSuccess: function (conver) {
-                    c = conver;
-                    if (RongIMLib.RongIMClient.MessageParams[messageContent.messageName].msgTag.getMessageTag() == 3) {
-                        if (!c) {
-                            c = RongIMLib.RongIMClient.getInstance().createConversation(conversationType, targetId, "");
-                        }
-                        c.sentTime = new Date().getTime();
-                        c.sentStatus = RongIMLib.SentStatus.SENDING;
-                        c.senderUserName = "";
-                        c.senderUserId = RongIMLib.Bridge._client.userId;
-                        c.notificationStatus = RongIMLib.ConversationNotificationStatus.DO_NOT_DISTURB;
-                        c.latestMessage = msg;
-                        c.unreadMessageCount = 0;
-                        RongIMLib.RongIMClient._dataAccessProvider.addConversation(c, { onSuccess: function (data) { } });
-                    }
-                    RongIMLib.RongIMClient._memoryStore.converStore = c;
-                }
-            });
-            msg.content = messageContent;
-            msg.conversationType = conversationType;
-            msg.senderUserId = RongIMLib.Bridge._client.userId;
-            msg.objectName = RongIMLib.RongIMClient.MessageParams[messageContent.messageName].objectName;
-            msg.targetId = targetId;
-            msg.sentTime = new Date().getTime();
-            msg.messageDirection = RongIMLib.MessageDirection.SEND;
-            msg.sentStatus = RongIMLib.SentStatus.SENT;
-            msg.messageType = messageContent.messageName;
-            RongIMLib.RongIMClient.bridge.pubMsg(conversationType.valueOf(), content, targetId, {
-                onSuccess: function (data) {
-                    data && data.timestamp && RongIMLib.RongIMClient._storageProvider.setItem('converST_' + RongIMLib.Bridge._client.userId + conversationType + targetId, data.timestamp);
-                    if ((conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP) && messageContent.messageName == RongIMLib.RongIMClient.MessageType["ReadReceiptRequestMessage"]) {
-                        var reqMsg = msg.content;
-                        var sentkey = RongIMLib.Bridge._client.userId + reqMsg.messageUId + "SENT";
-                        RongIMLib.RongIMClient._storageProvider.setItem(sentkey, JSON.stringify({ count: 0, dealtime: data.timestamp, userIds: {} }));
-                    }
-                    if (RongIMLib.RongIMClient.MessageParams[msg.messageType].msgTag.getMessageTag() == 3) {
-                        RongIMLib.RongIMClient._memoryStore.converStore.latestMessage = msg;
-                        RongIMLib.RongIMClient._dataAccessProvider.addMessage(conversationType, targetId, msg, {
-                            onSuccess: function (ret) {
-                                msg = ret;
-                                msg.messageUId = data.messageUId;
-                                msg.sentTime = data.timestamp;
-                                msg.sentStatus = RongIMLib.SentStatus.SENT;
-                                msg.messageId = data.messageId;
-                                RongIMLib.RongIMClient._dataAccessProvider.updateMessage(msg);
-                            },
-                            onError: function () { }
-                        });
-                    }
-                    setTimeout(function () {
-                        msg.sentTime = data.timestamp;
-                        sendCallback.onSuccess(msg);
-                    });
-                },
-                onError: function (errorCode) {
-                    msg.sentStatus = RongIMLib.SentStatus.FAILED;
-                    if (RongIMLib.RongIMClient.MessageParams[msg.messageType].msgTag.getMessageTag() == 3) {
-                        RongIMLib.RongIMClient._memoryStore.converStore.latestMessage = msg;
-                    }
-                    RongIMLib.RongIMClient._dataAccessProvider.addMessage(conversationType, targetId, msg, {
-                        onSuccess: function (ret) {
-                            msg.messageId = ret.messageId;
-                            RongIMLib.RongIMClient._dataAccessProvider.updateMessage(msg);
-                        },
-                        onError: function () { }
-                    });
-                    setTimeout(function () {
-                        sendCallback.onError(errorCode, msg);
-                    });
-                }
-            }, null);
-        };
-        ServerDataProvider.prototype.setConnectionStatusListener = function (listener) {
-            if (RongIMLib.RongIMClient.bridge) {
-                RongIMLib.RongIMClient.bridge.setListener(listener);
-            }
-            else {
-                RongIMLib.RongIMClient._memoryStore.listenerList.push(listener);
-            }
-        };
-        ServerDataProvider.prototype.setOnReceiveMessageListener = function (listener) {
-            if (RongIMLib.RongIMClient.bridge) {
-                RongIMLib.RongIMClient.bridge.setListener(listener);
-            }
-            else {
-                RongIMLib.RongIMClient._memoryStore.listenerList.push(listener);
-            }
-        };
-        ServerDataProvider.prototype.registerMessageType = function (messageType, objectName, messageTag, messageContent) {
-            if (!messageType) {
-                throw new Error("messageType can't be empty,postion -> registerMessageType");
-            }
-            if (!objectName) {
-                throw new Error("objectName can't be empty,postion -> registerMessageType");
-            }
-            if (Object.prototype.toString.call(messageContent) == "[object Array]") {
-                var regMsg = RongIMLib.ModelUtil.modleCreate(messageContent, messageType);
-                RongIMLib.RongIMClient.RegisterMessage[messageType] = regMsg;
-            }
-            else if (Object.prototype.toString.call(messageContent) == "[object Function]" || Object.prototype.toString.call(messageContent) == "[object Object]") {
-                if (!messageContent.encode) {
-                    throw new Error("encode method has not realized or messageName is undefined-> registerMessageType");
-                }
-                if (!messageContent.decode) {
-                    throw new Error("decode method has not realized -> registerMessageType");
-                }
-            }
-            else {
-                throw new Error("The index of 3 parameter was wrong type  must be object or function or array-> registerMessageType");
-            }
-            registerMessageTypeMapping[objectName] = messageType;
-        };
         ServerDataProvider.prototype.addConversation = function (conversation, callback) {
             var isAdd = true;
             for (var i = 0, len = RongIMLib.RongIMClient._memoryStore.conversationList.length; i < len; i++) {
@@ -7653,27 +6881,25 @@ var RongIMLib;
             var conver;
             for (var i = 0, len = RongIMLib.RongIMClient._memoryStore.conversationList.length; i < len; i++) {
                 if (conversation.conversationType === RongIMLib.RongIMClient._memoryStore.conversationList[i].conversationType && conversation.targetId === RongIMLib.RongIMClient._memoryStore.conversationList[i].targetId) {
-                    conversation.conversationTitle && (RongIMLib.RongIMClient._memoryStore.conversationList[i].conversationTitle = conversation.conversationTitle);
-                    conversation.senderUserName && (RongIMLib.RongIMClient._memoryStore.conversationList[i].senderUserName = conversation.senderUserName);
-                    conversation.senderPortraitUri && (RongIMLib.RongIMClient._memoryStore.conversationList[i].senderPortraitUri = conversation.senderPortraitUri);
-                    conversation.latestMessage && (RongIMLib.RongIMClient._memoryStore.conversationList[i].latestMessage = conversation.latestMessage);
+                    RongIMLib.RongIMClient._memoryStore.conversationList[i].conversationTitle = conversation.conversationTitle;
+                    RongIMLib.RongIMClient._memoryStore.conversationList[i].senderUserName = conversation.senderUserName;
+                    RongIMLib.RongIMClient._memoryStore.conversationList[i].senderPortraitUri = conversation.senderPortraitUri;
                     break;
                 }
             }
             return conver;
         };
         ServerDataProvider.prototype.removeConversation = function (conversationType, targetId, callback) {
-            var mod = new Modules.RelationsInput();
-            mod.setType(conversationType);
-            RongIMLib.RongIMClient.bridge.queryMsg(27, RongIMLib.MessageUtil.ArrayForm(mod.toArrayBuffer()), targetId, {
-                onSuccess: function () {
-                    callback.onSuccess(true);
-                }, onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.CONVER_REMOVE_ERROR);
-                    });
+            for (var i = 0, len = RongIMLib.RongIMClient._memoryStore.conversationList.length; i < len; i++) {
+                if (RongIMLib.RongIMClient._memoryStore.conversationList[i].conversationType === conversationType && RongIMLib.RongIMClient._memoryStore.conversationList[i].targetId === targetId) {
+                    RongIMLib.RongIMClient._memoryStore.conversationList.splice(i, 1);
+                    if (RongIMLib.MessageUtil.supportLargeStorage()) {
+                        RongIMLib.LocalStorageProvider.getInstance().removeItem("cu" + RongIMLib.Bridge._client.userId + conversationType + targetId);
+                    }
+                    break;
                 }
-            });
+            }
+            callback.onSuccess(true);
         };
         ServerDataProvider.prototype.getMessage = function (messageId, callback) {
             callback.onSuccess(new RongIMLib.Message());
@@ -7684,7 +6910,7 @@ var RongIMLib;
             }
         };
         ServerDataProvider.prototype.removeMessage = function (conversationType, targetId, messageIds, callback) {
-            RongIMLib.RongIMClient.getInstance().deleteRemoteMessages(conversationType, targetId, messageIds, callback);
+            callback.onSuccess(true);
         };
         ServerDataProvider.prototype.removeLocalMessage = function (conversationType, targetId, timestamps, callback) {
             callback.onSuccess(true);
@@ -7723,7 +6949,7 @@ var RongIMLib;
                 if (RongIMLib.RongIMClient._memoryStore.conversationList[i].conversationType == conversationType && RongIMLib.RongIMClient._memoryStore.conversationList[i].targetId == targetId) {
                     conver = RongIMLib.RongIMClient._memoryStore.conversationList[i];
                     if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                        var count = RongIMLib.RongIMClient._storageProvider.getItem("cu" + RongIMLib.Bridge._client.userId + conversationType + targetId);
+                        var count = RongIMLib.LocalStorageProvider.getInstance().getItem("cu" + RongIMLib.Bridge._client.userId + conversationType + targetId);
                         if (conver.unreadMessageCount == 0) {
                             conver.unreadMessageCount = Number(count);
                         }
@@ -7732,13 +6958,13 @@ var RongIMLib;
             }
             callback.onSuccess(conver);
         };
-        ServerDataProvider.prototype.getConversationList = function (callback, conversationTypes, count, isHidden) {
-            if (RongIMLib.RongIMClient._memoryStore.conversationList.length == 0 || RongIMLib.RongIMClient._memoryStore.isSyncRemoteConverList || (typeof count != undefined && RongIMLib.RongIMClient._memoryStore.conversationList.length < count)) {
+        ServerDataProvider.prototype.getConversationList = function (callback, conversationTypes) {
+            if (RongIMLib.RongIMClient._memoryStore.conversationList.length == 0 || RongIMLib.RongIMClient._memoryStore.isSyncRemoteConverList) {
                 RongIMLib.RongIMClient.getInstance().getRemoteConversationList({
                     onSuccess: function (list) {
                         if (RongIMLib.MessageUtil.supportLargeStorage()) {
                             Array.forEach(RongIMLib.RongIMClient._memoryStore.conversationList, function (item) {
-                                var count = RongIMLib.RongIMClient._storageProvider.getItem("cu" + RongIMLib.Bridge._client.userId + item.conversationType + item.targetId);
+                                var count = RongIMLib.LocalStorageProvider.getInstance().getItem("cu" + RongIMLib.Bridge._client.userId + item.conversationType + item.targetId);
                                 if (item.unreadMessageCount == 0) {
                                     item.unreadMessageCount = Number(count);
                                 }
@@ -7750,7 +6976,7 @@ var RongIMLib;
                     onError: function (errorcode) {
                         callback.onSuccess([]);
                     }
-                }, conversationTypes, count, isHidden);
+                }, conversationTypes);
             }
             else {
                 if (conversationTypes) {
@@ -7762,15 +6988,9 @@ var RongIMLib;
                             }
                         });
                     });
-                    if (count > 0) {
-                        convers.length = count;
-                    }
                     callback.onSuccess(convers);
                 }
                 else {
-                    if (count) {
-                        RongIMLib.RongIMClient._memoryStore.conversationList.length = count;
-                    }
                     callback.onSuccess(RongIMLib.RongIMClient._memoryStore.conversationList);
                 }
             }
@@ -7788,22 +7008,11 @@ var RongIMLib;
         ServerDataProvider.prototype.getHistoryMessages = function (conversationType, targetId, timestamp, count, callback) {
             RongIMLib.RongIMClient.getInstance().getRemoteHistoryMessages(conversationType, targetId, timestamp, count, callback);
         };
-        ServerDataProvider.prototype.getTotalUnreadCount = function (callback, conversationTypes) {
+        ServerDataProvider.prototype.getTotalUnreadCount = function (callback) {
             var count = 0;
-            if (conversationTypes) {
-                for (var i = 0, len = conversationTypes.length; i < len; i++) {
-                    Array.forEach(RongIMLib.RongIMClient._memoryStore.conversationList, function (conver) {
-                        if (conver.conversationType == conversationTypes[i]) {
-                            count += conver.unreadMessageCount;
-                        }
-                    });
-                }
-            }
-            else {
-                Array.forEach(RongIMLib.RongIMClient._memoryStore.conversationList, function (conver) {
-                    count += conver.unreadMessageCount;
-                });
-            }
+            Array.forEach(RongIMLib.RongIMClient._memoryStore.conversationList, function (conver) {
+                count += conver.unreadMessageCount;
+            });
             callback.onSuccess(count);
         };
         ServerDataProvider.prototype.getConversationUnreadCount = function (conversationTypes, callback) {
@@ -7832,21 +7041,9 @@ var RongIMLib;
                 onSuccess: function (conver) {
                     if (conver) {
                         if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                            RongIMLib.RongIMClient._storageProvider.removeItem("cu" + RongIMLib.Bridge._client.userId + conversationType + targetId);
+                            RongIMLib.LocalStorageProvider.getInstance().removeItem("cu" + RongIMLib.Bridge._client.userId + conversationType + targetId);
                         }
                         conver.unreadMessageCount = 0;
-                        conver.mentionedMsg = null;
-                        var mentioneds = RongIMLib.RongIMClient._storageProvider.getItem("mentioneds_" + RongIMLib.Bridge._client.userId + '_' + conversationType + '_' + targetId);
-                        if (mentioneds) {
-                            var info = JSON.parse(mentioneds);
-                            delete info[conversationType + "_" + targetId];
-                            if (!RongIMLib.MessageUtil.isEmpty(info)) {
-                                RongIMLib.RongIMClient._storageProvider.setItem("mentioneds_" + RongIMLib.Bridge._client.userId + '_' + conversationType + '_' + targetId, JSON.stringify(info));
-                            }
-                            else {
-                                RongIMLib.RongIMClient._storageProvider.removeItem("mentioneds_" + RongIMLib.Bridge._client.userId + '_' + conversationType + '_' + targetId);
-                            }
-                        }
                     }
                     callback.onSuccess(true);
                 },
@@ -7859,7 +7056,6 @@ var RongIMLib;
             var me = this;
             this.getConversation(conversationType, targetId, {
                 onSuccess: function (conver) {
-                    conver.isTop = true;
                     me.addConversation(conver, callback);
                     callback.onSuccess(true);
                 },
@@ -7867,8 +7063,6 @@ var RongIMLib;
                     callback.onError(error);
                 }
             });
-        };
-        ServerDataProvider.prototype.setConversationHidden = function (conversationType, targetId, isHidden) {
         };
         ServerDataProvider.prototype.setMessageExtra = function (messageId, value, callback) {
             callback.onSuccess(true);
@@ -7879,586 +7073,9 @@ var RongIMLib;
         ServerDataProvider.prototype.setMessageSentStatus = function (messageId, sentStatus, callback) {
             callback.onSuccess(true);
         };
-        ServerDataProvider.prototype.getAllConversations = function (callback) {
-            callback.onSuccess([]);
-        };
-        ServerDataProvider.prototype.getConversationByContent = function (keywords, callback) {
-            callback.onSuccess([]);
-        };
-        ServerDataProvider.prototype.getMessagesFromConversation = function (conversationType, targetId, keywords, callback) {
-            callback.onSuccess([]);
-        };
-        ServerDataProvider.prototype.searchConversationByContent = function (keyword, callback, conversationTypes) {
-            callback.onSuccess([]);
-        };
-        ServerDataProvider.prototype.searchMessageByContent = function (conversationType, targetId, keyword, timestamp, count, total, callback) {
-            callback.onSuccess([]);
-        };
-        ServerDataProvider.prototype.getDelaTime = function () {
-            return RongIMLib.RongIMClient._memoryStore.deltaTime;
-        };
         return ServerDataProvider;
-    }());
+    })();
     RongIMLib.ServerDataProvider = ServerDataProvider;
-})(RongIMLib || (RongIMLib = {}));
-var RongIMLib;
-(function (RongIMLib) {
-    var VCDataProvider = (function () {
-        function VCDataProvider(addon) {
-            this.userId = "";
-            this.useConsole = false;
-            this.addon = addon;
-            // 0 不存不计数  1 只存不计数 3 存且计数
-            this.addon.registerMessageType("RC:VcMsg", 3);
-            this.addon.registerMessageType("RC:ImgTextMsg", 3);
-            this.addon.registerMessageType("RC:FileMsg", 3);
-            this.addon.registerMessageType("RC:LBSMsg", 3);
-            this.addon.registerMessageType("RC:PSImgTxtMsg", 3);
-            this.addon.registerMessageType("RC:PSMultiImgTxtMsg", 3);
-            this.addon.registerMessageType("RC:GrpNtf", 1);
-            this.addon.registerMessageType("RC:DizNtf", 0);
-            this.addon.registerMessageType("RC:InfoNtf", 0);
-            this.addon.registerMessageType("RC:ContactNtf", 0);
-            this.addon.registerMessageType("RC:ProfileNtf", 0);
-            this.addon.registerMessageType("RC:CmdNtf", 0);
-            this.addon.registerMessageType("RC:CmdMsg", 0);
-            this.addon.registerMessageType("RC:TypSts", 0);
-            this.addon.registerMessageType("RC:CsChaR", 0);
-            this.addon.registerMessageType("RC:CsHsR", 0);
-            this.addon.registerMessageType("RC:CsEnd", 0);
-            this.addon.registerMessageType("RC:CsSp", 0);
-            this.addon.registerMessageType("RC:CsUpdate", 0);
-            this.addon.registerMessageType("RC:CsContact", 0);
-            this.addon.registerMessageType("RC:ReadNtf", 0);
-            this.addon.registerMessageType("RC:VCAccept", 0);
-            this.addon.registerMessageType("RC:VCRinging", 0);
-            this.addon.registerMessageType("RC:VCSummary", 0);
-            this.addon.registerMessageType("RC:VCHangup", 0);
-            this.addon.registerMessageType("RC:VCInvite", 0);
-            this.addon.registerMessageType("RC:VCModifyMedia", 0);
-            this.addon.registerMessageType("RC:VCModifyMem", 0);
-            this.addon.registerMessageType("RC:PSCmd", 0);
-            this.addon.registerMessageType("RC:RcCmd", 0);
-            this.addon.registerMessageType("RC:SRSMsg", 0);
-            this.addon.registerMessageType("RC:RRReqMsg", 0);
-            this.addon.registerMessageType("RC:RRRspMsg", 0);
-        }
-        VCDataProvider.prototype.init = function (appKey) {
-            this.useConsole && console.log("init");
-            this.addon.initWithAppkey(appKey);
-        };
-        VCDataProvider.prototype.connect = function (token, callback, userId) {
-            this.useConsole && console.log("connect");
-            this.userId = userId;
-            this.connectCallback = callback;
-            this.addon.connectWithToken(token, userId);
-        };
-        VCDataProvider.prototype.logout = function () {
-            this.useConsole && console.log("logout");
-            this.disconnect();
-        };
-        VCDataProvider.prototype.disconnect = function () {
-            this.useConsole && console.log("disconnect");
-            this.addon.disconnect(true);
-        };
-        VCDataProvider.prototype.setConnectionStatusListener = function (listener) {
-            var me = this;
-            /**
-            ConnectionStatus_TokenIncorrect = 31004,
-            ConnectionStatus_Connected = 0,
-            ConnectionStatus_KickedOff = 6, // 其他设备登录
-            ConnectionStatus_Connecting = 10,// 连接中
-            ConnectionStatus_SignUp = 12, // 未登录
-            ConnectionStatus_NetworkUnavailable = 1, // 连接断开
-            ConnectionStatus_ServerInvalid = 8, // 断开
-            ConnectionStatus_ValidateFailure = 9,//断开
-            ConnectionStatus_Unconnected = 11,//断开
-            ConnectionStatus_DisconnExecption = 31011 //断开
-            RC_NAVI_MALLOC_ERROR   = 30000,//断开
-            RC_NAVI_NET_UNAVAILABLE= 30002,//断开
-            RC_NAVI_SEND_FAIL      = 30004,//断开
-            RC_NAVI_REQ_TIMEOUT    = 30005,//断开
-            RC_NAVI_RECV_FAIL      = 30006,//断开
-            RC_NAVI_RESOURCE_ERROR = 30007,//断开
-            RC_NAVI_NODE_NOT_FOUND = 30008,//断开
-            RC_NAVI_DNS_ERROR      = 30009,//断开
-            */
-            me.connectListener = listener;
-            this.useConsole && console.log("setConnectionStatusListener");
-            me.addon.setConnectionStatusListener(function (result) {
-                switch (result) {
-                    case 10:
-                        listener.onChanged(RongIMLib.ConnectionStatus.CONNECTING);
-                        break;
-                    case 31004:
-                        me.connectCallback.onTokenIncorrect();
-                        break;
-                    case 1:
-                    case 8:
-                    case 9:
-                    case 11:
-                    case 12:
-                    case 31011:
-                    case 30000:
-                    case 30002:
-                    case 30004:
-                    case 30005:
-                    case 30006:
-                    case 30007:
-                    case 30008:
-                    case 30009:
-                        listener.onChanged(RongIMLib.ConnectionStatus.DISCONNECTED);
-                        break;
-                    case 0:
-                    case 33005:
-                        me.connectCallback.onSuccess(me.userId);
-                        listener.onChanged(RongIMLib.ConnectionStatus.CONNECTED);
-                        break;
-                    case 6:
-                        listener.onChanged(RongIMLib.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT);
-                        break;
-                }
-            });
-        };
-        VCDataProvider.prototype.setOnReceiveMessageListener = function (listener) {
-            var me = this;
-            me.messageListener = listener;
-            this.useConsole && console.log("setOnReceiveMessageListener");
-            me.addon.setOnReceiveMessageListener(function (result) {
-                listener.onReceived(me.buildMessage(result), 0);
-            });
-        };
-        VCDataProvider.prototype.sendTypingStatusMessage = function (conversationType, targetId, messageName, sendCallback) {
-            var me = this;
-            this.useConsole && console.log("sendTypingStatusMessage");
-            if (messageName in RongIMLib.RongIMClient.MessageParams) {
-                me.sendMessage(conversationType, targetId, RongIMLib.TypingStatusMessage.obtain(RongIMLib.RongIMClient.MessageParams[messageName].objectName, ""), {
-                    onSuccess: function () {
-                        setTimeout(function () {
-                            sendCallback.onSuccess();
-                        });
-                    },
-                    onError: function (errorCode) {
-                        setTimeout(function () {
-                            sendCallback.onError(errorCode, null);
-                        });
-                    }
-                });
-            }
-        };
-        VCDataProvider.prototype.sendTextMessage = function (conversationType, targetId, content, sendMessageCallback) {
-            var msgContent = RongIMLib.TextMessage.obtain(content);
-            this.useConsole && console.log("sendTextMessage");
-            this.sendMessage(conversationType, targetId, msgContent, sendMessageCallback);
-        };
-        VCDataProvider.prototype.getRemoteHistoryMessages = function (conversationType, targetId, timestamp, count, callback) {
-            try {
-                this.useConsole && console.log("getRemoteHistoryMessages");
-                this.addon.getRemoteHistoryMessages(conversationType, targetId, timestamp ? timestamp : 0, count, function (ret, hasMore) {
-                    var list = ret ? JSON.parse(ret).list : [], msgs = [], me = this;
-                    list.reverse();
-                    for (var i = 0, len = list.length; i < len; i++) {
-                        msgs[i] = me.buildMessage(list[i].obj);
-                    }
-                    callback.onSuccess(msgs, hasMore ? true : false);
-                }, function (errorCode) {
-                    callback.onError(errorCode);
-                });
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.TIMEOUT);
-            }
-        };
-        VCDataProvider.prototype.getRemoteConversationList = function (callback, conversationTypes, count, isGetHiddenConvers) {
-            try {
-                this.useConsole && console.log("getRemoteConversationList");
-                var converTypes = conversationTypes || [1, 2, 3, 4, 5, 6, 7, 8];
-                var result = this.addon.getConversationList(converTypes);
-                var list = JSON.parse(result).list, convers = [], me = this;
-                list.reverse();
-                isGetHiddenConvers = typeof isGetHiddenConvers === 'boolean' ? isGetHiddenConvers : false;
-                for (var i = 0, len = list.length; i < len; i++) {
-                    var tmpObj = list[i].obj, obj = JSON.parse(tmpObj);
-                    if (obj.isHidden == 1 && isGetHiddenConvers) {
-                        continue;
-                    }
-                    convers[i] = me.buildConversation(tmpObj);
-                }
-                convers.reverse();
-                callback.onSuccess(convers);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_GETLIST_ERROR);
-            }
-        };
-        VCDataProvider.prototype.removeConversation = function (conversationType, targetId, callback) {
-            try {
-                this.useConsole && console.log("removeConversation");
-                this.addon.removeConversation(conversationType, targetId);
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_REMOVE_ERROR);
-            }
-        };
-        VCDataProvider.prototype.joinChatRoom = function (chatRoomId, messageCount, callback) {
-            this.useConsole && console.log("joinChatRoom");
-            this.addon.joinChatRoom(chatRoomId, messageCount, function () {
-                callback.onSuccess();
-            }, function (error) {
-                callback.onError(error);
-            });
-        };
-        VCDataProvider.prototype.quitChatRoom = function (chatRoomId, callback) {
-            this.useConsole && console.log("quitChatRoom");
-            this.addon.quitChatRoom(chatRoomId, function () {
-                callback.onSuccess();
-            }, function (error) {
-                callback.onError(error);
-            });
-        };
-        VCDataProvider.prototype.addToBlacklist = function (userId, callback) {
-            this.useConsole && console.log("addToBlacklist");
-            this.addon.addToBlacklist(userId, function () {
-                callback.onSuccess();
-            }, function (error) {
-                callback.onError(error);
-            });
-        };
-        VCDataProvider.prototype.getBlacklist = function (callback) {
-            this.useConsole && console.log("getBlacklist");
-            this.addon.getBlacklist(function (blacklistors) {
-                callback.onSuccess(blacklistors);
-            }, function (error) {
-                callback.onError(error);
-            });
-        };
-        VCDataProvider.prototype.getBlacklistStatus = function (userId, callback) {
-            this.useConsole && console.log("getBlacklistStatus");
-            this.addon.getBlacklistStatus(userId, function (result) {
-                callback.onSuccess(result);
-            }, function (error) {
-                callback.onError(error);
-            });
-        };
-        VCDataProvider.prototype.removeFromBlacklist = function (userId, callback) {
-            this.useConsole && console.log("removeFromBlacklist");
-            this.addon.removeFromBlacklist(userId, function () {
-                callback.onSuccess();
-            }, function (error) {
-                callback.onError(error);
-            });
-        };
-        VCDataProvider.prototype.sendMessage = function (conversationType, targetId, messageContent, sendCallback, mentiondMsg, pushText, appData) {
-            var me = this;
-            me.useConsole && console.log("sendMessage");
-            var msg = me.addon.sendMessage(conversationType, targetId, RongIMLib.RongIMClient.MessageParams[messageContent.messageName].objectName, messageContent.encode(), pushText || "", appData || "", function (progress) {
-            }, function (message) {
-                sendCallback.onSuccess(me.buildMessage(message));
-            }, function (message, code) {
-                sendCallback.onError(code, me.buildMessage(message));
-            }, mentiondMsg ? ["metionedMsg"] : "");
-            var tempMessage = JSON.parse(msg);
-            RongIMLib.MessageIdHandler.messageId = tempMessage.messageId;
-        };
-        VCDataProvider.prototype.registerMessageType = function (messageType, objectName, messageTag, messageContent) {
-            this.useConsole && console.log("registerMessageType");
-            this.addon.registerMessageType(objectName, messageTag.getMessageTag());
-        };
-        VCDataProvider.prototype.addMessage = function (conversationType, targetId, message, callback) {
-            this.useConsole && console.log("addMessage");
-            var msg = this.addon.insertMessage(conversationType, targetId, message.senderUserId, message.objectName, message.content.encode(), function () {
-                callback.onSuccess(me.buildMessage(msg));
-            }, function () {
-                callback.onError(RongIMLib.ErrorCode.MSG_INSERT_ERROR);
-            }), me = this;
-        };
-        VCDataProvider.prototype.removeMessage = function (conversationType, targetId, delMsgs, callback) {
-        };
-        VCDataProvider.prototype.removeLocalMessage = function (conversationType, targetId, timestamps, callback) {
-            try {
-                this.useConsole && console.log("removeLocalMessage");
-                this.addon.deleteMessages(timestamps);
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.MSG_DEL_ERROR);
-            }
-        };
-        VCDataProvider.prototype.getMessage = function (messageId, callback) {
-            try {
-                this.useConsole && console.log("getMessage");
-                var msg = this.addon.getMessage(messageId);
-                callback.onSuccess(msg);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.GET_MESSAGE_BY_ID_ERROR);
-            }
-        };
-        VCDataProvider.prototype.clearMessages = function (conversationType, targetId, callback) {
-            try {
-                this.useConsole && console.log("clearMessages");
-                this.addon.clearMessages(conversationType, targetId);
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_GET_ERROR);
-            }
-        };
-        VCDataProvider.prototype.getConversation = function (conversationType, targetId, callback) {
-            try {
-                this.useConsole && console.log("getConversation");
-                var ret = this.addon.getConversation(conversationType, targetId);
-                callback.onSuccess(this.buildConversation(ret));
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_GET_ERROR);
-            }
-        };
-        VCDataProvider.prototype.getConversationList = function (callback, conversationTypes, count, isGetHiddenConvers) {
-            this.useConsole && console.log("getConversationList");
-            this.getRemoteConversationList(callback, conversationTypes, count, isGetHiddenConvers);
-        };
-        VCDataProvider.prototype.clearConversations = function (conversationTypes, callback) {
-            try {
-                this.useConsole && console.log("clearConversations");
-                this.addon.clearConversations();
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_CLEAR_ERROR);
-            }
-        };
-        VCDataProvider.prototype.getHistoryMessages = function (conversationType, targetId, timestamp, count, callback) {
-            this.useConsole && console.log("getHistoryMessages");
-            if (count <= 0) {
-                callback.onError(RongIMLib.ErrorCode.TIMEOUT);
-                return;
-            }
-            try {
-                var ret = this.addon.getHistoryMessages(conversationType, targetId, timestamp ? timestamp : 0, count);
-                var list = ret ? JSON.parse(ret).list : [], msgs = [], me = this;
-                list.reverse();
-                for (var i = 0, len = list.length; i < len; i++) {
-                    msgs[i] = me.buildMessage(list[i].obj);
-                }
-                callback.onSuccess(msgs, len == count);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.TIMEOUT);
-            }
-        };
-        VCDataProvider.prototype.getTotalUnreadCount = function (callback, conversationTypes) {
-            try {
-                var result;
-                this.useConsole && console.log("getTotalUnreadCount");
-                if (conversationTypes) {
-                    result = this.addon.getTotalUnreadCount(conversationTypes);
-                }
-                else {
-                    result = this.addon.getTotalUnreadCount();
-                }
-                callback.onSuccess(result);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_TOTAL_UNREAD_ERROR);
-            }
-        };
-        VCDataProvider.prototype.getConversationUnreadCount = function (conversationTypes, callback) {
-            this.useConsole && console.log("getConversationUnreadCount");
-            this.getTotalUnreadCount(callback, conversationTypes);
-        };
-        VCDataProvider.prototype.getUnreadCount = function (conversationType, targetId, callback) {
-            try {
-                this.useConsole && console.log("getUnreadCount");
-                var result = this.addon.getUnreadCount(conversationType, targetId);
-                callback.onSuccess(result);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_TYPE_UNREAD_ERROR);
-            }
-        };
-        VCDataProvider.prototype.clearUnreadCount = function (conversationType, targetId, callback) {
-            try {
-                this.useConsole && console.log("clearUnreadCount");
-                var result = this.addon.clearUnreadCount(conversationType, targetId);
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_CLEAR_ERROR);
-            }
-        };
-        VCDataProvider.prototype.setConversationToTop = function (conversationType, targetId, callback) {
-            try {
-                this.useConsole && console.log("setConversationToTop");
-                this.addon.setConversationToTop(conversationType, targetId, true);
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_SETOP_ERROR);
-            }
-        };
-        VCDataProvider.prototype.setConversationHidden = function (conversationType, targetId, isHidden) {
-            this.addon.setConversationHidden(conversationType, targetId, isHidden);
-        };
-        VCDataProvider.prototype.setMessageReceivedStatus = function (messageId, receivedStatus, callback) {
-            try {
-                this.useConsole && console.log("setMessageReceivedStatus");
-                this.addon.setMessageReceivedStatus(messageId, receivedStatus);
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.TIMEOUT);
-            }
-        };
-        VCDataProvider.prototype.setMessageSentStatus = function (messageId, sentStatus, callback) {
-            try {
-                this.useConsole && console.log("setMessageSentStatus");
-                this.addon.setMessageSentStatus(messageId, sentStatus);
-                callback.onSuccess(true);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.TIMEOUT);
-            }
-        };
-        VCDataProvider.prototype.getFileToken = function (fileType, callback) {
-            this.useConsole && console.log("getFileToken");
-            this.addon.getUploadToken(fileType, function (token) {
-                callback.onSuccess({ token: token });
-            }, function (errorCode) {
-                callback.onError(errorCode);
-            });
-        };
-        VCDataProvider.prototype.getFileUrl = function (fileType, fileName, oriName, callback) {
-            this.useConsole && console.log("getFileUrl");
-            this.addon.getDownloadUrl(fileType, fileName, oriName, function (url) {
-                callback.onSuccess({ downloadUrl: url });
-            }, function (errorCode) {
-                callback.onError(errorCode);
-            });
-        };
-        VCDataProvider.prototype.searchConversationByContent = function (keyword, callback, conversationTypes) {
-            var converTypes = [];
-            if (typeof conversationTypes == 'undefined') {
-                converTypes = [1, 2, 3, 4, 5, 6, 7];
-            }
-            else {
-                converTypes = conversationTypes;
-            }
-            try {
-                this.useConsole && console.log("searchConversationByContent");
-                var result = this.addon.searchConversationByContent(converTypes, keyword);
-                var list = JSON.parse(result).list, convers = [], me = this;
-                list.reverse();
-                for (var i = 0, len = list.length; i < len; i++) {
-                    convers[i] = me.buildConversation(list[i].obj);
-                }
-                callback.onSuccess(convers);
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.CONVER_GETLIST_ERROR);
-            }
-        };
-        VCDataProvider.prototype.searchMessageByContent = function (conversationType, targetId, keyword, timestamp, count, total, callback) {
-            var me = this;
-            try {
-                this.useConsole && console.log("searchMessageByContent");
-                this.addon.searchMessageByContent(conversationType, targetId, keyword, timestamp, count, total, function (ret, matched) {
-                    var list = ret ? JSON.parse(ret).list : [], msgs = [];
-                    list.reverse();
-                    for (var i = 0, len = list.length; i < len; i++) {
-                        msgs[i] = me.buildMessage(list[i].obj);
-                    }
-                    callback.onSuccess(msgs, matched);
-                });
-            }
-            catch (e) {
-                callback.onError(RongIMLib.ErrorCode.TIMEOUT);
-            }
-        };
-        VCDataProvider.prototype.getChatRoomInfo = function (chatRoomId, count, order, callback) {
-            this.useConsole && console.log("getChatRoomInfo");
-            this.addon.getChatroomInfo(chatRoomId, count, order, function (ret, count) {
-                var list = ret ? JSON.parse(ret).list : [], chatRoomInfo = { userInfos: [], userTotalNums: count };
-                if (list.length > 0) {
-                    for (var i = 0, len = list.length; i < len; i++) {
-                        chatRoomInfo.userInfos.push(JSON.parse(list[i].obj));
-                    }
-                }
-                callback.onSuccess(chatRoomInfo);
-            }, function (errcode) {
-                callback.onError(errcode);
-            });
-        };
-        VCDataProvider.prototype.getDelaTime = function () {
-            return this.addon.getDeltaTime();
-        };
-        VCDataProvider.prototype.hasRemoteUnreadMessages = function (token, callback) {
-            callback.onSuccess(false);
-        };
-        VCDataProvider.prototype.updateMessage = function (message, callback) { };
-        VCDataProvider.prototype.updateMessages = function (conversationType, targetId, key, value, callback) { };
-        VCDataProvider.prototype.reconnect = function (callback) { };
-        VCDataProvider.prototype.sendReceiptResponse = function (conversationType, targetId, sendCallback) { };
-        VCDataProvider.prototype.setMessageExtra = function (messageId, value, callback) { };
-        VCDataProvider.prototype.addMemberToDiscussion = function (discussionId, userIdList, callback) { };
-        VCDataProvider.prototype.createDiscussion = function (name, userIdList, callback) { };
-        VCDataProvider.prototype.getDiscussion = function (discussionId, callback) { };
-        VCDataProvider.prototype.quitDiscussion = function (discussionId, callback) { };
-        VCDataProvider.prototype.removeMemberFromDiscussion = function (discussionId, userId, callback) { };
-        VCDataProvider.prototype.setDiscussionInviteStatus = function (discussionId, status, callback) { };
-        VCDataProvider.prototype.setDiscussionName = function (discussionId, name, callback) { };
-        VCDataProvider.prototype.joinGroup = function (groupId, groupName, callback) { };
-        VCDataProvider.prototype.quitGroup = function (groupId, callback) { };
-        VCDataProvider.prototype.syncGroup = function (groups, callback) { };
-        VCDataProvider.prototype.addConversation = function (conversation, callback) { };
-        VCDataProvider.prototype.updateConversation = function (conversation) {
-            return null;
-        };
-        VCDataProvider.prototype.buildMessage = function (result) {
-            var message = new RongIMLib.Message(), ret = JSON.parse(result);
-            message.conversationType = ret.conversationType;
-            message.targetId = ret.targetId;
-            message.messageDirection = ret.direction;
-            message.senderUserId = ret.senderUserId;
-            if (ret.direction == RongIMLib.MessageDirection.RECEIVE) {
-                message.receivedStatus = ret.status;
-            }
-            else if (ret.direction == RongIMLib.MessageDirection.SEND) {
-                message.sentStatus = ret.status;
-            }
-            message.sentTime = ret.sentTime;
-            message.objectName = ret.objectName;
-            message.content = ret.content ? JSON.parse(ret.content) : ret.content;
-            message.messageId = ret.messageId;
-            message.messageUId = ret.messageUid;
-            message.messageType = typeMapping[ret.objectName];
-            return message;
-        };
-        VCDataProvider.prototype.buildConversation = function (val) {
-            var conver = new RongIMLib.Conversation(), c = JSON.parse(val), lastestMsg = c.lastestMsg ? this.buildMessage(c.lastestMsg) : {};
-            conver.conversationTitle = c.title;
-            conver.conversationType = c.conversationType;
-            conver.draft = c.draft;
-            conver.isTop = c.isTop;
-            conver.isHidden = c.isHidden;
-            lastestMsg.conversationType = c.conversationType;
-            lastestMsg.targetId = c.targetId;
-            conver.latestMessage = lastestMsg;
-            conver.latestMessageId = lastestMsg.messageId;
-            conver.latestMessage.messageType = typeMapping[lastestMsg.objectName];
-            conver.objectName = lastestMsg.objectName;
-            conver.receivedStatus = RongIMLib.ReceivedStatus.READ;
-            conver.sentTime = lastestMsg.sentTime;
-            conver.senderUserId = lastestMsg.senderUserId;
-            conver.sentStatus = lastestMsg.status;
-            conver.targetId = c.targetId;
-            conver.unreadMessageCount = c.unreadCount;
-            return conver;
-        };
-        return VCDataProvider;
-    }());
-    RongIMLib.VCDataProvider = VCDataProvider;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
@@ -8482,7 +7099,7 @@ var RongIMLib;
         DBUtil.prototype.execSearchByParams = function (sql, values, callback) {
             this.db.transaction(function (tx) {
                 tx.executeSql(sql, values, function (tx, results) {
-                    callback(results.rows, results.rowsAffected);
+                    callback(results.rows);
                 }, function (tx, results) {
                     throw new Error("{errorCode:" + results.code + ",content:" + results.message + "}");
                 });
@@ -8491,7 +7108,7 @@ var RongIMLib;
         DBUtil.prototype.execSearch = function (sql, callback) {
             this.db.transaction(function (tx) {
                 tx.executeSql(sql, [], function (tx, results) {
-                    callback(results.rows, results.rowsAffected);
+                    callback(results.rows);
                 }, function (tx, result) {
                     throw new Error("{errorCode:" + result.code + ",content:" + result.message + "}");
                 });
@@ -8512,7 +7129,7 @@ var RongIMLib;
             });
         };
         return DBUtil;
-    }());
+    })();
     RongIMLib.DBUtil = DBUtil;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
@@ -8521,703 +7138,6 @@ var RongIMLib;
         function WebSQLDataProvider() {
             this.database = new RongIMLib.DBUtil();
         }
-        WebSQLDataProvider.prototype.init = function (appKey) {
-        };
-        WebSQLDataProvider.prototype.connect = function (token, callback) {
-            RongIMLib.RongIMClient.bridge = RongIMLib.Bridge.getInstance();
-            RongIMLib.RongIMClient._memoryStore.token = token;
-            RongIMLib.RongIMClient._memoryStore.callback = callback;
-            if (RongIMLib.Bridge._client && RongIMLib.Bridge._client.channel && RongIMLib.Bridge._client.channel.connectionStatus == RongIMLib.ConnectionStatus.CONNECTED && RongIMLib.Bridge._client.channel.connectionStatus == RongIMLib.ConnectionStatus.CONNECTING) {
-                return;
-            }
-            RongIMLib.RongIMClient.bridge.connect(RongIMLib.RongIMClient._memoryStore.appKey, token, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (e) {
-                    if (e == RongIMLib.ConnectionState.TOKEN_INCORRECT || !e) {
-                        setTimeout(function () {
-                            callback.onTokenIncorrect();
-                        });
-                    }
-                    else {
-                        setTimeout(function () {
-                            callback.onError(e);
-                        });
-                    }
-                }
-            });
-            //循环设置监听事件，追加之后清空存放事件数据
-            for (var i = 0, len = RongIMLib.RongIMClient._memoryStore.listenerList.length; i < len; i++) {
-                RongIMLib.RongIMClient.bridge["setListener"](RongIMLib.RongIMClient._memoryStore.listenerList[i]);
-            }
-            RongIMLib.RongIMClient._memoryStore.listenerList.length = 0;
-        };
-        WebSQLDataProvider.prototype.reconnect = function (callback) {
-            if (RongIMLib.Bridge._client && RongIMLib.Bridge._client.channel && RongIMLib.Bridge._client.channel.connectionStatus != RongIMLib.ConnectionStatus.CONNECTED && RongIMLib.Bridge._client.channel.connectionStatus != RongIMLib.ConnectionStatus.CONNECTING) {
-                RongIMLib.RongIMClient.bridge.reconnect(callback);
-            }
-        };
-        WebSQLDataProvider.prototype.logout = function () {
-            RongIMLib.RongIMClient.bridge.disconnect();
-            RongIMLib.RongIMClient.bridge = null;
-        };
-        WebSQLDataProvider.prototype.disconnect = function () {
-            RongIMLib.RongIMClient.bridge.disconnect();
-        };
-        WebSQLDataProvider.prototype.sendReceiptResponse = function (conversationType, targetId, sendCallback) {
-            var rspkey = RongIMLib.Bridge._client.userId + conversationType + targetId + 'RECEIVED', me = this;
-            if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                var valObj = JSON.parse(RongIMLib.RongIMClient._storageProvider.getItem(rspkey));
-                if (valObj) {
-                    var vals = [];
-                    for (var key in valObj) {
-                        var tmp = {};
-                        tmp[key] = valObj[key].uIds;
-                        valObj[key].isResponse || vals.push(tmp);
-                    }
-                    if (vals.length == 0) {
-                        sendCallback.onSuccess();
-                        return;
-                    }
-                    var interval = setInterval(function () {
-                        if (vals.length == 1) {
-                            clearInterval(interval);
-                        }
-                        var obj = vals.splice(0, 1)[0];
-                        var rspMsg = new RongIMLib.ReadReceiptResponseMessage({ receiptMessageDic: obj });
-                        me.sendMessage(conversationType, targetId, rspMsg, {
-                            onSuccess: function (msg) {
-                                var senderUserId = RongIMLib.MessageUtil.getFirstKey(obj);
-                                valObj[senderUserId].isResponse = true;
-                                RongIMLib.RongIMClient._storageProvider.setItem(rspkey, JSON.stringify(valObj));
-                                sendCallback.onSuccess(msg);
-                            },
-                            onError: function (error, msg) {
-                                sendCallback.onError(error, msg);
-                            }
-                        });
-                    }, 200);
-                }
-                else {
-                    sendCallback.onSuccess();
-                }
-            }
-            else {
-                sendCallback.onSuccess();
-            }
-        };
-        WebSQLDataProvider.prototype.sendTypingStatusMessage = function (conversationType, targetId, messageName, sendCallback) {
-            var me = this;
-            if (messageName in RongIMLib.RongIMClient.MessageParams) {
-                me.sendMessage(conversationType, targetId, RongIMLib.TypingStatusMessage.obtain(RongIMLib.RongIMClient.MessageParams[messageName].objectName, ""), {
-                    onSuccess: function () {
-                        setTimeout(function () {
-                            sendCallback.onSuccess();
-                        });
-                    },
-                    onError: function (errorCode) {
-                        setTimeout(function () {
-                            sendCallback.onError(errorCode, null);
-                        });
-                    }
-                });
-            }
-        };
-        WebSQLDataProvider.prototype.sendTextMessage = function (conversationType, targetId, content, sendMessageCallback) {
-            var msgContent = RongIMLib.TextMessage.obtain(content);
-            this.sendMessage(conversationType, targetId, msgContent, sendMessageCallback);
-        };
-        WebSQLDataProvider.prototype.getRemoteHistoryMessages = function (conversationType, targetId, timestamp, count, callback) {
-            var modules = new Modules.HistoryMessageInput(), self = this;
-            modules.setTargetId(targetId);
-            if (timestamp === 0 || timestamp > 0) {
-                modules.setDataTime(timestamp);
-            }
-            else {
-                modules.setDataTime(RongIMLib.RongIMClient._memoryStore.lastReadTime.get(conversationType + targetId));
-            }
-            modules.setSize(count);
-            RongIMLib.RongIMClient.bridge.queryMsg(HistoryMsgType[conversationType], RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), targetId, {
-                onSuccess: function (data) {
-                    RongIMLib.RongIMClient._memoryStore.lastReadTime.set(conversationType + targetId, RongIMLib.MessageUtil.int64ToTimestamp(data.syncTime));
-                    var list = data.list.reverse(), tempMsg = null, tempDir;
-                    if (RongIMLib.MessageUtil.supportLargeStorage()) {
-                        for (var i = 0, len = list.length; i < len; i++) {
-                            tempMsg = RongIMLib.MessageUtil.messageParser(list[i]);
-                            tempDir = JSON.parse(RongIMLib.RongIMClient._storageProvider.getItem(RongIMLib.Bridge._client.userId + tempMsg.messageUId + "SENT"));
-                            if (tempDir) {
-                                tempMsg.receiptResponse || (tempMsg.receiptResponse = {});
-                                tempMsg.receiptResponse[tempMsg.messageUId] = tempDir.count;
-                            }
-                            list[i] = tempMsg;
-                        }
-                    }
-                    else {
-                        for (var i = 0, len = list.length; i < len; i++) {
-                            list[i] = RongIMLib.MessageUtil.messageParser(list[i]);
-                        }
-                    }
-                    setTimeout(function () {
-                        callback.onSuccess(list, !!data.hasMsg);
-                    });
-                },
-                onError: function (error) {
-                    setTimeout(function () {
-                        if (error === RongIMLib.ErrorCode.TIMEOUT) {
-                            callback.onError(error);
-                        }
-                        else {
-                            callback.onSuccess([], false);
-                        }
-                    });
-                }
-            }, "HistoryMessagesOuput");
-        };
-        WebSQLDataProvider.prototype.hasRemoteUnreadMessages = function (token, callback) {
-            var xss = null;
-            window.RCCallback = function (x) {
-                setTimeout(function () { callback.onSuccess(!!+x.status); });
-                xss.parentNode.removeChild(xss);
-            };
-            xss = document.createElement("script");
-            xss.src = RongIMLib.RongIMClient._memoryStore.depend.api + "/message/exist.js?appKey=" + encodeURIComponent(RongIMLib.RongIMClient._memoryStore.appKey) + "&token=" + encodeURIComponent(token) + "&callBack=RCCallback&_=" + Date.now();
-            document.body.appendChild(xss);
-            xss.onerror = function () {
-                setTimeout(function () { callback.onError(RongIMLib.ErrorCode.UNKNOWN); });
-                xss.parentNode.removeChild(xss);
-            };
-        };
-        WebSQLDataProvider.prototype.getRemoteConversationList = function (callback, conversationTypes, count) {
-            var modules = new Modules.RelationsInput(), self = this;
-            modules.setType(1);
-            if (typeof count == 'undefined') {
-                modules.setCount(0);
-            }
-            else {
-                modules.setCount(count);
-            }
-            RongIMLib.RongIMClient.bridge.queryMsg(26, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (list) {
-                    RongIMLib.RongIMClient._memoryStore.conversationList.length = 0;
-                    if (list.info) {
-                        list.info = list.info.reverse();
-                        for (var i = 0, len = list.info.length; i < len; i++) {
-                            RongIMLib.RongIMClient.getInstance().pottingConversation(list.info[i]);
-                        }
-                    }
-                    if (conversationTypes) {
-                        var convers = [];
-                        Array.forEach(conversationTypes, function (converType) {
-                            Array.forEach(RongIMLib.RongIMClient._memoryStore.conversationList, function (item) {
-                                if (item.conversationType == converType) {
-                                    convers.push(item);
-                                }
-                            });
-                        });
-                        callback.onSuccess(convers);
-                    }
-                    else {
-                        callback.onSuccess(RongIMLib.RongIMClient._memoryStore.conversationList);
-                    }
-                },
-                onError: function (error) {
-                    if (error === RongIMLib.ErrorCode.TIMEOUT) {
-                        callback.onError(error);
-                    }
-                    else {
-                        callback.onSuccess([]);
-                    }
-                }
-            }, "RelationsOutput");
-        };
-        WebSQLDataProvider.prototype.addMemberToDiscussion = function (discussionId, userIdList, callback) {
-            var modules = new Modules.ChannelInvitationInput();
-            modules.setUsers(userIdList);
-            RongIMLib.RongIMClient.bridge.queryMsg(0, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.JOIN_IN_DISCUSSION);
-                    });
-                }
-            });
-        };
-        WebSQLDataProvider.prototype.createDiscussion = function (name, userIdList, callback) {
-            var modules = new Modules.CreateDiscussionInput(), self = this;
-            modules.setName(name);
-            RongIMLib.RongIMClient.bridge.queryMsg(1, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (discussId) {
-                    if (userIdList.length > 0) {
-                        self.addMemberToDiscussion(discussId, userIdList, {
-                            onSuccess: function () { },
-                            onError: function (error) {
-                                setTimeout(function () {
-                                    callback.onError(error);
-                                });
-                            }
-                        });
-                    }
-                    setTimeout(function () {
-                        callback.onSuccess(discussId);
-                    });
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.CREATE_DISCUSSION);
-                    });
-                }
-            }, "CreateDiscussionOutput");
-        };
-        WebSQLDataProvider.prototype.getDiscussion = function (discussionId, callback) {
-            var modules = new Modules.ChannelInfoInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(4, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (errorCode) {
-                    setTimeout(function () {
-                        callback.onError(errorCode);
-                    });
-                }
-            }, "ChannelInfoOutput");
-        };
-        WebSQLDataProvider.prototype.quitDiscussion = function (discussionId, callback) {
-            var modules = new Modules.LeaveChannelInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(7, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, callback);
-        };
-        WebSQLDataProvider.prototype.removeMemberFromDiscussion = function (discussionId, userId, callback) {
-            var modules = new Modules.ChannelEvictionInput();
-            modules.setUser(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(9, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, callback);
-        };
-        WebSQLDataProvider.prototype.setDiscussionInviteStatus = function (discussionId, status, callback) {
-            var modules = new Modules.ModifyPermissionInput();
-            modules.setOpenStatus(status.valueOf());
-            RongIMLib.RongIMClient.bridge.queryMsg(11, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function (x) {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                }, onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.INVITE_DICUSSION);
-                    });
-                }
-            });
-        };
-        WebSQLDataProvider.prototype.setDiscussionName = function (discussionId, name, callback) {
-            var modules = new Modules.RenameChannelInput();
-            modules.setName(name);
-            RongIMLib.RongIMClient.bridge.queryMsg(12, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), discussionId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            });
-        };
-        WebSQLDataProvider.prototype.joinGroup = function (groupId, groupName, callback) {
-            var modules = new Modules.GroupInfo();
-            modules.setId(groupId);
-            modules.setName(groupName);
-            var _mod = new Modules.GroupInput();
-            _mod.setGroupInfo([modules]);
-            RongIMLib.RongIMClient.bridge.queryMsg(6, RongIMLib.MessageUtil.ArrayForm(_mod.toArrayBuffer()), groupId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "GroupOutput");
-        };
-        WebSQLDataProvider.prototype.quitGroup = function (groupId, callback) {
-            var modules = new Modules.LeaveChannelInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(8, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), groupId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            });
-        };
-        WebSQLDataProvider.prototype.syncGroup = function (groups, callback) {
-            //去重操作
-            for (var i = 0, part = [], info = [], len = groups.length; i < len; i++) {
-                if (part.length === 0 || !(groups[i].id in part)) {
-                    part.push(groups[i].id);
-                    var groupinfo = new Modules.GroupInfo();
-                    groupinfo.setId(groups[i].id);
-                    groupinfo.setName(groups[i].name);
-                    info.push(groupinfo);
-                }
-            }
-            var modules = new Modules.GroupHashInput();
-            modules.setUserId(RongIMLib.Bridge._client.userId);
-            modules.setGroupHashCode(md5(part.sort().join("")));
-            RongIMLib.RongIMClient.bridge.queryMsg(13, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (result) {
-                    //1为群信息不匹配需要发送给服务器进行同步，0不需要同步
-                    if (result === 1) {
-                        var val = new Modules.GroupInput();
-                        val.setGroupInfo(info);
-                        RongIMLib.RongIMClient.bridge.queryMsg(20, RongIMLib.MessageUtil.ArrayForm(val.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                            onSuccess: function () {
-                                setTimeout(function () {
-                                    callback.onSuccess();
-                                });
-                            },
-                            onError: function () {
-                                setTimeout(function () {
-                                    callback.onError(RongIMLib.ErrorCode.GROUP_MATCH_ERROR);
-                                });
-                            }
-                        }, "GroupOutput");
-                    }
-                    else {
-                        setTimeout(function () {
-                            callback.onSuccess();
-                        });
-                    }
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.GROUP_SYNC_ERROR);
-                    });
-                }
-            }, "GroupHashOutput");
-        };
-        WebSQLDataProvider.prototype.joinChatRoom = function (chatroomId, messageCount, callback) {
-            var e = new Modules.ChrmInput();
-            e.setNothing(1);
-            RongIMLib.Bridge._client.chatroomId = chatroomId;
-            RongIMLib.RongIMClient.bridge.queryMsg(19, RongIMLib.MessageUtil.ArrayForm(e.toArrayBuffer()), chatroomId, {
-                onSuccess: function () {
-                    callback.onSuccess();
-                    var modules = new Modules.ChrmPullMsg();
-                    messageCount == 0 && (messageCount = -1);
-                    modules.setCount(messageCount);
-                    modules.setSyncTime(0);
-                    RongIMLib.Bridge._client.queryMessage("chrmPull", RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), chatroomId, 1, {
-                        onSuccess: function (collection) {
-                            var sync = RongIMLib.MessageUtil.int64ToTimestamp(collection.syncTime);
-                            RongIMLib.RongIMClient._storageProvider.setItem(chatroomId + RongIMLib.Bridge._client.userId + "CST", sync);
-                            var list = collection.list;
-                            if (RongIMLib.RongIMClient._memoryStore.filterMessages.length > 0) {
-                                for (var i = 0, mlen = list.length; i < mlen; i++) {
-                                    for (var j = 0, flen = RongIMLib.RongIMClient._memoryStore.filterMessages.length; j < flen; j++) {
-                                        if (RongIMLib.RongIMClient.MessageParams[RongIMLib.RongIMClient._memoryStore.filterMessages[j]].objectName != list[i].classname) {
-                                            RongIMLib.Bridge._client.handler.onReceived(list[i]);
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                for (var i = 0, len = list.length; i < len; i++) {
-                                    RongIMLib.Bridge._client.handler.onReceived(list[i]);
-                                }
-                            }
-                        },
-                        onError: function (x) {
-                            setTimeout(function () {
-                                callback.onError(RongIMLib.ErrorCode.CHATROOM_HISMESSAGE_ERROR);
-                            });
-                        }
-                    }, "DownStreamMessages");
-                },
-                onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.CHARTOOM_JOIN_ERROR);
-                    });
-                }
-            }, "ChrmOutput");
-        };
-        WebSQLDataProvider.prototype.getChatRoomInfo = function (chatRoomId, count, order, callback) {
-            var modules = new Modules.QueryChatroomInfoInput();
-            modules.setCount(count);
-            modules.setOrder(order);
-            RongIMLib.RongIMClient.bridge.queryMsg("queryChrmI", RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), chatRoomId, {
-                onSuccess: function (list) {
-                    setTimeout(function () {
-                        callback.onSuccess(list);
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "QueryChatroomInfoOutput");
-        };
-        WebSQLDataProvider.prototype.quitChatRoom = function (chatroomId, callback) {
-            var e = new Modules.ChrmInput();
-            e.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(17, RongIMLib.MessageUtil.ArrayForm(e.toArrayBuffer()), chatroomId, {
-                onSuccess: function () {
-                    setTimeout(function () {
-                        callback.onSuccess();
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "ChrmOutput");
-        };
-        WebSQLDataProvider.prototype.addToBlacklist = function (userId, callback) {
-            var modules = new Modules.Add2BlackListInput();
-            modules.setUserId(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(21, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
-                onSuccess: function () {
-                    callback.onSuccess();
-                },
-                onError: function () {
-                    callback.onError(RongIMLib.ErrorCode.BLACK_ADD_ERROR);
-                }
-            });
-        };
-        WebSQLDataProvider.prototype.getBlacklist = function (callback) {
-            var modules = new Modules.QueryBlackListInput();
-            modules.setNothing(1);
-            RongIMLib.RongIMClient.bridge.queryMsg(23, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, callback, "QueryBlackListOutput");
-        };
-        WebSQLDataProvider.prototype.getBlacklistStatus = function (userId, callback) {
-            var modules = new Modules.BlackListStatusInput();
-            modules.setUserId(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(24, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
-                onSuccess: function (status) {
-                    setTimeout(function () {
-                        callback.onSuccess(RongIMLib.BlacklistStatus[status]);
-                    });
-                }, onError: function () {
-                    setTimeout(function () {
-                        callback.onError(RongIMLib.ErrorCode.BLACK_GETSTATUS_ERROR);
-                    });
-                }
-            });
-        };
-        WebSQLDataProvider.prototype.removeFromBlacklist = function (userId, callback) {
-            var modules = new Modules.RemoveFromBlackListInput();
-            modules.setUserId(userId);
-            RongIMLib.RongIMClient.bridge.queryMsg(22, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), userId, {
-                onSuccess: function () {
-                    callback.onSuccess();
-                },
-                onError: function () {
-                    callback.onError(RongIMLib.ErrorCode.BLACK_REMOVE_ERROR);
-                }
-            });
-        };
-        WebSQLDataProvider.prototype.getFileToken = function (fileType, callback) {
-            if (!(/(1|2|3|4)/.test(fileType.toString()))) {
-                callback.onError(RongIMLib.ErrorCode.QNTKN_FILETYPE_ERROR);
-                return;
-            }
-            var modules = new Modules.GetQNupTokenInput();
-            modules.setType(fileType);
-            RongIMLib.RongIMClient.bridge.queryMsg(30, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "GetQNupTokenOutput");
-        };
-        WebSQLDataProvider.prototype.getFileUrl = function (fileType, fileName, oriName, callback) {
-            if (!(/(1|2|3|4)/.test(fileType.toString()))) {
-                setTimeout(function () {
-                    callback.onError(RongIMLib.ErrorCode.QNTKN_FILETYPE_ERROR);
-                });
-                return;
-            }
-            var modules = new Modules.GetQNdownloadUrlInput();
-            modules.setType(fileType);
-            modules.setKey(fileName);
-            if (oriName) {
-                modules.setFileName(oriName);
-            }
-            RongIMLib.RongIMClient.bridge.queryMsg(31, RongIMLib.MessageUtil.ArrayForm(modules.toArrayBuffer()), RongIMLib.Bridge._client.userId, {
-                onSuccess: function (data) {
-                    setTimeout(function () {
-                        callback.onSuccess(data);
-                    });
-                },
-                onError: function (errcode) {
-                    callback.onError(errcode);
-                }
-            }, "GetQNdownloadUrlOutput");
-        };
-        WebSQLDataProvider.prototype.sendMessage = function (conversationType, targetId, messageContent, sendCallback, mentiondMsg, pushText, appData) {
-            if (!RongIMLib.Bridge._client.channel) {
-                sendCallback.onError(RongIMLib.ErrorCode.RC_NET_UNAVAILABLE, null);
-                return;
-            }
-            if (!RongIMLib.Bridge._client.channel.socket.socket.connected) {
-                sendCallback.onError(RongIMLib.ErrorCode.TIMEOUT, null);
-                throw new Error("connect is timeout! postion:sendMessage");
-            }
-            var modules = new Modules.UpStreamMessage();
-            if (mentiondMsg && (conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP)) {
-                modules.setSessionId(7);
-            }
-            else {
-                modules.setSessionId(RongIMLib.RongIMClient.MessageParams[messageContent.messageName].msgTag.getMessageTag());
-            }
-            pushText && modules.setPushText(pushText);
-            appData && modules.setAppData(appData);
-            if ((conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP) && messageContent.messageName == RongIMLib.RongIMClient.MessageType["ReadReceiptResponseMessage"]) {
-                var rspMsg = messageContent;
-                if (rspMsg.receiptMessageDic) {
-                    var ids = [];
-                    for (var key in rspMsg.receiptMessageDic) {
-                        ids.push(key);
-                    }
-                    modules.setUserId(ids);
-                }
-            }
-            if ((conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP) && messageContent.messageName == RongIMLib.RongIMClient.MessageType["SyncReadStatusMessage"]) {
-                modules.setUserId(RongIMLib.Bridge._client.userId);
-            }
-            modules.setClassname(RongIMLib.RongIMClient.MessageParams[messageContent.messageName].objectName);
-            modules.setContent(messageContent.encode());
-            var content = modules.toArrayBuffer();
-            if (Object.prototype.toString.call(content) == "[object ArrayBuffer]") {
-                content = [].slice.call(new Int8Array(content));
-            }
-            var c = null, me = this, msg = new RongIMLib.Message();
-            this.getConversation(conversationType, targetId, {
-                onSuccess: function (conver) {
-                    c = conver;
-                    if (RongIMLib.RongIMClient.MessageParams[msg.messageType].msgTag.getMessageTag() == 3) {
-                        if (!c) {
-                            c = RongIMLib.RongIMClient.getInstance().createConversation(conversationType, targetId, "");
-                        }
-                        c.sentTime = new Date().getTime();
-                        c.sentStatus = RongIMLib.SentStatus.SENDING;
-                        c.senderUserName = "";
-                        c.senderUserId = RongIMLib.Bridge._client.userId;
-                        c.notificationStatus = RongIMLib.ConversationNotificationStatus.DO_NOT_DISTURB;
-                        c.latestMessage = msg;
-                        c.unreadMessageCount = 0;
-                        RongIMLib.RongIMClient._dataAccessProvider.addConversation(c, { onSuccess: function (data) { } });
-                    }
-                    RongIMLib.RongIMClient._memoryStore.converStore = c;
-                }
-            });
-            msg.content = messageContent;
-            msg.conversationType = conversationType;
-            msg.senderUserId = RongIMLib.Bridge._client.userId;
-            msg.objectName = RongIMLib.RongIMClient.MessageParams[messageContent.messageName].objectName;
-            msg.targetId = targetId;
-            msg.sentTime = new Date().getTime();
-            msg.messageDirection = RongIMLib.MessageDirection.SEND;
-            msg.sentStatus = RongIMLib.SentStatus.SENT;
-            msg.messageType = messageContent.messageName;
-            RongIMLib.RongIMClient.bridge.pubMsg(conversationType.valueOf(), content, targetId, {
-                onSuccess: function (data) {
-                    data && data.timestamp && RongIMLib.RongIMClient._storageProvider.setItem('converST_' + RongIMLib.Bridge._client.userId + conversationType + targetId, data.timestamp);
-                    if ((conversationType == RongIMLib.ConversationType.DISCUSSION || conversationType == RongIMLib.ConversationType.GROUP) && messageContent.messageName == RongIMLib.RongIMClient.MessageType["ReadReceiptRequestMessage"]) {
-                        var reqMsg = msg.content;
-                        var sentkey = RongIMLib.Bridge._client.userId + reqMsg.messageUId + "SENT";
-                        RongIMLib.RongIMClient._storageProvider.setItem(sentkey, JSON.stringify({ count: 0, dealtime: data.timestamp, userIds: {} }));
-                    }
-                    if (RongIMLib.RongIMClient.MessageParams[msg.messageType].msgTag.getMessageTag() == 3) {
-                        RongIMLib.RongIMClient._memoryStore.converStore.latestMessage = msg;
-                        RongIMLib.RongIMClient._dataAccessProvider.addMessage(conversationType, targetId, msg, {
-                            onSuccess: function (ret) {
-                                msg = ret;
-                                msg.messageUId = data.messageUId;
-                                msg.sentTime = data.timestamp;
-                                msg.sentStatus = RongIMLib.SentStatus.SENT;
-                                msg.messageId = data.messageId;
-                                RongIMLib.RongIMClient._dataAccessProvider.updateMessage(msg);
-                            },
-                            onError: function () { }
-                        });
-                    }
-                    setTimeout(function () {
-                        msg.sentTime = data.timestamp;
-                        sendCallback.onSuccess(msg);
-                    });
-                },
-                onError: function (errorCode) {
-                    msg.sentStatus = RongIMLib.SentStatus.FAILED;
-                    if (RongIMLib.RongIMClient.MessageParams[msg.messageType].msgTag.getMessageTag() == 3) {
-                        RongIMLib.RongIMClient._memoryStore.converStore.latestMessage = msg;
-                    }
-                    RongIMLib.RongIMClient._dataAccessProvider.addMessage(conversationType, targetId, msg, {
-                        onSuccess: function (ret) {
-                            msg.messageId = ret.messageId;
-                            RongIMLib.RongIMClient._dataAccessProvider.updateMessage(msg);
-                        },
-                        onError: function () { }
-                    });
-                    setTimeout(function () {
-                        sendCallback.onError(errorCode, msg);
-                    });
-                }
-            }, null);
-        };
-        WebSQLDataProvider.prototype.setConnectionStatusListener = function (listener) {
-            if (RongIMLib.RongIMClient.bridge) {
-                RongIMLib.RongIMClient.bridge.setListener(listener);
-            }
-            else {
-                RongIMLib.RongIMClient._memoryStore.listenerList.push(listener);
-            }
-        };
-        WebSQLDataProvider.prototype.setOnReceiveMessageListener = function (listener) {
-            if (RongIMLib.RongIMClient.bridge) {
-                RongIMLib.RongIMClient.bridge.setListener(listener);
-            }
-            else {
-                RongIMLib.RongIMClient._memoryStore.listenerList.push(listener);
-            }
-        };
-        WebSQLDataProvider.prototype.registerMessageType = function (messageType, objectName, messageTag, messageContent) {
-            if (!messageType) {
-                throw new Error("messageType can't be empty,postion -> registerMessageType");
-            }
-            if (!objectName) {
-                throw new Error("objectName can't be empty,postion -> registerMessageType");
-            }
-            if (Object.prototype.toString.call(messageContent) == "[object Array]") {
-                var regMsg = RongIMLib.ModelUtil.modleCreate(messageContent, messageType);
-                RongIMLib.RongIMClient.RegisterMessage[messageType] = regMsg;
-            }
-            else if (Object.prototype.toString.call(messageContent) == "[object Function]" || Object.prototype.toString.call(messageContent) == "[object Object]") {
-                if (!messageContent.encode) {
-                    throw new Error("encode method has not realized or messageName is undefined-> registerMessageType");
-                }
-                if (!messageContent.decode) {
-                    throw new Error("decode method has not realized -> registerMessageType");
-                }
-            }
-            else {
-                throw new Error("The index of 3 parameter was wrong type  must be object or function or array-> registerMessageType");
-            }
-            registerMessageTypeMapping[objectName] = messageType;
-        };
         WebSQLDataProvider.prototype.updateConversation = function (conversation) {
             var sql = "update t_conversation_" + this.database.userId + " set content = ?,sentTime = ?,istop = ? where conversationType = ? and targetId = ?";
             this.database.execUpdateByParams(sql, [JSON.stringify(conversation), conversation.sentTime, conversation.isTop, conversation.conversationType, conversation.targetId]);
@@ -9226,8 +7146,8 @@ var RongIMLib;
         WebSQLDataProvider.prototype.addConversation = function (conver, callback) {
             var me = this;
             var sSql = "select * from t_conversation_" + me.database.userId + " t where t.conversationType = ? and t.targetId = ?";
-            me.database.execSearchByParams(sSql, [Number(conver.conversationType), conver.targetId], function (results, rowsAffected) {
-                if (results.length > 0 && rowsAffected) {
+            me.database.execSearchByParams(sSql, [Number(conver.conversationType), conver.targetId], function (results) {
+                if (results.length > 0) {
                     me.updateConversation(conver);
                 }
                 else {
@@ -9244,15 +7164,15 @@ var RongIMLib;
         };
         WebSQLDataProvider.prototype.getConversation = function (conversationType, targetId, callback) {
             var sql = "select t.content from t_conversation_" + this.database.userId + " t where t.conversationType = ? and t.targetId = ?", conver = null;
-            this.database.execSearchByParams(sql, [Number(conversationType), targetId], function (results, rowsAffected) {
+            this.database.execSearchByParams(sql, [Number(conversationType), targetId], function (results) {
                 var conver;
-                if (results.length > 0 && rowsAffected) {
+                if (results.length > 0) {
                     conver = JSON.parse(results[0].content);
                 }
                 callback.onSuccess(conver);
             });
         };
-        WebSQLDataProvider.prototype.getConversationList = function (callback, conversationTypes, count, isHidden) {
+        WebSQLDataProvider.prototype.getConversationList = function (callback, conversationTypes) {
             if (RongIMLib.RongIMClient._memoryStore.isSyncRemoteConverList) {
                 RongIMLib.RongIMClient.getInstance().getRemoteConversationList({
                     onSuccess: function (list) {
@@ -9268,7 +7188,7 @@ var RongIMLib;
                     onError: function (errorCode) {
                         callback.onError(errorCode);
                     }
-                }, conversationTypes, count, isHidden);
+                }, null);
             }
             //查询置顶会话。
             var tSql = "select * from t_conversation_" + this.database.userId + " t where t.isTop = 1 ";
@@ -9303,10 +7223,10 @@ var RongIMLib;
             });
             callback.onSuccess(true);
         };
-        WebSQLDataProvider.prototype.getMessage = function (messageUId, callback) {
-            var sql = "select * from t_message_" + this.database.userId + " t where t.messageUId = ?";
-            this.database.execSearchByParams(sql, [messageUId], function (results, rowsAffected) {
-                if (results.length > 0 && rowsAffected) {
+        WebSQLDataProvider.prototype.getMessage = function (messageId, callback) {
+            var sql = "select * from t_message_" + this.database.userId + " t where t.id = ?";
+            this.database.execSearchByParams(sql, [messageId], function (results) {
+                if (results.length > 0) {
                     var msg = JSON.parse(results[0].content);
                     callback.onSuccess(msg);
                 }
@@ -9322,22 +7242,18 @@ var RongIMLib;
             this.database.execUpdateByParams(sql, [message.messageType, message.messageUId, message.conversationType, message.targetId, message.sentTime, JSON.stringify(message), localmsg]);
             if (callback) {
                 var searchSql = "select t.id from t_message_" + this.database.userId + " t where t.sentTime = ? and t.conversationType = ? and t.targetId = ?";
-                this.database.execSearchByParams(searchSql, [message.sentTime, conversationType, targetId], function (results, rowsAffected) {
-                    rowsAffected && (message.messageId = results[0].id);
+                this.database.execSearchByParams(searchSql, [message.sentTime, conversationType, targetId], function (results) {
+                    message.messageId = results[0].id;
                     callback.onSuccess(message);
                 });
             }
         };
-        WebSQLDataProvider.prototype.removeMessage = function (conversationType, targetId, delMsgs, callback) {
-            if (delMsgs.length == 0) {
+        WebSQLDataProvider.prototype.removeMessage = function (conversationType, targetId, messageIds, callback) {
+            if (messageIds.length == 0) {
                 return;
             }
-            var arr = [];
-            for (var i = 0, len = delMsgs.length; i < len; i++) {
-                arr.push(delMsgs[i].msgId);
-            }
             var sql = "delete from t_message_" + this.database.userId + " where messageUId in (?)";
-            this.database.execUpdateByParams(sql, arr.join(','));
+            this.database.execUpdateByParams(sql, [messageIds.join(",")]);
         };
         WebSQLDataProvider.prototype.removeLocalMessage = function (conversationType, targetId, messageIds, callback) {
             if (messageIds.length == 0) {
@@ -9373,7 +7289,7 @@ var RongIMLib;
             }
             sql += "order by t.sentTime desc limit ?) order by sentTime ";
             params.push(count);
-            me.database.execSearchByParams(sql, params, function (result, rowsAffected) {
+            me.database.execSearchByParams(sql, params, function (result) {
                 for (var i = 0, len = result.length; i < len; i++) {
                     results.push(JSON.parse(result[i].content));
                 }
@@ -9399,31 +7315,19 @@ var RongIMLib;
                     });
                 }
                 else {
-                    //TODO 可能存在 len 和 count 相等并且服务器没有历史消息，导致多拉取一次历史消息。
+                    //TODO 可能存在 len 和 count 相等并且服务区没有历史消息，导致多拉取一次历史消息。
                     callback.onSuccess(results, true);
                     RongIMLib.RongIMClient._memoryStore.lastReadTime.set(conversationType + targetId, result[len - 1].sentTime);
                 }
             });
         };
-        WebSQLDataProvider.prototype.getTotalUnreadCount = function (callback, conversationTypes) {
+        WebSQLDataProvider.prototype.getTotalUnreadCount = function (callback) {
             var sql = "select t.content from t_conversation_" + this.database.userId + " t";
             this.database.execSearch(sql, function (results) {
                 var count = 0;
-                if (conversationTypes) {
-                    for (var j = 0, len = conversationTypes.length; j < len; j++) {
-                        for (var i = 0, len_1 = results.length; i < len_1; i++) {
-                            var conver = JSON.parse(results[i].content);
-                            if (conver.conversationType == conversationTypes[j]) {
-                                count += conver.unreadMessageCount;
-                            }
-                        }
-                    }
-                }
-                else {
-                    for (var i = 0, len = results.length; i < len; i++) {
-                        var conver = JSON.parse(results[i].content);
-                        count += conver.unreadMessageCount;
-                    }
+                for (var i = 0, len = results.length; i < len; i++) {
+                    var conver = JSON.parse(results[i].content);
+                    count += conver.unreadMessageCount;
                 }
                 callback.onSuccess(count);
             });
@@ -9457,25 +7361,13 @@ var RongIMLib;
         WebSQLDataProvider.prototype.clearUnreadCount = function (conversationType, targetId, callback) {
             var sSql = "select * from t_conversation_" + this.database.userId + " t where t.conversationType = ? and t.targetId = ?";
             var uSql = "update t_conversation_" + this.database.userId + " set content = ? where conversationType = ? and targetId = ?", me = this;
-            this.database.execSearchByParams(sSql, [conversationType, targetId], function (results, rowsAffected) {
-                var mentioneds = RongIMLib.RongIMClient._storageProvider.getItem("mentioneds_" + RongIMLib.Bridge._client.userId + '_' + conversationType + '_' + targetId);
-                if (mentioneds) {
-                    var info = JSON.parse(mentioneds);
-                    delete info[conversationType + "_" + targetId];
-                    if (!RongIMLib.MessageUtil.isEmpty(info)) {
-                        RongIMLib.RongIMClient._storageProvider.setItem("mentioneds_" + RongIMLib.Bridge._client.userId + '_' + conversationType + '_' + targetId, JSON.stringify(info));
-                    }
-                    else {
-                        RongIMLib.RongIMClient._storageProvider.removeItem("mentioneds_" + RongIMLib.Bridge._client.userId + '_' + conversationType + '_' + targetId);
-                    }
-                }
-                if (results.length == 0 && !rowsAffected) {
+            this.database.execSearchByParams(sSql, [conversationType, targetId], function (results) {
+                if (results.length == 0) {
                     callback.onSuccess(false);
                 }
                 else {
                     var conver = JSON.parse(results[0].content);
                     conver.unreadMessageCount = 0;
-                    conver.mentionedMsg = null;
                     me.database.execUpdateByParams(uSql, [JSON.stringify(conver), conversationType, targetId]);
                     callback.onSuccess(true);
                 }
@@ -9486,13 +7378,11 @@ var RongIMLib;
             this.database.execUpdateByParams(sql, [conversationType, targetId]);
             callback.onSuccess(true);
         };
-        WebSQLDataProvider.prototype.setConversationHidden = function (conversationType, targetId, isHidden) {
-        };
         WebSQLDataProvider.prototype.setMessageExtra = function (messageUId, value, callback) {
             var sSql = "select t.content from t_message_" + this.database.userId + " t where t.messageUId = ?";
             var uSql = "UPADTE t_message_" + this.database.userId + " t SET t.content = ? where t.messageUId = ?";
-            this.database.execSearchByParams(sSql, [messageUId], function (results, rowsAffected) {
-                if (results.length == 0 && !rowsAffected) {
+            this.database.execSearchByParams(sSql, [messageUId], function (results) {
+                if (results.length == 0) {
                     callback.onSuccess(false);
                 }
                 else {
@@ -9505,8 +7395,8 @@ var RongIMLib;
         WebSQLDataProvider.prototype.setMessageReceivedStatus = function (messageUId, receivedStatus, callback) {
             var sSql = "select t.content from t_message_" + this.database.userId + " t where t.messageUId = ?";
             var uSql = "update t_message_" + this.database.userId + " set content = ? where messageUId = ?", me = this;
-            this.database.execSearchByParams(sSql, [messageUId], function (results, rowsAffected) {
-                if (results.length == 0 && !rowsAffected) {
+            this.database.execSearchByParams(sSql, [messageUId], function (results) {
+                if (results.length == 0) {
                     callback.onSuccess(false);
                 }
                 else {
@@ -9523,8 +7413,8 @@ var RongIMLib;
         WebSQLDataProvider.prototype.setMessageSentStatus = function (messageUId, sentStatus, callback) {
             var sSql = "select t.content from t_message_" + this.database.userId + " t where t.messageUId = ?";
             var uSql = "update t_message_" + this.database.userId + " set content = ? where messageUId = ?";
-            this.database.execSearchByParams(sSql, [messageUId], function (results, rowsAffected) {
-                if (results.length == 0 && !rowsAffected) {
+            this.database.execSearchByParams(sSql, [messageUId], function (results) {
+                if (results.length == 0) {
                     callback.onSuccess(false);
                 }
                 else {
@@ -9535,43 +7425,22 @@ var RongIMLib;
                 }
             });
         };
-        WebSQLDataProvider.prototype.searchConversationByContent = function (keyword, callback, conversationTypes) {
-            callback.onSuccess([]);
-        };
-        WebSQLDataProvider.prototype.searchMessageByContent = function (conversationType, targetId, keyword, timestamp, count, total, callback) {
-            callback.onSuccess([]);
-        };
-        WebSQLDataProvider.prototype.getDelaTime = function () {
-            return 0;
-        };
         return WebSQLDataProvider;
-    }());
+    })();
     RongIMLib.WebSQLDataProvider = WebSQLDataProvider;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
     var CookieProvider = (function () {
         function CookieProvider() {
-            this.prefix = 'rong_';
         }
-        CookieProvider.prototype.setItem = function (composedKey, object, isSave) {
-            if (composedKey.indexOf(this.prefix) == -1) {
-                composedKey = this.prefix + composedKey;
-            }
-            if (isSave) {
-                var exp = new Date();
-                exp.setTime(exp.getTime() + RongIMLib.RongIMClient._memoryStore.depend.cookieValidity * 24 * 3600 * 1000);
-                document.cookie = composedKey + "=" + decodeURIComponent(object) + ";path=/;expires=" + exp.toGMTString();
-            }
-            else {
-                document.cookie = composedKey + "=" + decodeURIComponent(object) + ";path=/;";
-            }
+        CookieProvider.prototype.setItem = function (composedKey, object) {
+            // var exp = new Date();
+            // exp.setTime(exp.getTime() + 15 * 24 * 3600 * 1000);
+            document.cookie = composedKey + "=" + decodeURIComponent(object) + ";path=/;";
         };
         CookieProvider.prototype.getItem = function (composedKey) {
             if (composedKey) {
-                if (composedKey.indexOf(this.prefix) == -1) {
-                    composedKey = this.prefix + composedKey;
-                }
                 composedKey = composedKey.replace(/\|/, "\\|");
             }
             var arr = document.cookie.match(new RegExp("(^| )" + composedKey + "=([^;]*)(;|$)"));
@@ -9581,15 +7450,12 @@ var RongIMLib;
             return null;
         };
         CookieProvider.prototype.removeItem = function (composedKey) {
-            if (composedKey.indexOf(this.prefix) == -1) {
-                composedKey = this.prefix + composedKey;
-            }
             if (this.getItem(composedKey)) {
                 document.cookie = composedKey + "=;path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT";
             }
         };
         CookieProvider.prototype.getItemKey = function (regStr) {
-            var arrs = document.cookie.match(new RegExp("(^| )rong_navi\\w+?=([^;]*)(;|$)")), val = "";
+            var arrs = document.cookie.match(new RegExp("(^| )navi\\w+?=([^;]*)(;|$)")), val = "";
             if (arrs) {
                 for (var i = 0, len = arrs.length; i < len; i++) {
                     if (arrs[i].indexOf(regStr) > -1) {
@@ -9601,12 +7467,11 @@ var RongIMLib;
             return val ? val.split("=")[0].replace(/^\s/, "") : null;
         };
         CookieProvider.prototype.clearItem = function () {
-            var keys = document.cookie.match(/[^ =;]+(?=\=)/g), me = this;
+            var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
             if (keys) {
                 for (var i = keys.length; i--;) {
-                    if (keys[i].indexOf(me.prefix) > -1) {
-                        document.cookie = keys[i] + "=0;path=/;expires=" + new Date(0).toUTCString();
-                    }
+                    //TODO 条件判断，不要删除用户自己的 cookie
+                    document.cookie = keys[i] + "=0;path=/;expires=" + new Date(0).toUTCString();
                 }
             }
         };
@@ -9615,12 +7480,11 @@ var RongIMLib;
             return 4 * 1024;
         };
         return CookieProvider;
-    }());
+    })();
     RongIMLib.CookieProvider = CookieProvider;
     var MemeoryProvider = (function () {
         function MemeoryProvider() {
             this._memeoryStore = {};
-            this.prefix = "rong_";
         }
         MemeoryProvider.prototype.setItem = function (composedKey, object) {
             this._memeoryStore[composedKey] = decodeURIComponent(object);
@@ -9654,148 +7518,36 @@ var RongIMLib;
             return 4 * 1024;
         };
         return MemeoryProvider;
-    }());
+    })();
     RongIMLib.MemeoryProvider = MemeoryProvider;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
     var LocalStorageProvider = (function () {
-        // static _instance: LocalStorageProvider = new LocalStorageProvider();
         function LocalStorageProvider() {
-            this.prefix = 'rong_';
-            this._host = "";
-            var d = new Date(), m = d.getMonth() + 1, date = d.getFullYear() + '/' + (m.toString().length == 1 ? '0' + m : m) + '/' + d.getDate(), nowDate = new Date(date).getTime();
-            for (var key in localStorage) {
-                if (key.lastIndexOf('RECEIVED') > -1) {
-                    var recObj = JSON.parse(localStorage.getItem(key));
-                    for (var key_1 in recObj) {
-                        nowDate - recObj[key_1].dealtime > 0 && (delete recObj[key_1]);
-                    }
-                    if (RongIMLib.ObjectTools.isEmpty(recObj)) {
-                        localStorage.removeItem(key);
-                    }
-                    else {
-                        localStorage.setItem(key, JSON.stringify(recObj));
-                    }
-                }
-                if (key.lastIndexOf('SENT') > -1) {
-                    var sentObj = JSON.parse(localStorage.getItem(key));
-                    nowDate - sentObj.dealtime > 0 && (localStorage.removeItem(key));
-                }
-            }
         }
+        LocalStorageProvider.getInstance = function () {
+            return new LocalStorageProvider();
+        };
         LocalStorageProvider.prototype.setItem = function (composedKey, object) {
-            if (composedKey) {
-                composedKey.indexOf(this.prefix) == -1 && (composedKey = this.prefix + composedKey);
-                localStorage.setItem(composedKey, object);
-            }
+            localStorage.setItem(composedKey.toString(), object);
         };
         LocalStorageProvider.prototype.getItem = function (composedKey) {
-            if (composedKey) {
-                composedKey.indexOf(this.prefix) == -1 && (composedKey = this.prefix + composedKey);
-                return localStorage.getItem(composedKey ? composedKey : "");
-            }
-            return "";
-        };
-        LocalStorageProvider.prototype.getItemKey = function (composedStr) {
-            var item = "";
-            for (var key in localStorage) {
-                if (key.indexOf(composedStr) > -1) {
-                    item = key;
-                    break;
-                }
-            }
-            return item;
+            return localStorage.getItem(composedKey ? composedKey.toString() : "");
         };
         LocalStorageProvider.prototype.removeItem = function (composedKey) {
-            if (composedKey) {
-                composedKey.indexOf(this.prefix) == -1 && (composedKey = this.prefix + composedKey);
-                localStorage.removeItem(composedKey.toString());
-            }
+            localStorage.removeItem(composedKey.toString());
         };
         LocalStorageProvider.prototype.clearItem = function () {
-            var me = this;
-            for (var key in localStorage) {
-                if (key.indexOf(me.prefix) > -1) {
-                    me.removeItem(key);
-                }
-            }
+            localStorage.clear();
         };
         //单位：字节
         LocalStorageProvider.prototype.onOutOfQuota = function () {
             return JSON.stringify(localStorage).length;
         };
         return LocalStorageProvider;
-    }());
+    })();
     RongIMLib.LocalStorageProvider = LocalStorageProvider;
-})(RongIMLib || (RongIMLib = {}));
-var RongIMLib;
-(function (RongIMLib) {
-    var UserDataProvider = (function () {
-        function UserDataProvider() {
-            this.opersistName = 'RongIMLib';
-            this.keyManager = 'RongUserDataKeyManager';
-            this._host = "";
-            this.prefix = "rong_";
-            this.oPersist = document.createElement("div");
-            this.oPersist.style.display = "none";
-            this.oPersist.style.behavior = "url('#default#userData')";
-            document.body.appendChild(this.oPersist);
-            this.oPersist.load(this.opersistName);
-        }
-        UserDataProvider.prototype.setItem = function (key, value) {
-            key && key.indexOf(this.prefix) == -1 && (key = this.prefix + key);
-            this.oPersist.setAttribute(key, value);
-            var keyNames = this.getItem(this.keyManager);
-            keyNames ? keyNames.indexOf(key) == -1 && (keyNames += ',' + key) : (keyNames = key);
-            this.oPersist.setAttribute(this.prefix + this.keyManager, keyNames);
-            this.oPersist.save(this.opersistName);
-        };
-        UserDataProvider.prototype.getItem = function (key) {
-            key && key.indexOf(this.prefix) == -1 && (key = this.prefix + key);
-            return key ? this.oPersist.getAttribute(key) : key;
-        };
-        UserDataProvider.prototype.removeItem = function (key) {
-            key && key.indexOf(this.prefix) == -1 && (key = this.prefix + key);
-            this.oPersist.removeAttribute(key);
-            this.oPersist.save(this.opersistName);
-            var keyNames = this.getItem(this.keyManager), keyNameArray = keyNames && keyNames.split(',') || [];
-            for (var i = 0, len = keyNameArray.length; i < len; i++) {
-                if (keyNameArray[i] == key) {
-                    keyNameArray.splice(i, 1);
-                }
-            }
-            this.oPersist.setAttribute(this.prefix + this.keyManager, keyNameArray.join(','));
-            this.oPersist.save(this.opersistName);
-        };
-        UserDataProvider.prototype.getItemKey = function (composedStr) {
-            var item = null, keyNames = this.getItem(this.keyManager), keyNameArray = keyNames && keyNames.split(',') || [], me = this;
-            if (keyNameArray.length) {
-                for (var i = 0, len = keyNameArray.length; i < len; i++) {
-                    if (keyNameArray[i] && keyNameArray[i].indexOf(composedStr) > -1) {
-                        item = keyNameArray[i];
-                        break;
-                    }
-                }
-            }
-            return item;
-        };
-        UserDataProvider.prototype.clearItem = function () {
-            var keyNames = this.getItem(this.keyManager), keyNameArray = [], me = this;
-            keyNames && (keyNameArray = keyNames.split(','));
-            if (keyNameArray.length) {
-                for (var i = 0, len = keyNameArray.length; i < len; i++) {
-                    keyNameArray[i] && me.removeItem(keyNameArray[i]);
-                }
-                me.removeItem(me.keyManager);
-            }
-        };
-        UserDataProvider.prototype.onOutOfQuota = function () {
-            return 10 * 1024 * 1024;
-        };
-        return UserDataProvider;
-    }());
-    RongIMLib.UserDataProvider = UserDataProvider;
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
@@ -9804,8 +7556,8 @@ var RongIMLib;
             this.script = document.createElement("script");
             this.head = document.getElementsByTagName("head")[0];
             RongIMLib.Transportations._TransportType = RongIMLib.Socket.WEBSOCKET;
-            if ("WebSocket" in window && "ArrayBuffer" in window && WebSocket.prototype.CLOSED === 3 && !RongIMLib.RongIMClient._memoryStore.depend.isPolling) {
-                var str = RongIMLib.RongIMClient._memoryStore.depend.protobuf;
+            if ("WebSocket" in window && "ArrayBuffer" in window && WebSocket.prototype.CLOSED === 3 && !window["WEB_XHR_POLLING"]) {
+                var str = window["SCHEMETYPE"] ? window["SCHEMETYPE"] + "://cdn.ronghub.com/protobuf-2.1.2.min.js" : "//cdn.ronghub.com/protobuf-2.1.2.min.js";
                 this.script.src = str;
                 this.head.appendChild(this.script);
             }
@@ -9815,8 +7567,26 @@ var RongIMLib;
             }
         }
         return FeatureDectector;
-    }());
+    })();
     RongIMLib.FeatureDectector = FeatureDectector;
+    if (document.readyState == "interactive" || document.readyState == "loading" || document.readyState == "complete") {
+        new FeatureDectector();
+    }
+    else if (document.addEventListener) {
+        document.addEventListener("DOMContentLoaded", function () {
+            //TODO 替换callee
+            document.removeEventListener("DOMContentLoaded", arguments.callee, false);
+            new FeatureDectector();
+        }, false);
+    }
+    else if (document.attachEvent) {
+        document.attachEvent("onreadystatechange", function () {
+            if (document.readyState == "interactive" || document.readyState == "loading" || document.readyState == "complete") {
+                document.detachEvent("onreadystatechange", arguments.callee);
+                new FeatureDectector();
+            }
+        });
+    }
 })(RongIMLib || (RongIMLib = {}));
 var RongIMLib;
 (function (RongIMLib) {
@@ -9896,7 +7666,7 @@ var RongIMLib;
                     JSON.rx_escapable = new RegExp('[\\\"\\\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]', "g");
                     JSON.meta = {
                         "\b": "\\b",
-                        "   ": "\\t",
+                        "	": "\\t",
                         "\n": "\\n",
                         "\f": "\\f",
                         "\r": "\\r",
@@ -9905,247 +7675,11 @@ var RongIMLib;
                         "\\": "\\\\"
                     };
                     return JSON;
-                }());
+                })();
             }
         };
         return FeaturePatcher;
-    }());
+    })();
     RongIMLib.FeaturePatcher = FeaturePatcher;
-})(RongIMLib || (RongIMLib = {}));
-var RongIMLib;
-(function (RongIMLib) {
-    var ObjectTools = (function () {
-        function ObjectTools() {
-        }
-        ObjectTools.isEmpty = function (obj) {
-            var empty = true;
-            for (var key in obj) {
-                empty = false;
-                break;
-            }
-            return empty;
-        };
-        ObjectTools.buildOptions = function (one, opts, protocol) {
-            if (typeof one == 'object') {
-                for (var key in opts) {
-                    if (key == 'protobuf' || key == 'long' || key == 'byteBuffer' || key == 'navi' || key == 'api' ||
-                        key == 'emojiImage' || key == 'voiceLibamr' || key == 'voicePCMdata' || key == 'voiceSwfobjct' || key == 'voicePlaySwf' || key == 'callFile') {
-                        one[key] && (opts[key] = protocol + one[key]);
-                    }
-                    else {
-                        one[key] && (opts[key] = one[key]);
-                    }
-                }
-            }
-            return opts;
-        };
-        return ObjectTools;
-    }());
-    RongIMLib.ObjectTools = ObjectTools;
-    var PublicServiceMap = (function () {
-        function PublicServiceMap() {
-            this.publicServiceList = [];
-        }
-        PublicServiceMap.prototype.get = function (publicServiceType, publicServiceId) {
-            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
-                if (this.publicServiceList[i].conversationType == publicServiceType && publicServiceId == this.publicServiceList[i].publicServiceId) {
-                    return this.publicServiceList[i];
-                }
-            }
-        };
-        PublicServiceMap.prototype.add = function (publicServiceProfile) {
-            var isAdd = true, me = this;
-            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
-                if (me.publicServiceList[i].conversationType == publicServiceProfile.conversationType && publicServiceProfile.publicServiceId == me.publicServiceList[i].publicServiceId) {
-                    this.publicServiceList.unshift(this.publicServiceList.splice(i, 1)[0]);
-                    isAdd = false;
-                    break;
-                }
-            }
-            if (isAdd) {
-                this.publicServiceList.unshift(publicServiceProfile);
-            }
-        };
-        PublicServiceMap.prototype.replace = function (publicServiceProfile) {
-            var me = this;
-            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
-                if (me.publicServiceList[i].conversationType == publicServiceProfile.conversationType && publicServiceProfile.publicServiceId == me.publicServiceList[i].publicServiceId) {
-                    me.publicServiceList.splice(i, 1, publicServiceProfile);
-                    break;
-                }
-            }
-        };
-        PublicServiceMap.prototype.remove = function (conversationType, publicServiceId) {
-            var me = this;
-            for (var i = 0, len = this.publicServiceList.length; i < len; i++) {
-                if (me.publicServiceList[i].conversationType == conversationType && publicServiceId == me.publicServiceList[i].publicServiceId) {
-                    this.publicServiceList.splice(i, 1);
-                    break;
-                }
-            }
-        };
-        return PublicServiceMap;
-    }());
-    RongIMLib.PublicServiceMap = PublicServiceMap;
-    /**
-     * 会话工具类。
-     */
-    var ConversationMap = (function () {
-        function ConversationMap() {
-            this.conversationList = [];
-        }
-        ConversationMap.prototype.get = function (conversavtionType, targetId) {
-            for (var i = 0, len = this.conversationList.length; i < len; i++) {
-                if (this.conversationList[i].conversationType == conversavtionType && this.conversationList[i].targetId == targetId) {
-                    return this.conversationList[i];
-                }
-            }
-            return null;
-        };
-        ConversationMap.prototype.add = function (conversation) {
-            var isAdd = true;
-            for (var i = 0, len = this.conversationList.length; i < len; i++) {
-                if (this.conversationList[i].conversationType === conversation.conversationType && this.conversationList[i].targetId === conversation.targetId) {
-                    this.conversationList.unshift(this.conversationList.splice(i, 1)[0]);
-                    isAdd = false;
-                    break;
-                }
-            }
-            if (isAdd) {
-                this.conversationList.unshift(conversation);
-            }
-        };
-        /**
-         * [replace 替换会话]
-         * 会话数组存在的情况下调用add方法会是当前会话被替换且返回到第一个位置，导致用户本地一些设置失效，所以提供replace方法
-         */
-        ConversationMap.prototype.replace = function (conversation) {
-            for (var i = 0, len = this.conversationList.length; i < len; i++) {
-                if (this.conversationList[i].conversationType === conversation.conversationType && this.conversationList[i].targetId === conversation.targetId) {
-                    this.conversationList.splice(i, 1, conversation);
-                    break;
-                }
-            }
-        };
-        ConversationMap.prototype.remove = function (conversation) {
-            for (var i = 0, len = this.conversationList.length; i < len; i++) {
-                if (this.conversationList[i].conversationType === conversation.conversationType && this.conversationList[i].targetId === conversation.targetId) {
-                    this.conversationList.splice(i, 1);
-                    break;
-                }
-            }
-        };
-        return ConversationMap;
-    }());
-    RongIMLib.ConversationMap = ConversationMap;
-    var CheckParam = (function () {
-        function CheckParam() {
-        }
-        CheckParam.getInstance = function () {
-            if (!CheckParam._instance) {
-                CheckParam._instance = new CheckParam();
-            }
-            return CheckParam._instance;
-        };
-        CheckParam.prototype.check = function (f, position, d) {
-            var c = arguments.callee.caller;
-            //"_client" in Bridge ||
-            if (RongIMLib.RongIMClient._dataAccessProvider || d) {
-                for (var g = 0, e = c.arguments.length; g < e; g++) {
-                    if (!new RegExp(this.getType(c.arguments[g])).test(f[g])) {
-                        throw new Error("The index of " + g + " parameter was wrong type " + this.getType(c.arguments[g]) + " [" + f[g] + "] -> position:" + position);
-                    }
-                }
-            }
-            else {
-                throw new Error("The parameter is incorrect or was not yet instantiated RongIMClient -> position:" + position);
-            }
-        };
-        CheckParam.prototype.getType = function (str) {
-            var temp = Object.prototype.toString.call(str).toLowerCase();
-            return temp.slice(8, temp.length - 1);
-        };
-        CheckParam.prototype.checkCookieDisable = function () {
-            document.cookie = "checkCookie=1";
-            var arr = document.cookie.match(new RegExp("(^| )checkCookie=([^;]*)(;|$)")), isDisable = false;
-            if (!arr) {
-                isDisable = true;
-            }
-            document.cookie = "checkCookie=1;expires=Thu, 01-Jan-1970 00:00:01 GMT";
-            return isDisable;
-        };
-        return CheckParam;
-    }());
-    RongIMLib.CheckParam = CheckParam;
-    var LimitableMap = (function () {
-        function LimitableMap(limit) {
-            this.map = {};
-            this.keys = [];
-            this.limit = limit || 10;
-        }
-        LimitableMap.prototype.set = function (key, value) {
-            if (this.map.hasOwnProperty(key)) {
-                if (this.keys.length === this.limit) {
-                    var firstKey = this.keys.shift();
-                    delete this.map[firstKey];
-                }
-                this.keys.push(key);
-            }
-            this.map[key] = value;
-        };
-        LimitableMap.prototype.get = function (key) {
-            return this.map[key] || 0;
-        };
-        LimitableMap.prototype.remove = function (key) {
-            delete this.map[key];
-        };
-        return LimitableMap;
-    }());
-    RongIMLib.LimitableMap = LimitableMap;
-    var RongAjax = (function () {
-        function RongAjax(options) {
-            var me = this;
-            me.xmlhttp = null;
-            me.options = options;
-            var hasCORS = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
-            if ("undefined" != typeof XMLHttpRequest) {
-                me.xmlhttp = new XMLHttpRequest();
-            }
-            else if ("undefined" != typeof XDomainRequest) {
-                me.xmlhttp = new XDomainRequest();
-            }
-            else {
-                me.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-        }
-        RongAjax.prototype.send = function (callback) {
-            var me = this;
-            me.options.url || (me.options.url = "http://upload.qiniu.com/putb64/-1");
-            me.xmlhttp.onreadystatechange = function () {
-                if (me.xmlhttp.readyState == 4) {
-                    if (me.options.type) {
-                        callback();
-                    }
-                    else {
-                        callback(JSON.parse(me.xmlhttp.responseText.replace(/'/g, '"')));
-                    }
-                }
-            };
-            me.xmlhttp.open("POST", me.options.url, true);
-            me.xmlhttp.withCredentials = false;
-            if ("setRequestHeader" in me.xmlhttp) {
-                if (me.options.type) {
-                    me.xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=utf-8");
-                }
-                else {
-                    me.xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
-                    me.xmlhttp.setRequestHeader('Authorization', "UpToken " + me.options.token);
-                }
-            }
-            me.xmlhttp.send(me.options.type ? "appKey=" + me.options.appKey + "&deviceId=" + me.options.deviceId + "&timestamp=" + me.options.timestamp + "&deviceInfo=" + me.options.deviceInfo + "&privateInfo=" + JSON.stringify(me.options.privateInfo) : me.options.base64);
-        };
-        return RongAjax;
-    }());
-    RongIMLib.RongAjax = RongAjax;
 })(RongIMLib || (RongIMLib = {}));
 //# sourceMappingURL=RongIMLib.js.map

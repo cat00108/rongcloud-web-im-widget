@@ -1088,7 +1088,7 @@ declare module RongIMLib {
          */
         removeFromBlacklist(userId: string, callback: OperationCallback): void;
         getFileToken(fileType: FileType, callback: ResultCallback<{ token: string }>): void;
-        getFileUrl(fileType: FileType, fileName: String, callback: ResultCallback<{ downloadUrl: string }>): void;
+        getFileUrl(fileType: FileType, fileName: String,oldName:string, callback: ResultCallback<{ downloadUrl: string }>): void;
         addRealTimeLocationListener(conversationType: ConversationType, targetId: string, listener: RealTimeLocationListener): void;
         getRealTimeLocation(conversationType: ConversationType, targetId: string): void;
         getRealTimeLocationCurrentState(conversationType: ConversationType, targetId: string): void;

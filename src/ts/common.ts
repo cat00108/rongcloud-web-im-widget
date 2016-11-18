@@ -150,7 +150,12 @@ module RongWebIMWidget {
                     }
 
                 }
-                img.src = Helper.ImageHelper.getFullPath(obj);
+                if(typeof obj == 'string'){
+                    img.src = obj;
+                } else{
+                    img.src = Helper.ImageHelper.getFullPath(obj);   
+                }
+                
             },
             getFullPath(file: File) {
                 window.URL = window.URL || window.webkitURL;
@@ -189,6 +194,31 @@ module RongWebIMWidget {
                     this.setCookie(name, "con", -1);
                 }
             }
+        }
+
+        static sendForm = {
+            createForm:function(url:string,data:any){
+
+                var form = document.createElement('form');
+                form.action = url;
+                form.method = 'post';
+                form.enctype = 'multipart/form-data';
+                var ci =Helper.sendForm.createInput;
+                var arri = [];
+                for(var item in data){
+                    form.appendChild(ci(item,data[item]));
+                }
+
+                form.submit();
+            },
+            createInput:function(name,value,type?){
+                var input = document.createElement('input');
+                input.name = name;
+                input.type = type || 'hidden';
+                input.value = value;
+                return input;
+            }
+
         }
     }
 

@@ -13,7 +13,7 @@ module RongWebIMWidget.conversation {
         templateUrl: string = "./src/ts/conversation/conversation.tpl.html";
         controller: string = "conversationController";
         link(scope: any, ele: angular.IRootElementService) {
-            if (window["jQuery"] && window["jQuery"].nicescroll) {
+            if (window["jQuery"] && window["jQuery"].nicescroll && !Helper.browser.msie) {
                 $("#Messages").niceScroll({
                     'cursorcolor': "#0099ff",
                     'cursoropacitymax': 1,
@@ -91,16 +91,23 @@ module RongWebIMWidget.conversation {
         '</div>' +
         '</div>';
         link(scope: any, ele: angular.IRootElementService, attr: any) {
+
             var img = new Image();
             img.src = scope.msg.imageUri;
+            img.onload = function() {
+                scope.$apply(function() {
+                    scope.msg.content = scope.msg.imageUri
+                });
+            }
+
             setTimeout(function() {
                 if (window["jQuery"] && window["jQuery"].rebox) {
-                    $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rongcloud-rebox" }).bind("rebox:open", function() {
+                    $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rebox" }).bind("rebox:open", function() {
                         //jQuery rebox 点击空白关闭
-                        var rebox = <any>document.getElementsByClassName("rongcloud-rebox")[0];
+                        var rebox = <any>document.getElementsByClassName("rebox")[0];
                         rebox.onclick = function(e: any) {
                             if (e.target.tagName.toLowerCase() != "img") {
-                                var rebox_close = <any>document.getElementsByClassName("rongcloud-rebox-close")[0];
+                                var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
                                 rebox_close.click();
                                 rebox = null; rebox_close = null;
                             }
@@ -108,18 +115,132 @@ module RongWebIMWidget.conversation {
                     });
                 }
             });
-
-            img.onload = function() {
-                scope.$apply(function() {
-                    scope.msg.content = scope.msg.imageUri
-                });
-            }
-
-            scope.showBigImage = function() {
-
-            }
         }
     }
+    
+
+    // function imagemessage(){
+    //     return {
+    //         restrict:  "E",
+    //         scope: { msg: "=" },
+    //         // template: '<div class="">' +
+    //         // '<div class="rongcloud-Message-img">' +
+    //         // '<span id="{{\'rebox_\'+$id}}"  class="rongcloud-Message-entry" style="">' +
+    //         // // '<p>发给您一张示意图</p>' +
+    //         // // '<img ng-src="{{msg.content}}" alt="">' +
+    //         // '<a href="" target="_black"><img ng-src="{{msg.content}}"  data-image="{{msg.imageUri}}" alt=""/></a>' +
+    //         // '</span>' +
+    //         // '</div>' +
+    //         // '</div>',
+    //         template: '<div class="">' +
+    //         '<div class="rongcloud-Message-img">' +
+    //         '<span id="{{\'rebox_\'+$id}}" href class="rongcloud-Message-entry" style="cursor:pointer; max-height:240px;max-width:240px;border-radius:5px;">' +
+    //         // '<a href="" style="max-height:240px;max-width:240px;display:inline-block;"></a>' +
+    //         '</span>' +
+    //         // '<a href="{{item.imageUri}}" download>下载</a>' +
+    //         '</div>' +
+    //         '</div>',
+    //         link(scope: any, ele: angular.IRootElementService, attr: any) {
+    //             // var abox = ele.find('a')[0];
+    //             // var img = new Image();
+    //             // img.src = scope.msg.imageUri;
+    //             // setTimeout(function() {
+    //             //     if (window["jQuery"] && window["jQuery"].rebox) {
+    //             //         $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rebox" }).bind("rebox:open", function() {
+    //             //             //jQuery rebox 点击空白关闭
+    //             //             var rebox = <any>document.getElementsByClassName("rebox")[0];
+    //             //             rebox.onclick = function(e: any) {
+    //             //                 if (e.target.tagName.toLowerCase() != "img") {
+    //             //                     var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
+    //             //                     rebox_close.click();
+    //             //                     rebox = null; rebox_close = null;
+    //             //                 }
+    //             //             }
+    //             //         });
+    //             //     }
+    //             // });
+    //             // img.onload = function() {
+    //             //     scope.$apply(function() {
+    //             //         scope.msg.content = scope.msg.imageUri
+    //             //     });
+    //             //     abox.style.width = img.width + 'px';
+    //             //     abox.style.height = img.height + 'px';
+    //             // }
+                
+    //             // if(window["jQuery"] && window["jQuery"].rebox){
+    //             //     var rebox:any;
+    //             //     $(abox).on('click',function(){
+    //             //         if(!rebox){
+    //             //             $(this).attr('href',scope.msg.imageUri);
+    //             //             rebox = new $.rebox($(abox),{zIndex: 999999, theme: "rebox"});
+    //             //             rebox.$el.bind("rebox:open", function() {
+    //             //                 //jQuery rebox 点击空白关闭
+    //             //                 var reboxContent = <any>document.getElementsByClassName("rebox")[0];
+    //             //                 reboxContent.onclick = function(e: any) {
+    //             //                     if (e.target.tagName.toLowerCase() != "img") {
+    //             //                         var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
+    //             //                         rebox_close.click();
+    //             //                         rebox = null; rebox_close = null;
+    //             //                     }
+    //             //                 }
+    //             //             });
+
+    //             //             rebox.open();
+    //             //         }
+    //             //     });
+    //             // }
+    //             var base64img = new Image();
+    //               base64img.src = scope.msg.content;
+    //               // var abox=ele.find('a')[0];
+    //               base64img.onload = function() {
+    //                 var box = document.getElementById('rebox_' + scope.$id);
+    //                 var pos = getBackgrund(base64img.width, base64img.height);
+    //                 box.style.backgroundImage = 'url(' + scope.msg.content + ')';
+    //                 box.style.backgroundSize = pos.w + 'px ' + pos.h + 'px';
+    //                 box.style.backgroundPosition = pos.x + 'px ' + pos.y + 'px';
+    //                 box.style.height = pos.h + 'px';
+    //                 box.style.width = pos.w + 'px';
+    //                 // abox.style.height = pos.h + 'px';
+    //                 // abox.style.width = pos.w + 'px';
+    //               }
+    //               function getBackgrund(width: number, height: number) {
+
+    //                 var isheight = width < height;
+    //                 var scale = isheight ? height / width : width / height;
+    //                 var zoom: number, x: number = 0, y: number = 0, w: number, h: number;
+    //                 if (scale > 2.4) {
+    //                   if (isheight) {
+    //                     zoom = width / 100;
+    //                     w = 100;
+    //                     h = height / zoom;
+    //                     y = (h - 240) / 2;
+    //                   } else {
+    //                     zoom = height / 100;
+    //                     h = 100;
+    //                     w = width / zoom;
+    //                     x = (w - 240) / 2;
+    //                   }
+    //                 } else {
+    //                   if (isheight) {
+    //                     zoom = height / 240;
+    //                     h = 240;
+    //                     w = width / zoom;
+    //                   } else {
+    //                     zoom = width / 240;
+    //                     w = 240;
+    //                     h = height / zoom;
+    //                   }
+    //                 }
+    //                 return {
+    //                   w: w,
+    //                   h: h,
+    //                   x: -x,
+    //                   y: -y
+    //                 }
+    //               }
+    //         }
+    //     }
+    // }
 
     class voicemessage {
         static $inject: string[] = ["$timeout"];
@@ -199,6 +320,7 @@ module RongWebIMWidget.conversation {
         .directive("emoji", factory(emoji))
         .directive("textmessage", factory(textmessage))
         .directive("includinglinkmessage", factory(includinglinkmessage))
+        // .directive("imagemessage", imagemessage)
         .directive("imagemessage", factory(imagemessage))
         .directive("voicemessage", factory(voicemessage))
         .directive("locationmessage", factory(locationmessage))

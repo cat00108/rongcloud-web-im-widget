@@ -1,4 +1,6 @@
 declare module RongIMLib {
+    export var RongAjax:any
+    export var RongUploadLib:any
     class Expression {
         static retrievalEmoji(a: any, b: any): string
         static getEmojiObjByEnglishNameOrChineseName(obj: any): any
@@ -59,6 +61,7 @@ interface JQueryStatic {
 interface JQuery {
     rebox(target: any): JQuery
     niceScroll(config: any): any
+    FileToDataURI: any
 }
 
 declare var jQuery: JQueryStatic

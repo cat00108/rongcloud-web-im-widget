@@ -1,4 +1,3 @@
-;
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -37,6 +36,10 @@ module.exports = function(grunt) {
             cwd: "./src/images/",
             src: "./**",
             dest: "./build/images/"
+          },
+          {
+            src: './vendor/FileToDataURI/FileToDataURI.swf',
+            dest: './build/images/FileToDataURI.swf'
           }
         ]
       },
@@ -107,12 +110,13 @@ module.exports = function(grunt) {
               './vendor/jqueryrebox/jquery-rebox.js',
               './vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js',
+              './vendor/FileToDataURI/FileToDataURI.js'],
             dest:'./build/RongIMWidget.js'
           },
           {
             src:[
-              './bower_components/jquery/dist/jquery.js',
+              './bower_components/jquery/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
               './vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
@@ -147,7 +151,7 @@ module.exports = function(grunt) {
           },
           {
             src:[
-              './bower_components/jquery/dist/jquery.js',
+              './bower_components/jquery/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
               './vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',

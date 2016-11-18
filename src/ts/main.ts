@@ -10,11 +10,16 @@ module RongWebIMWidget {
         RongCustomerService: RongWebIMWidget.RongCustomerService) {
 
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function() {
-            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function() {
+        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.4.min.js", function() {
+        $script.get("../lib/RongIMLib-kefu.js", function() {
+           // $script.get(protocol + '//cdn.ronghub.com/RongUploadLib-2.2.4.min.js', function() {
+                
+           //  });
+
+            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.4.min.js", function() {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
-            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function() {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.4.min.js", function() {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {

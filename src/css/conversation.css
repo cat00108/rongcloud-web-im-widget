@@ -602,7 +602,8 @@ ul {
     border-radius: 5px 5px 5px 5px;
     opacity: 1;
     overflow: hidden;
-    z-index: 99999;
+    /*z-index: 99999;*/
+    /*z-index: 9999;*/
     box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 2px;
 }
 .rongcloud-kefuChatBox.rongcloud-fullScreen{
@@ -1986,7 +1987,7 @@ ul {
 }*/
 
 /* 图片预览 */
-.rongcloud-rebox-contents .rongcloud-rebox-content {
+.rebox-contents .rebox-content {
     border: none!important;
     box-shadow: 0 0 8px #222!important;
     margin: auto;
@@ -1996,7 +1997,7 @@ ul {
     bottom: 0;
     right: 0;
 }
-.rongcloud-star-on{
+.star-on{
   display: inline-block;
   width: 30px;
   height: 30px;
@@ -2005,7 +2006,7 @@ ul {
   background:url(../images/star_on.png);
   background-size: 30px 30px;
 }
-.rongcloud-star-off{
+.star-off{
   display: inline-block;
   width: 30px;
   height: 30px;

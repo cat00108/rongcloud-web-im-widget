@@ -230,14 +230,90 @@ module RongWebIMWidget.conversation {
                 RongWebIMWidget.Helper.getFocus(obj);
             }
 
+            function sendImageMessage(content,imageUrl){
+                var im = RongIMLib.ImageMessage.obtain(content,imageUrl);
+
+                var content:any = _this.packDisplaySendMessage(im, RongWebIMWidget.MessageType.ImageMessage);
+                RongIMLib.RongIMClient.getInstance()
+                    .sendMessage($scope.conversation.targetType,
+                    $scope.conversation.targetId,
+                    im,
+                    {
+                        onSuccess: function() {
+                            conversationListServer.updateConversations().then(function() {
+
+                            });
+                        },
+                        onError: function() {
+
+                        }
+                    })
+                conversationServer._addHistoryMessages(RongWebIMWidget.Message.convert(content));
+                $scope.$apply(function() {
+                    $scope.scrollBar();
+                });
+            }
+
+            if (Helper.browser.msie && Helper.browser.version == "9.0") {
+                $('#upload-file').FileToDataURI({
+                    moviePath: '../widget/images/FileToDataURI.swf',
+                    // Choose to allow multiple files or now
+                    multiple : true,
+                    // Put th extensions allowed for the file picker
+                    allowedExts: ['js','png','jpg','jpeg'],
+                    // force flash - boolean to force flash
+                    forceFlash : false,
+                    // Display the images in the page (callback function)
+                    onSelect: function(files) {
+                        
+                        RongWebIMWidget.Helper.ImageHelper.getThumbnail(files[0].data, 60000, function(obj: any, data: any) {
+                            
+                            var basestr = files[0].data;
+                            var reg = new RegExp('^data:image/[^;]+;base64,');
+                            basestr = basestr.replace(reg, '');
+
+                            postImageBase(basestr,function(ret){
+                                RongIMLib.RongIMClient.getInstance()
+                                    .getFileUrl(RongIMLib.FileType.IMAGE,ret.hash,'',{
+                                        onSuccess: function(url) {
+                                            sendImageMessage(data,url.downloadUrl);
+                                        },
+                                        onError: function() {
+
+                                        }
+                                    });
+                            })
+                        });
+                    }
+                })
+            }
+
+            
+
+            function postImageBase(base64: string,callback: any){
+                RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
+                    onSuccess: function (data) {
+                        new RongIMLib.RongAjax({ token: data.token, base64: base64 }).send(function (ret) {
+                            console.log(ret);
+                            callback(ret);
+                        });
+                    },
+                    onError: function (error) { }
+                });
+            }
+
+
 
 
             var qiniuuploader: any
             function uploadFileRefresh() {
+                if (Helper.browser.msie && Helper.browser.version == "9.0")
+                    return;
 
                 qiniuuploader && qiniuuploader.destroy();
                 qiniuuploader = Qiniu.uploader({
-                    runtimes: 'html5,html4',
+                    runtimes: 'html5,flash,html4',
+                    flash_swf_url: '../widget/images/Moxie.swf',
                     browse_button: 'upload-file',
                     container: 'funcPanel',
                     drop_element: 'inputMsg',
@@ -272,34 +348,14 @@ module RongWebIMWidget.conversation {
                             info = JSON.parse(info);
                             RongIMLib.RongIMClient.getInstance()
                                 .getFileUrl(RongIMLib.FileType.IMAGE,
-                                file.target_name,
+                                file.target_name,'',
                                 {
                                     onSuccess: function(url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function(obj: any, data: any) {
-                                            var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
+                                            
+                                            sendImageMessage(data,url.downloadUrl);
 
-                                            var content = _this.packDisplaySendMessage(im, RongWebIMWidget.MessageType.ImageMessage);
-                                            RongIMLib.RongIMClient.getInstance()
-                                                .sendMessage($scope.conversation.targetType,
-                                                $scope.conversation.targetId,
-                                                im,
-                                                {
-                                                    onSuccess: function() {
-                                                        conversationListServer.updateConversations().then(function() {
-
-                                                        });
-                                                    },
-                                                    onError: function() {
-
-                                                    }
-                                                })
-                                            conversationServer._addHistoryMessages(RongWebIMWidget.Message.convert(content));
-                                            $scope.$apply(function() {
-                                                $scope.scrollBar();
-                                            });
-
-                                            updateUploadToken();
-                                        })
+                                        });
 
                                     },
                                     onError: function() {
