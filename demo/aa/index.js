@@ -31,6 +31,7 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
         bottom:20,
       },
       displayConversationList:true,
+      uploadFlashUrl:'/rong_widget/images/FileToDataURI.swf',
       conversationListPosition:WebIMWidget.EnumConversationListPosition.right,
       hiddenConversations:[{type:WebIMWidget.EnumConversationType.PRIVATE,id:'bb'}],
       onSuccess:function(id){

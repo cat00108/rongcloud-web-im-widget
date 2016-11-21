@@ -66,7 +66,11 @@ module RongWebIMWidget.conversation {
             function updateUploadToken() {
                 RongIMSDKServer.getFileToken().then(function(token) {
                     conversationServer._uploadToken = token;
-                    uploadFileRefresh();
+                    if (Helper.browser.msie && Helper.browser.version == "9.0") {
+                        uploadFileUserFlash();
+                    }else{
+                        uploadFileRefresh();    
+                    }
                 })
             }
 
@@ -254,17 +258,20 @@ module RongWebIMWidget.conversation {
                 });
             }
 
-            if (Helper.browser.msie && Helper.browser.version == "9.0") {
+            
+
+            function uploadFileUserFlash(){
                 $('#upload-file').FileToDataURI({
-                    moviePath: '../widget/images/FileToDataURI.swf',
+                    moviePath: widgetConfig.uploadFlashUrl || '/rong_widget/images/FileToDataURI.swf',
                     // Choose to allow multiple files or now
                     multiple : true,
                     // Put th extensions allowed for the file picker
                     allowedExts: ['js','png','jpg','jpeg'],
                     // force flash - boolean to force flash
                     forceFlash : false,
+                    token:conversationServer._uploadToken,
                     // Display the images in the page (callback function)
-                    onSelect: function(files) {
+                    onSelect: function(files, response) {
                         
                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(files[0].data, 60000, function(obj: any, data: any) {
                             
@@ -272,9 +279,7 @@ module RongWebIMWidget.conversation {
                             var reg = new RegExp('^data:image/[^;]+;base64,');
                             basestr = basestr.replace(reg, '');
 
-                            postImageBase(basestr,function(ret){
-                                RongIMLib.RongIMClient.getInstance()
-                                    .getFileUrl(RongIMLib.FileType.IMAGE,ret.hash,'',{
+                            RongIMLib.RongIMClient.getInstance().getFileUrl(RongIMLib.FileType.IMAGE,response.filename,'',{
                                         onSuccess: function(url) {
                                             sendImageMessage(data,url.downloadUrl);
                                         },
@@ -282,8 +287,7 @@ module RongWebIMWidget.conversation {
 
                                         }
                                     });
-                            })
-                        });
+                        })
                     }
                 })
             }
@@ -312,8 +316,7 @@ module RongWebIMWidget.conversation {
 
                 qiniuuploader && qiniuuploader.destroy();
                 qiniuuploader = Qiniu.uploader({
-                    runtimes: 'html5,flash,html4',
-                    flash_swf_url: '../widget/images/Moxie.swf',
+                    runtimes: 'html5,html4',
                     browse_button: 'upload-file',
                     container: 'funcPanel',
                     drop_element: 'inputMsg',

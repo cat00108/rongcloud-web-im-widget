@@ -170,10 +170,10 @@
 			// Construct the flash object
 			var
 				html,
-				flashvars = 'id=' + this.data('FileToDataURI.id') + '&allowedExts=' + this.data('FileToDataURI').options.allowedExts.join(',') + '&fileDescription=' + this.data('FileToDataURI').options.fileDescription + '&multiple=' + this.data('FileToDataURI').options.multiple
+				flashvars = 'id=' + this.data('FileToDataURI.id') + '&allowedExts=' + this.data('FileToDataURI').options.allowedExts.join(',') + '&fileDescription=' + this.data('FileToDataURI').options.fileDescription + '&multiple=' + this.data('FileToDataURI').options.multiple + '&token=' + this.data('FileToDataURI').options.token + '&domain+' + this.data('FileToDataURI').options.domain
 			;
 			// Internet Explorer
-			if ($.browser.msie) {
+			if (/msie|trident/.test(window.navigator.userAgent.toLowerCase())) {
 				html = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="500" height="500" id="FileToDataURI' + this.data('FileToDataURI.id') + '" align="middle">' +
 							'<param name="allowScriptAccess" value="always" />' +
 							'<param name="movie" value="' + this.data('FileToDataURI').options.moviePath + '" />' +
@@ -230,14 +230,14 @@
 	/*
 	 * Flash callback
 	 */
-	$.fn.FileToDataURI.javascriptReceiver = function(id, filesData) {
+	$.fn.FileToDataURI.javascriptReceiver = function(id, filesData,response) {
 		// Find the instance by id
 		var el = $('[data-filetodatauri-id="' + id + '"]');
 		// Hide the flash
 		el.FileToDataURI('hide');
 		// Call the callback function by wrapping it in an array - could we do this in Flash?
 		// el.data('FileToDataURI').options.onSelect([filesData]);
-		el.data('FileToDataURI').options.onSelect(filesData);
+		el.data('FileToDataURI').options.onSelect(filesData, response);
 	};
 
 	/*
@@ -251,6 +251,8 @@
 		allowedExts: ['jpg', 'jpeg', 'gif', 'png'],
 		fileDescription: 'Images',
 		moviePath: 'FileToDataURI.swf',
+		token:'',
+		domain:'',
 		multiple : false, // TODO: not implemented in the flash file
 		onSelect: function(files) {}
 	};

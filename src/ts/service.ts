@@ -71,6 +71,8 @@ module RongWebIMWidget {
             right: 0
         };
 
+        uploadFlashUrl:string;
+
         refershOnlineStateIntercycle: number = 1000 * 20;
         hiddenConversations: { type: number, id: string }[] = []
         voiceUrl: string;

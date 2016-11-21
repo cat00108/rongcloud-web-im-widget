@@ -164,7 +164,12 @@ var RongWebIMWidget;
                         callback(obj, null);
                     }
                 };
-                img.src = Helper.ImageHelper.getFullPath(obj);
+                if (typeof obj == 'string') {
+                    img.src = obj;
+                }
+                else {
+                    img.src = Helper.ImageHelper.getFullPath(obj);
+                }
             },
             getFullPath: function (file) {
                 window.URL = window.URL || window.webkitURL;
@@ -205,6 +210,27 @@ var RongWebIMWidget;
                 if (con) {
                     this.setCookie(name, "con", -1);
                 }
+            }
+        };
+        Helper.sendForm = {
+            createForm: function (url, data) {
+                var form = document.createElement('form');
+                form.action = url;
+                form.method = 'post';
+                form.enctype = 'multipart/form-data';
+                var ci = Helper.sendForm.createInput;
+                var arri = [];
+                for (var item in data) {
+                    form.appendChild(ci(item, data[item]));
+                }
+                form.submit();
+            },
+            createInput: function (name, value, type) {
+                var input = document.createElement('input');
+                input.name = name;
+                input.type = type || 'hidden';
+                input.value = value;
+                return input;
             }
         };
         return Helper;
@@ -456,7 +482,12 @@ var RongWebIMWidget;
                 function updateUploadToken() {
                     RongIMSDKServer.getFileToken().then(function (token) {
                         conversationServer._uploadToken = token;
-                        uploadFileRefresh();
+                        if (RongWebIMWidget.Helper.browser.msie && RongWebIMWidget.Helper.browser.version == "9.0") {
+                            uploadFileUserFlash();
+                        }
+                        else {
+                            uploadFileRefresh();
+                        }
                     });
                 }
                 $scope.evaluate = {
@@ -592,8 +623,65 @@ var RongWebIMWidget;
                     var obj = document.getElementById("inputMsg");
                     RongWebIMWidget.Helper.getFocus(obj);
                 };
+                function sendImageMessage(content, imageUrl) {
+                    var im = RongIMLib.ImageMessage.obtain(content, imageUrl);
+                    var content = _this.packDisplaySendMessage(im, RongWebIMWidget.MessageType.ImageMessage);
+                    RongIMLib.RongIMClient.getInstance()
+                        .sendMessage($scope.conversation.targetType, $scope.conversation.targetId, im, {
+                        onSuccess: function () {
+                            conversationListServer.updateConversations().then(function () {
+                            });
+                        },
+                        onError: function () {
+                        }
+                    });
+                    conversationServer._addHistoryMessages(RongWebIMWidget.Message.convert(content));
+                    $scope.$apply(function () {
+                        $scope.scrollBar();
+                    });
+                }
+                function uploadFileUserFlash() {
+                    $('#upload-file').FileToDataURI({
+                        moviePath: widgetConfig.uploadFlashUrl || '/rong_widget/images/FileToDataURI.swf',
+                        // Choose to allow multiple files or now
+                        multiple: true,
+                        // Put th extensions allowed for the file picker
+                        allowedExts: ['js', 'png', 'jpg', 'jpeg'],
+                        // force flash - boolean to force flash
+                        forceFlash: false,
+                        token: conversationServer._uploadToken,
+                        // Display the images in the page (callback function)
+                        onSelect: function (files, response) {
+                            RongWebIMWidget.Helper.ImageHelper.getThumbnail(files[0].data, 60000, function (obj, data) {
+                                var basestr = files[0].data;
+                                var reg = new RegExp('^data:image/[^;]+;base64,');
+                                basestr = basestr.replace(reg, '');
+                                RongIMLib.RongIMClient.getInstance().getFileUrl(RongIMLib.FileType.IMAGE, response.filename, '', {
+                                    onSuccess: function (url) {
+                                        sendImageMessage(data, url.downloadUrl);
+                                    },
+                                    onError: function () {
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+                function postImageBase(base64, callback) {
+                    RongIMLib.RongIMClient.getInstance().getFileToken(RongIMLib.FileType.IMAGE, {
+                        onSuccess: function (data) {
+                            new RongIMLib.RongAjax({ token: data.token, base64: base64 }).send(function (ret) {
+                                console.log(ret);
+                                callback(ret);
+                            });
+                        },
+                        onError: function (error) { }
+                    });
+                }
                 var qiniuuploader;
                 function uploadFileRefresh() {
+                    if (RongWebIMWidget.Helper.browser.msie && RongWebIMWidget.Helper.browser.version == "9.0")
+                        return;
                     qiniuuploader && qiniuuploader.destroy();
                     qiniuuploader = Qiniu.uploader({
                         runtimes: 'html5,html4',
@@ -630,25 +718,10 @@ var RongWebIMWidget;
                                 info = info.replace(/'/g, "\"");
                                 info = JSON.parse(info);
                                 RongIMLib.RongIMClient.getInstance()
-                                    .getFileUrl(RongIMLib.FileType.IMAGE, file.target_name, {
+                                    .getFileUrl(RongIMLib.FileType.IMAGE, file.target_name, '', {
                                     onSuccess: function (url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function (obj, data) {
-                                            var im = RongIMLib.ImageMessage.obtain(data, url.downloadUrl);
-                                            var content = _this.packDisplaySendMessage(im, RongWebIMWidget.MessageType.ImageMessage);
-                                            RongIMLib.RongIMClient.getInstance()
-                                                .sendMessage($scope.conversation.targetType, $scope.conversation.targetId, im, {
-                                                onSuccess: function () {
-                                                    conversationListServer.updateConversations().then(function () {
-                                                    });
-                                                },
-                                                onError: function () {
-                                                }
-                                            });
-                                            conversationServer._addHistoryMessages(RongWebIMWidget.Message.convert(content));
-                                            $scope.$apply(function () {
-                                                $scope.scrollBar();
-                                            });
-                                            updateUploadToken();
+                                            sendImageMessage(data, url.downloadUrl);
                                         });
                                     },
                                     onError: function () {
@@ -971,7 +1044,7 @@ var RongWebIMWidget;
                 this.controller = "conversationController";
             }
             rongConversation.prototype.link = function (scope, ele) {
-                if (window["jQuery"] && window["jQuery"].nicescroll) {
+                if (window["jQuery"] && window["jQuery"].nicescroll && !RongWebIMWidget.Helper.browser.msie) {
                     $("#Messages").niceScroll({
                         'cursorcolor': "#0099ff",
                         'cursoropacitymax': 1,
@@ -1057,14 +1130,19 @@ var RongWebIMWidget;
             imagemessage.prototype.link = function (scope, ele, attr) {
                 var img = new Image();
                 img.src = scope.msg.imageUri;
+                img.onload = function () {
+                    scope.$apply(function () {
+                        scope.msg.content = scope.msg.imageUri;
+                    });
+                };
                 setTimeout(function () {
                     if (window["jQuery"] && window["jQuery"].rebox) {
-                        $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rongcloud-rebox" }).bind("rebox:open", function () {
+                        $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rebox" }).bind("rebox:open", function () {
                             //jQuery rebox 点击空白关闭
-                            var rebox = document.getElementsByClassName("rongcloud-rebox")[0];
+                            var rebox = document.getElementsByClassName("rebox")[0];
                             rebox.onclick = function (e) {
                                 if (e.target.tagName.toLowerCase() != "img") {
-                                    var rebox_close = document.getElementsByClassName("rongcloud-rebox-close")[0];
+                                    var rebox_close = document.getElementsByClassName("rebox-close")[0];
                                     rebox_close.click();
                                     rebox = null;
                                     rebox_close = null;
@@ -1073,16 +1151,128 @@ var RongWebIMWidget;
                         });
                     }
                 });
-                img.onload = function () {
-                    scope.$apply(function () {
-                        scope.msg.content = scope.msg.imageUri;
-                    });
-                };
-                scope.showBigImage = function () {
-                };
             };
             return imagemessage;
         })();
+        // function imagemessage(){
+        //     return {
+        //         restrict:  "E",
+        //         scope: { msg: "=" },
+        //         // template: '<div class="">' +
+        //         // '<div class="rongcloud-Message-img">' +
+        //         // '<span id="{{\'rebox_\'+$id}}"  class="rongcloud-Message-entry" style="">' +
+        //         // // '<p>发给您一张示意图</p>' +
+        //         // // '<img ng-src="{{msg.content}}" alt="">' +
+        //         // '<a href="" target="_black"><img ng-src="{{msg.content}}"  data-image="{{msg.imageUri}}" alt=""/></a>' +
+        //         // '</span>' +
+        //         // '</div>' +
+        //         // '</div>',
+        //         template: '<div class="">' +
+        //         '<div class="rongcloud-Message-img">' +
+        //         '<span id="{{\'rebox_\'+$id}}" href class="rongcloud-Message-entry" style="cursor:pointer; max-height:240px;max-width:240px;border-radius:5px;">' +
+        //         // '<a href="" style="max-height:240px;max-width:240px;display:inline-block;"></a>' +
+        //         '</span>' +
+        //         // '<a href="{{item.imageUri}}" download>下载</a>' +
+        //         '</div>' +
+        //         '</div>',
+        //         link(scope: any, ele: angular.IRootElementService, attr: any) {
+        //             // var abox = ele.find('a')[0];
+        //             // var img = new Image();
+        //             // img.src = scope.msg.imageUri;
+        //             // setTimeout(function() {
+        //             //     if (window["jQuery"] && window["jQuery"].rebox) {
+        //             //         $('#rebox_' + scope.$id).rebox({ selector: 'a', zIndex: 999999, theme: "rebox" }).bind("rebox:open", function() {
+        //             //             //jQuery rebox 点击空白关闭
+        //             //             var rebox = <any>document.getElementsByClassName("rebox")[0];
+        //             //             rebox.onclick = function(e: any) {
+        //             //                 if (e.target.tagName.toLowerCase() != "img") {
+        //             //                     var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
+        //             //                     rebox_close.click();
+        //             //                     rebox = null; rebox_close = null;
+        //             //                 }
+        //             //             }
+        //             //         });
+        //             //     }
+        //             // });
+        //             // img.onload = function() {
+        //             //     scope.$apply(function() {
+        //             //         scope.msg.content = scope.msg.imageUri
+        //             //     });
+        //             //     abox.style.width = img.width + 'px';
+        //             //     abox.style.height = img.height + 'px';
+        //             // }
+        //             // if(window["jQuery"] && window["jQuery"].rebox){
+        //             //     var rebox:any;
+        //             //     $(abox).on('click',function(){
+        //             //         if(!rebox){
+        //             //             $(this).attr('href',scope.msg.imageUri);
+        //             //             rebox = new $.rebox($(abox),{zIndex: 999999, theme: "rebox"});
+        //             //             rebox.$el.bind("rebox:open", function() {
+        //             //                 //jQuery rebox 点击空白关闭
+        //             //                 var reboxContent = <any>document.getElementsByClassName("rebox")[0];
+        //             //                 reboxContent.onclick = function(e: any) {
+        //             //                     if (e.target.tagName.toLowerCase() != "img") {
+        //             //                         var rebox_close = <any>document.getElementsByClassName("rebox-close")[0];
+        //             //                         rebox_close.click();
+        //             //                         rebox = null; rebox_close = null;
+        //             //                     }
+        //             //                 }
+        //             //             });
+        //             //             rebox.open();
+        //             //         }
+        //             //     });
+        //             // }
+        //             var base64img = new Image();
+        //               base64img.src = scope.msg.content;
+        //               // var abox=ele.find('a')[0];
+        //               base64img.onload = function() {
+        //                 var box = document.getElementById('rebox_' + scope.$id);
+        //                 var pos = getBackgrund(base64img.width, base64img.height);
+        //                 box.style.backgroundImage = 'url(' + scope.msg.content + ')';
+        //                 box.style.backgroundSize = pos.w + 'px ' + pos.h + 'px';
+        //                 box.style.backgroundPosition = pos.x + 'px ' + pos.y + 'px';
+        //                 box.style.height = pos.h + 'px';
+        //                 box.style.width = pos.w + 'px';
+        //                 // abox.style.height = pos.h + 'px';
+        //                 // abox.style.width = pos.w + 'px';
+        //               }
+        //               function getBackgrund(width: number, height: number) {
+        //                 var isheight = width < height;
+        //                 var scale = isheight ? height / width : width / height;
+        //                 var zoom: number, x: number = 0, y: number = 0, w: number, h: number;
+        //                 if (scale > 2.4) {
+        //                   if (isheight) {
+        //                     zoom = width / 100;
+        //                     w = 100;
+        //                     h = height / zoom;
+        //                     y = (h - 240) / 2;
+        //                   } else {
+        //                     zoom = height / 100;
+        //                     h = 100;
+        //                     w = width / zoom;
+        //                     x = (w - 240) / 2;
+        //                   }
+        //                 } else {
+        //                   if (isheight) {
+        //                     zoom = height / 240;
+        //                     h = 240;
+        //                     w = width / zoom;
+        //                   } else {
+        //                     zoom = width / 240;
+        //                     w = 240;
+        //                     h = height / zoom;
+        //                   }
+        //                 }
+        //                 return {
+        //                   w: w,
+        //                   h: h,
+        //                   x: -x,
+        //                   y: -y
+        //                 }
+        //               }
+        //         }
+        //     }
+        // }
         var voicemessage = (function () {
             function voicemessage($timeout) {
                 this.$timeout = $timeout;
@@ -2050,11 +2240,11 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongCustomerService"];
     function runApp($http, WebIMWidget, WidgetConfig, RongCustomerService) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function () {
-            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function () {
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.4.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.4.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
-            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function () {
+            $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.4.min.js", function () {
                 RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
             });
             if (WidgetConfig._config) {
@@ -2937,7 +3127,7 @@ angular.module('RongWebIMWidget').run(['$templateCache', function($templateCache
   'use strict';
 
   $templateCache.put('./src/ts/conversation/conversation.tpl.html',
-    "<div id=rong-conversation class=\"rongcloud-kefuChatBox rongcloud-both rongcloud-am-fade-and-slide-top\" ng-show=showSelf ng-class=\"{'rongcloud-fullScreen':resoures.fullScreen}\"><evaluatedir type=evaluate.type display=evaluate.showSelf confirm=evaluate.onConfirm(data) cancle=evaluate.onCancle()></evaluatedir><div class=rongcloud-kefuChat><div id=header class=\"rongcloud-rong-header rongcloud-blueBg rongcloud-online\"><div class=\"rongcloud-infoBar rongcloud-pull-left\"><div class=rongcloud-infoBarTit><span class=rongcloud-kefuName ng-bind=conversation.title></span></div></div><div class=\"rongcloud-toolBar rongcloud-headBtn rongcloud-pull-right\"><div ng-show=!config.displayConversationList&&config.voiceNotification class=rongcloud-voice ng-class=\"{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}\" ng-click=\"data.voiceSound=!data.voiceSound\"></div><a href=javascript:; class=\"rongcloud-kefuChatBoxHide rongcloud-sprite\" style=margin-right:6px ng-show=!config.displayConversationList ng-click=minimize() title=隐藏></a> <a href=javascript:; class=\"rongcloud-kefuChatBoxClose rongcloud-sprite\" ng-click=close() title=结束对话></a></div></div><div class=rongcloud-outlineBox ng-hide=data.connectionState><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div id=Messages><div class=rongcloud-emptyBox>暂时没有新消息</div><div class=rongcloud-MessagesInner><div ng-repeat=\"item in messageList\" ng-switch=item.panelType><div class=rongcloud-Messages-date ng-switch-when=104><b>{{item.sentTime|historyTime}}</b></div><div class=rongcloud-Messages-history ng-switch-when=105><b ng-click=getHistory()>查看历史消息</b></div><div class=rongcloud-Messages-history ng-switch-when=106><b ng-click=getMoreMessage()>获取更多消息</b></div><div class=rongcloud-sys-tips ng-switch-when=2><span ng-bind-html=item.content.content|trustHtml></span></div><div class=rongcloud-Message ng-switch-when=1><div class=rongcloud-Messages-unreadLine></div><div><div class=rongcloud-Message-header><img class=\"rongcloud-img rongcloud-u-isActionable rongcloud-Message-avatar rongcloud-avatar\" ng-src={{item.content.userInfo.portraitUri||item.content.userInfo.icon}} err-src=http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png errsrcserasdfasdfasdfa alt=\"\"><div class=\"rongcloud-Message-author rongcloud-clearfix\"><a class=\"rongcloud-author rongcloud-u-isActionable\">{{item.content.userInfo.name}}</a></div></div></div><div class=rongcloud-Message-body ng-switch=item.messageType><textmessage ng-switch-when=TextMessage msg=item.content></textmessage><imagemessage ng-switch-when=ImageMessage msg=item.content></imagemessage><voicemessage ng-switch-when=VoiceMessage msg=item.content></voicemessage><locationmessage ng-switch-when=LocationMessage msg=item.content></locationmessage><richcontentmessage ng-switch-when=RichContentMessage msg=item.content></richcontentmessage></div></div></div></div></div><div id=footer class=rongcloud-rong-footer style=\"display: block\"><div class=rongcloud-footer-con><div class=rongcloud-text-layout><div id=funcPanel class=\"rongcloud-funcPanel rongcloud-robotMode\"><div class=rongcloud-mode1 ng-show=\"_inputPanelState==0\"><div class=rongcloud-MessageForm-tool id=expressionWrap><i class=\"rongcloud-sprite rongcloud-iconfont-smile\" ng-click=\"showemoji=!showemoji\"></i><div class=rongcloud-expressionWrap ng-show=showemoji><i class=rongcloud-arrow></i><emoji ng-repeat=\"item in emojiList\" item=item content=conversation></emoji></div></div><div class=rongcloud-MessageForm-tool><i class=\"rongcloud-sprite rongcloud-iconfont-upload\" id=upload-file style=\"position: relative; z-index: 1\"></i></div></div><div class=rongcloud-mode2 ng-show=\"_inputPanelState==2\"><a ng-click=switchPerson() id=chatSwitch class=rongcloud-chatSwitch>转人工服务</a></div></div><pre id=inputMsg class=\"rongcloud-text rongcloud-grey\" contenteditable contenteditable-dire ng-focus=\"showemoji=fase\" style=\"background-color: rgba(0,0,0,0);color:black\" ctrl-enter-keys fun=send() ctrlenter=false placeholder=请输入文字... ondrop=\"return false\" ng-model=conversation.messageContent></pre></div><div class=rongcloud-powBox><button type=button style=\"background-color: #0099ff\" class=\"rongcloud-rong-btn rongcloud-rong-send-btn\" id=rong-sendBtn ng-click=send()>发送</button></div></div></div></div></div>"
+    "<div id=rong-conversation class=\"rongcloud-kefuChatBox rongcloud-both rongcloud-am-fade-and-slide-top\" ng-show=showSelf ng-class=\"{'rongcloud-fullScreen':resoures.fullScreen}\"><evaluatedir type=evaluate.type display=evaluate.showSelf confirm=evaluate.onConfirm(data) cancle=evaluate.onCancle()></evaluatedir><div class=rongcloud-kefuChat><div id=header class=\"rongcloud-rong-header rongcloud-blueBg rongcloud-online\"><div class=\"rongcloud-infoBar rongcloud-pull-left\"><div class=rongcloud-infoBarTit><span class=rongcloud-kefuName ng-bind=conversation.title></span></div></div><div class=\"rongcloud-toolBar rongcloud-headBtn rongcloud-pull-right\"><div ng-show=!config.displayConversationList&&config.voiceNotification class=rongcloud-voice ng-class=\"{'rongcloud-voice-mute':!data.voiceSound,'rongcloud-voice-sound':data.voiceSound}\" ng-click=\"data.voiceSound=!data.voiceSound\"></div><a href=javascript:; class=\"rongcloud-kefuChatBoxHide rongcloud-sprite\" style=margin-right:6px ng-show=!config.displayConversationList ng-click=minimize() title=隐藏></a> <a href=javascript:; class=\"rongcloud-kefuChatBoxClose rongcloud-sprite\" ng-click=close() title=结束对话></a></div></div><div class=rongcloud-outlineBox ng-hide=data.connectionState><div class=rongcloud-sprite></div><span>连接断开,请刷新重连</span></div><div id=Messages><div class=rongcloud-emptyBox>暂时没有新消息</div><div class=rongcloud-MessagesInner><div ng-repeat=\"item in messageList\" ng-switch=item.panelType><div class=rongcloud-Messages-date ng-switch-when=104><b>{{item.sentTime|historyTime}}</b></div><div class=rongcloud-Messages-history ng-switch-when=105><b ng-click=getHistory()>查看历史消息</b></div><div class=rongcloud-Messages-history ng-switch-when=106><b ng-click=getMoreMessage()>获取更多消息</b></div><div class=rongcloud-sys-tips ng-switch-when=2><span ng-bind-html=item.content.content|trustHtml></span></div><div class=rongcloud-Message ng-switch-when=1><div class=rongcloud-Messages-unreadLine></div><div><div class=rongcloud-Message-header><img class=\"rongcloud-img rongcloud-u-isActionable rongcloud-Message-avatar rongcloud-avatar\" ng-src={{item.content.userInfo.portraitUri||item.content.userInfo.icon}} err-src=http://7xo1cb.com1.z0.glb.clouddn.com/rongcloudkefu2.png errsrcserasdfasdfasdfa alt=\"\"><div class=\"rongcloud-Message-author rongcloud-clearfix\"><a class=\"rongcloud-author rongcloud-u-isActionable\">{{item.content.userInfo.name}}</a></div></div></div><div class=rongcloud-Message-body ng-switch=item.messageType><textmessage ng-switch-when=TextMessage msg=item.content></textmessage><imagemessage ng-switch-when=ImageMessage msg=item.content></imagemessage><voicemessage ng-switch-when=VoiceMessage msg=item.content></voicemessage><locationmessage ng-switch-when=LocationMessage msg=item.content></locationmessage><richcontentmessage ng-switch-when=RichContentMessage msg=item.content></richcontentmessage></div></div></div></div></div><div id=footer class=rongcloud-rong-footer style=\"display: block\"><div class=rongcloud-footer-con><div class=rongcloud-text-layout><div id=funcPanel class=\"rongcloud-funcPanel rongcloud-robotMode\"><div class=rongcloud-mode1 ng-show=\"_inputPanelState==0\"><div class=rongcloud-MessageForm-tool id=expressionWrap><i class=\"rongcloud-sprite rongcloud-iconfont-smile\" ng-click=\"showemoji=!showemoji\"></i><div class=rongcloud-expressionWrap ng-show=showemoji><i class=rongcloud-arrow></i><emoji ng-repeat=\"item in emojiList\" item=item content=conversation></emoji></div></div><div class=rongcloud-MessageForm-tool><i class=\"rongcloud-sprite rongcloud-iconfont-upload\" id=upload-file style=\"position: relative\"></i></div></div><div class=rongcloud-mode2 ng-show=\"_inputPanelState==2\"><a ng-click=switchPerson() id=chatSwitch class=rongcloud-chatSwitch>转人工服务</a></div></div><pre id=inputMsg class=\"rongcloud-text rongcloud-grey\" contenteditable contenteditable-dire ng-focus=\"showemoji=fase\" style=\"background-color: rgba(0,0,0,0);color:black\" ctrl-enter-keys fun=send() ctrlenter=false placeholder=请输入文字... ondrop=\"return false\" ng-model=conversation.messageContent></pre></div><div class=rongcloud-powBox><button type=button style=\"background-color: #0099ff\" class=\"rongcloud-rong-btn rongcloud-rong-send-btn\" id=rong-sendBtn ng-click=send()>发送</button></div></div></div></div></div>"
   );
 
 
@@ -3862,3 +4052,266 @@ function QiniuJsSDK() {
 }
 
 var Qiniu = new QiniuJsSDK();
+
+/*
+* Copyright (C) 2012 Yannick Croissant
+* Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+* FileToDataURI.as : FileToDataURI is a jQuery plugin that allow you to retrieve the content (base64 encoded) of a local file using the HTML5 File API or using a Flash application if the File API is not available.
+* Authors :
+* - Yannick Croissant, https://github.com/Country
+*/
+(function($) {
+
+	'use strict';
+
+	var methods = {
+
+		/*
+		 * Constructor
+		 */
+		init: function( options ) {
+
+			this.FileToDataURI.options = $.extend({}, this.FileToDataURI.defaults, options);
+
+			this.each(function() {
+
+				var $this = $(this),
+					data = $this.data('FileToDataURI')
+				;
+
+				if ( data ) return; // Already extended element, skip
+
+				$this.data('FileToDataURI', {
+					target: $this,
+					options: $this.FileToDataURI.options
+				});
+
+				$this.FileToDataURI('_init');
+			});
+
+			return this;
+		},
+
+		hide: function() {
+			if (this.data('FileToDataURI.context') == 'flash') this.FileToDataURI('_flashHide');
+			return this;
+		},
+
+		/*
+		 * Initialize
+		 */
+		_init: function() {
+			var
+				id = Math.round(Math.random()*1e9),
+				context = typeof FileReader == 'function' ? 'native' : 'flash' // Detect if FileReader is supported or not
+			;
+
+			if ( this.data('FileToDataURI').options.forceFlash ) {
+				context = 'flash';
+			}
+
+
+			this.data('FileToDataURI.id', id);
+			this.attr('data-filetodatauri-id', id);
+			this.data('FileToDataURI.context', context);
+
+			// Call the context-related constructor
+			this.FileToDataURI('_' + context + 'Init');
+		},
+
+		/*
+		 * Use the native browser technologies to select the file(s)
+		 */
+		_nativeInit: function() {
+			this.data( 'FileToDataURI.context', 'native' );
+			this.data('FileToDataURI.input', input);
+
+			// Create the file input
+			var input =
+				$('<input>')
+					.attr({
+						type:'file',
+						accept: this.data('FileToDataURI').options.allowedExts.map(prefixDot).join(','),
+						multiple: this.data('FileToDataURI').options.multiple,
+						style: 'position:absolute;left:-9999px'
+					})
+					.css({
+						position: 'absolute',
+						left: '-9999px'
+					});
+			// Inject the input in the body (the click event will not work under Opera if the element is not in the DOM)
+			$(document.body).append(input);
+			// Store the input reference
+			this.data('FileToDataURI.input', input);
+
+			// onChange event (triggered when one file is selected)
+			input.on('change', function(e){
+				this.FileToDataURI('_nativeRead', e);
+			}.bind(this));
+
+			// onClick event (triggered when the user click on the file selection button)
+			this.on('click', function(){
+				this.data('FileToDataURI.input').trigger('click');
+			}.bind(this));
+
+			function prefixDot( arrayItem ) {
+				return '.' + arrayItem;
+			}
+		},
+
+		/*
+		 * Use the native browser technologies to read the file(s)
+		 */
+		_nativeRead: function(e) {
+			var
+				files = e.target.files,        // Get the selected files
+				filesL = files.length,         // Store the length
+				fileReader = new FileReader(), // Create a new FileReader instance
+				i = 0,                         // Init i
+				filesData = [],                // Init an empty array to store the results,
+				currentFileName = ''		   // Keep track of the file name
+			;
+
+			// onLoad event
+			fileReader.onload = function (e) {
+				// Push the file content in the result array
+				filesData.push({
+					name : currentFileName,
+					data : e.target.result
+				});
+
+
+				if (filesData.length == filesL) {
+					// Call the callback function if we reach the end of the list
+					this.data('FileToDataURI').options.onSelect(filesData);
+				} else {
+					// Else read the next file
+					processFile( files[ ++i ] );
+				}
+			}.bind(this);
+
+			// Exit if there is no selected files
+			if (filesL === 0) return;
+
+			// Read the first selected file
+			processFile( files[0] );
+
+			function processFile( file ) {
+				// Hang on to the current file as global
+				currentFileName = file.name;
+				fileReader.readAsDataURL( file );
+			}
+		},
+
+		/*
+		 * Use the flash object to select/read the file(s)
+		 */
+		_flashInit: function(e) {
+			// Construct the flash container
+			this.data('FileToDataURI.flash',
+				$('<div>')
+					.attr({
+						id: 'FileToDataURIContainer' + this.data('FileToDataURI.id')
+					})
+					.css({
+						overflow: 'hidden',
+						position: 'absolute',
+						height: '1px',
+						left: '-9999px',
+						width: '1px'
+					})
+			);
+
+			// Construct the flash object
+			var
+				html,
+				flashvars = 'id=' + this.data('FileToDataURI.id') + '&allowedExts=' + this.data('FileToDataURI').options.allowedExts.join(',') + '&fileDescription=' + this.data('FileToDataURI').options.fileDescription + '&multiple=' + this.data('FileToDataURI').options.multiple + '&token=' + this.data('FileToDataURI').options.token + '&domain+' + this.data('FileToDataURI').options.domain
+			;
+			// Internet Explorer
+			if (/msie|trident/.test(window.navigator.userAgent.toLowerCase())) {
+				html = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="500" height="500" id="FileToDataURI' + this.data('FileToDataURI.id') + '" align="middle">' +
+							'<param name="allowScriptAccess" value="always" />' +
+							'<param name="movie" value="' + this.data('FileToDataURI').options.moviePath + '" />' +
+							'<param name="flashvars" value="' + flashvars + '"/>' +
+							'<param name="wmode" value="transparent"/>' +
+						'</object>';
+			// Others
+			} else {
+				html = '<embed id="FileToDataURI' + this.data('FileToDataURI.id') + '" src="' + this.data('FileToDataURI').options.moviePath + '" width="500" height="500" name="FileToDataURI' + this.data('FileToDataURI.id') + '" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="' + flashvars + '" wmode="transparent" />';
+			}
+
+			// Insert the flash object in the container
+			this.data('FileToDataURI.flash').html(html);
+
+			// Insert the container object in the page
+			$(document.body).append(this.data('FileToDataURI.flash'));
+
+			// Move the flash container hover the element when needed
+			this.on('mouseover', function(e){
+
+				var
+					el = $(this),
+					coords = el.offset(),
+					zIndex = 2147483647 // Max z-index allowed by most browsers
+				;
+
+				el.data('FileToDataURI.flash').css({
+					top: coords.top + 'px',
+					left: coords.left + 'px',
+					width: el.outerWidth() + 'px',
+					height: el.outerHeight() + 'px',
+					'z-index': zIndex
+				});
+			});
+		},
+
+		_flashHide: function() {
+			this.data('FileToDataURI.flash').css({
+				left: '-9999px'
+			});
+		}
+	};
+
+	$.fn.FileToDataURI = function( method ) {
+		if (methods[method]) {
+			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+		} else if (typeof method === 'object' || !method) {
+			return methods.init.apply(this, arguments);
+		} else {
+			$.error('Method ' + method + ' does not exist on jQuery.FileToDataURI');
+		}
+	};
+
+	/*
+	 * Flash callback
+	 */
+	$.fn.FileToDataURI.javascriptReceiver = function(id, filesData,response) {
+		// Find the instance by id
+		var el = $('[data-filetodatauri-id="' + id + '"]');
+		// Hide the flash
+		el.FileToDataURI('hide');
+		// Call the callback function by wrapping it in an array - could we do this in Flash?
+		// el.data('FileToDataURI').options.onSelect([filesData]);
+		el.data('FileToDataURI').options.onSelect(filesData, response);
+	};
+
+	/*
+		Flash helper debug during development
+	 */
+	$.fn.FileToDataURI.log = function(message) {
+		console.log('From FileToDataURI.swf: ', message);
+	};
+
+	$.fn.FileToDataURI.defaults = {
+		allowedExts: ['jpg', 'jpeg', 'gif', 'png'],
+		fileDescription: 'Images',
+		moviePath: 'FileToDataURI.swf',
+		token:'',
+		domain:'',
+		multiple : false, // TODO: not implemented in the flash file
+		onSelect: function(files) {}
+	};
+
+	$.fn.FileToDataURI.options  = {};
+
+})(jQuery);

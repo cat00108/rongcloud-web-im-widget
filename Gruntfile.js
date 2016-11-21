@@ -8,8 +8,8 @@ module.exports = function(grunt) {
       },
       demo: {
         src: [
-          "./demo/widget/**/*",
-          "./demo/widget/**"
+          "./demo/rong_widget/**/*",
+          "./demo/rong_widget/**"
         ]
       },
       release:{
@@ -26,7 +26,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: "./build/",
           src: "./**",
-          dest: "./demo/widget/"
+          dest: "./demo/rong_widget/"
         }]
       },
       build: {
@@ -36,10 +36,6 @@ module.exports = function(grunt) {
             cwd: "./src/images/",
             src: "./**",
             dest: "./build/images/"
-          },
-          {
-            src: './vendor/FileToDataURI/FileToDataURI.swf',
-            dest: './build/images/FileToDataURI.swf'
           }
         ]
       },
@@ -116,18 +112,20 @@ module.exports = function(grunt) {
           },
           {
             src:[
-              './bower_components/jquery/jquery.js',
+              './bower_components/jquery/dist/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
               './vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js',
+              './vendor/FileToDataURI/FileToDataURI.js'],
             dest:'./build/RongIMWidget.full.js'
           },
           {
             src:[
               './temp/main.js','./temp/myAppHTMLCache.js',
               './vendor/loadscript/script.min.js',
-              './vendor/qiniu/qiniu.js'
+              './vendor/qiniu/qiniu.js',
+              './vendor/FileToDataURI/FileToDataURI.js'
             ],
             dest:'./build/RongIMWidget.tidy.js'
           },
@@ -146,22 +144,25 @@ module.exports = function(grunt) {
               './vendor/jqueryrebox/jquery-rebox.js',
               './vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js',
+              './vendor/FileToDataURI/FileToDataURI.js'],
             dest:'./dist/RongIMWidget.js'
           },
           {
             src:[
-              './bower_components/jquery/jquery.js',
+              './bower_components/jquery/dist/jquery.js',
               './vendor/jqueryrebox/jquery-rebox.js',
               './vendor/nicescroll/jquery.nicescroll.min.js',
               './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js',
+              './vendor/FileToDataURI/FileToDataURI.js'],
             dest:'./dist/RongIMWidget.full.js'
           },
           {
             src:[
               './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js',
+              './vendor/FileToDataURI/FileToDataURI.js'],
             dest:'./dist/RongIMWidget.tidy.js'
           },
           {

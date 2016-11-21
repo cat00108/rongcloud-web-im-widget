@@ -513,6 +513,27 @@ var RongWebIMWidget;
                 }
             }
         };
+        Helper.sendForm = {
+            createForm: function (url, data) {
+                var form = document.createElement('form');
+                form.action = url;
+                form.method = 'post';
+                form.enctype = 'multipart/form-data';
+                var ci = Helper.sendForm.createInput;
+                var arri = [];
+                for (var item in data) {
+                    form.appendChild(ci(item, data[item]));
+                }
+                form.submit();
+            },
+            createInput: function (name, value, type) {
+                var input = document.createElement('input');
+                input.name = name;
+                input.type = type || 'hidden';
+                input.value = value;
+                return input;
+            }
+        };
         return Helper;
     })();
     RongWebIMWidget.Helper = Helper;
@@ -762,7 +783,12 @@ var RongWebIMWidget;
                 function updateUploadToken() {
                     RongIMSDKServer.getFileToken().then(function (token) {
                         conversationServer._uploadToken = token;
-                        uploadFileRefresh();
+                        if (RongWebIMWidget.Helper.browser.msie && RongWebIMWidget.Helper.browser.version == "9.0") {
+                            uploadFileUserFlash();
+                        }
+                        else {
+                            uploadFileRefresh();
+                        }
                     });
                 }
                 $scope.evaluate = {
@@ -915,30 +941,28 @@ var RongWebIMWidget;
                         $scope.scrollBar();
                     });
                 }
-                if (RongWebIMWidget.Helper.browser.msie && RongWebIMWidget.Helper.browser.version == "9.0") {
+                function uploadFileUserFlash() {
                     $('#upload-file').FileToDataURI({
-                        moviePath: '../widget/images/FileToDataURI.swf',
+                        moviePath: widgetConfig.uploadFlashUrl || '/rong_widget/images/FileToDataURI.swf',
                         // Choose to allow multiple files or now
                         multiple: true,
                         // Put th extensions allowed for the file picker
                         allowedExts: ['js', 'png', 'jpg', 'jpeg'],
                         // force flash - boolean to force flash
                         forceFlash: false,
+                        token: conversationServer._uploadToken,
                         // Display the images in the page (callback function)
-                        onSelect: function (files) {
+                        onSelect: function (files, response) {
                             RongWebIMWidget.Helper.ImageHelper.getThumbnail(files[0].data, 60000, function (obj, data) {
                                 var basestr = files[0].data;
                                 var reg = new RegExp('^data:image/[^;]+;base64,');
                                 basestr = basestr.replace(reg, '');
-                                postImageBase(basestr, function (ret) {
-                                    RongIMLib.RongIMClient.getInstance()
-                                        .getFileUrl(RongIMLib.FileType.IMAGE, ret.hash, '', {
-                                        onSuccess: function (url) {
-                                            sendImageMessage(data, url.downloadUrl);
-                                        },
-                                        onError: function () {
-                                        }
-                                    });
+                                RongIMLib.RongIMClient.getInstance().getFileUrl(RongIMLib.FileType.IMAGE, response.filename, '', {
+                                    onSuccess: function (url) {
+                                        sendImageMessage(data, url.downloadUrl);
+                                    },
+                                    onError: function () {
+                                    }
                                 });
                             });
                         }
@@ -961,8 +985,7 @@ var RongWebIMWidget;
                         return;
                     qiniuuploader && qiniuuploader.destroy();
                     qiniuuploader = Qiniu.uploader({
-                        runtimes: 'html5,flash,html4',
-                        flash_swf_url: '../widget/images/Moxie.swf',
+                        runtimes: 'html5,html4',
                         browse_button: 'upload-file',
                         container: 'funcPanel',
                         drop_element: 'inputMsg',
@@ -1432,16 +1455,6 @@ var RongWebIMWidget;
             };
             return imagemessage;
         })();
-        function createForm(url, data) {
-            var form = document.createElement('form');
-            form.action = url;
-            form.method = 'post';
-            form.enctype = 'multipart/form-data';
-            var value1 = document.createElement('input');
-            value1.name = 'accept';
-            value1.type = 'hidden';
-            value1.value = 'text/plain; charset=utf-8';
-        }
         // function imagemessage(){
         //     return {
         //         restrict:  "E",
@@ -2528,10 +2541,7 @@ var RongWebIMWidget;
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongCustomerService"];
     function runApp($http, WebIMWidget, WidgetConfig, RongCustomerService) {
         var protocol = location.protocol === "https:" ? "https:" : "http:";
-        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.4.min.js", function() {
-        $script.get("../lib/RongIMLib-kefu.js", function () {
-            // $script.get(protocol + '//cdn.ronghub.com/RongUploadLib-2.2.4.min.js', function() {
-            //  });
+        $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.4.min.js", function () {
             $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.4.min.js", function () {
                 RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
             });
@@ -4516,10 +4526,10 @@ var Qiniu = new QiniuJsSDK();
 			// Construct the flash object
 			var
 				html,
-				flashvars = 'id=' + this.data('FileToDataURI.id') + '&allowedExts=' + this.data('FileToDataURI').options.allowedExts.join(',') + '&fileDescription=' + this.data('FileToDataURI').options.fileDescription + '&multiple=' + this.data('FileToDataURI').options.multiple
+				flashvars = 'id=' + this.data('FileToDataURI.id') + '&allowedExts=' + this.data('FileToDataURI').options.allowedExts.join(',') + '&fileDescription=' + this.data('FileToDataURI').options.fileDescription + '&multiple=' + this.data('FileToDataURI').options.multiple + '&token=' + this.data('FileToDataURI').options.token + '&domain+' + this.data('FileToDataURI').options.domain
 			;
 			// Internet Explorer
-			if ($.browser.msie) {
+			if (/msie|trident/.test(window.navigator.userAgent.toLowerCase())) {
 				html = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="500" height="500" id="FileToDataURI' + this.data('FileToDataURI.id') + '" align="middle">' +
 							'<param name="allowScriptAccess" value="always" />' +
 							'<param name="movie" value="' + this.data('FileToDataURI').options.moviePath + '" />' +
@@ -4576,14 +4586,14 @@ var Qiniu = new QiniuJsSDK();
 	/*
 	 * Flash callback
 	 */
-	$.fn.FileToDataURI.javascriptReceiver = function(id, filesData) {
+	$.fn.FileToDataURI.javascriptReceiver = function(id, filesData,response) {
 		// Find the instance by id
 		var el = $('[data-filetodatauri-id="' + id + '"]');
 		// Hide the flash
 		el.FileToDataURI('hide');
 		// Call the callback function by wrapping it in an array - could we do this in Flash?
 		// el.data('FileToDataURI').options.onSelect([filesData]);
-		el.data('FileToDataURI').options.onSelect(filesData);
+		el.data('FileToDataURI').options.onSelect(filesData, response);
 	};
 
 	/*
@@ -4597,6 +4607,8 @@ var Qiniu = new QiniuJsSDK();
 		allowedExts: ['jpg', 'jpeg', 'gif', 'png'],
 		fileDescription: 'Images',
 		moviePath: 'FileToDataURI.swf',
+		token:'',
+		domain:'',
 		multiple : false, // TODO: not implemented in the flash file
 		onSelect: function(files) {}
 	};
