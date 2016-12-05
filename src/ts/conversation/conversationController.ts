@@ -488,6 +488,7 @@ module RongWebIMWidget.conversation {
                             _this.$scope.scrollBar();
                         }
                     })
+                 _this.$scope.$digest();
             } else {
                 setTimeout(function() {
                     _this.$scope.$apply();
