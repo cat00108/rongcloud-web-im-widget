@@ -22,6 +22,10 @@ demo.controller("main", ["$scope","WebIMWidget", "$http", function($scope,WebIMW
     WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "自定义:"+$scope.targetId);
   }
 
+  // $('#changecon').on('click',function(){
+  //  WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "自定义:"+$scope.targetId); 
+  // })
+
     WebIMWidget.init({
       appkey: "3argexb6r934e",
       token: "CIbKk/z1AOjB/ForzWFDWpUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcSIX81T5zgZyU5xfoVDjRmdg2Mh5WIasRw==",
