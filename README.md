@@ -6,7 +6,7 @@
 支持IE9+、Chrome、Firefox等
 
 ```
-npm install -g typescript@1.6.0beta tsd grunt-cli bower
+npm install -g typescript@1.6.0beta tsd grunt-cli
 ```
 
 如有必要，使用 `sudo npm`
@@ -17,7 +17,6 @@ npm install -g typescript@1.6.0beta tsd grunt-cli bower
 
 ```
 npm install
-bower install
 tsd install
 ```
 
@@ -60,9 +59,7 @@ grunt connect:demo
   |  dist插件资源目录
   |				[dist/css]样式资源
   |				[dist/images]图片资源
-  |				[dist/RongIMWidget.full.js]包含jQuery库和其他js帮助库
-  |				[dist/RongIMWidget.js]不包含jQuery库，包含样式功能辅助库
-  |				[dist/RongIMWidget.tidy.js]不包含辅助插件库
+  |				[dist/RongIMWidget.js] IM 插件
   |-----------------------
   |  doc文档说明
   |				[doc/开发文档]
@@ -72,6 +69,6 @@ grunt connect:demo
   |				[]
   |
   |-----------------------
-  | vendor辅助js插件库
+  | vendor 相关 js 插件库
   |
 ```

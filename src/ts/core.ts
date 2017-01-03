@@ -74,33 +74,8 @@ module RongWebIMWidget {
 
         }
 
-        init(config: any) {
+        initStyle(defaultStyle:any){
             var _this = this;
-
-            config.reminder && (_this.widgetConfig.reminder = config.reminder)
-
-            if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
-                _this.widgetConfig._config = config;
-                return;
-            }
-
-
-            var defaultStyle = _this.widgetConfig.style;
-            angular.extend(_this.widgetConfig, config);
-            angular.extend(defaultStyle, config.style);
-
-            if (config.desktopNotification) {
-                RongWebIMWidget.NotificationHelper.requestPermission();
-            }
-
-
-            var eleplaysound = document.getElementById("rongcloud-playsound");
-            if (eleplaysound && typeof _this.widgetConfig.voiceUrl === "string") {
-                eleplaysound["src"] = _this.widgetConfig.voiceUrl;
-                _this.widgetConfig.voiceNotification = true;
-            } else {
-                _this.widgetConfig.voiceNotification = false;
-            }
 
             var eleconversation = document.getElementById("rong-conversation");
             var eleconversationlist = document.getElementById("rong-conversation-list");
@@ -189,10 +164,54 @@ module RongWebIMWidget {
             }
             if (_this.widgetConfig.displayMinButton == false) {
                 eleminbtn.style["display"] = "none";
+            } else {
+                eleminbtn.style["display"] = "block";
             }
+        }
+
+        init(config: any) {
+            var _this = this;
+
+            config.reminder && (_this.widgetConfig.reminder = config.reminder)
+
+            if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
+                _this.widgetConfig._config = config;
+                return;
+            }
+
+
+            var defaultStyle = _this.widgetConfig.style;
+            angular.extend(_this.widgetConfig, config);
+            _this.widgetConfig.style = angular.extend(defaultStyle, config.style);
+
+            if (config.desktopNotification) {
+                RongWebIMWidget.NotificationHelper.requestPermission();
+            }
+
+
+            var eleplaysound = document.getElementById("rongcloud-playsound");
+            if (eleplaysound && typeof _this.widgetConfig.voiceUrl === "string") {
+                eleplaysound["src"] = _this.widgetConfig.voiceUrl;
+                _this.widgetConfig.voiceNotification = true;
+            } else {
+                _this.widgetConfig.voiceNotification = false;
+            }
+
+            setTimeout(function(){
+                _this.initStyle(defaultStyle);    
+            },0);
+            
             _this.conversationListServer.setHiddenConversations(_this.widgetConfig.hiddenConversations);
 
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
+
+            if (RongIMLib.RongIMEmoji) {
+                RongIMLib.RongIMEmoji.init();
+            }
+
+            if (RongIMLib.RongIMVoice) {
+                RongIMLib.RongIMVoice.init();
+            }
 
             _this.RongIMSDKServer.registerMessage();
 

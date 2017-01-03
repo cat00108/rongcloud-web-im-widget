@@ -272,7 +272,7 @@ module RongWebIMWidget.conversation {
                             info = JSON.parse(info);
                             RongIMLib.RongIMClient.getInstance()
                                 .getFileUrl(RongIMLib.FileType.IMAGE,
-                                file.target_name,
+                                file.target_name,'',
                                 {
                                     onSuccess: function(url) {
                                         RongWebIMWidget.Helper.ImageHelper.getThumbnail(file.getNative(), 60000, function(obj: any, data: any) {

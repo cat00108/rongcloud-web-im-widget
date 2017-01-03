@@ -23,12 +23,20 @@ module.exports = function(grunt) {
 
     copy: {
       demo: {
-        files: [{
-          expand: true,
-          cwd: "./build/",
-          src: "./**",
-          dest: "./demo/widget/"
-        }]
+        files: [
+          {
+            expand: true,
+            cwd: "./build/",
+            src: "./**",
+            dest: "./demo/widget/"
+          },
+          {
+            expand: true,
+            cwd: "./vendor/",
+            src: "./**",
+            dest: "./demo/vendor/"
+          }
+        ]
       },
       build: {
         files: [
@@ -70,7 +78,6 @@ module.exports = function(grunt) {
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3
-          //basePath: 'path/to/typescript/files',
           sourceMap: true,
           declaration: false
         },
@@ -81,7 +88,6 @@ module.exports = function(grunt) {
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3
-          //basePath: 'path/to/typescript/files',
           sourceMap: true,
           declaration: false
         },
@@ -104,32 +110,14 @@ module.exports = function(grunt) {
         files:[
           {
             src:[
-              './vendor/jqueryrebox/jquery-rebox.js',
-              './vendor/nicescroll/jquery.nicescroll.min.js',
-              './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              './temp/main.js',
+              './temp/myAppHTMLCache.js'
+            ],
             dest:'./build/RongIMWidget.js'
           },
           {
             src:[
-              './bower_components/jquery/dist/jquery.js',
-              './vendor/jqueryrebox/jquery-rebox.js',
-              './vendor/nicescroll/jquery.nicescroll.min.js',
-              './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
-            dest:'./build/RongIMWidget.full.js'
-          },
-          {
-            src:[
-              './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js',
-              './vendor/qiniu/qiniu.js'
-            ],
-            dest:'./build/RongIMWidget.tidy.js'
-          },
-          {
-            src:[
-              './vendor/jqueryrebox/jquery-rebox.css','./src/css/conversation.css',
+              './src/css/conversation.css'
             ],
             dest:'./build/css/RongIMWidget.css'
           }
@@ -139,30 +127,14 @@ module.exports = function(grunt) {
         files:[
           {
             src:[
-              './vendor/jqueryrebox/jquery-rebox.js',
-              './vendor/nicescroll/jquery.nicescroll.min.js',
-              './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
+              './temp/main.js',
+              './temp/myAppHTMLCache.js'
+            ],
             dest:'./dist/RongIMWidget.js'
           },
           {
             src:[
-              './bower_components/jquery/dist/jquery.js',
-              './vendor/jqueryrebox/jquery-rebox.js',
-              './vendor/nicescroll/jquery.nicescroll.min.js',
-              './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
-            dest:'./dist/RongIMWidget.full.js'
-          },
-          {
-            src:[
-              './temp/main.js','./temp/myAppHTMLCache.js',
-              './vendor/loadscript/script.min.js','./vendor/qiniu/qiniu.js'],
-            dest:'./dist/RongIMWidget.tidy.js'
-          },
-          {
-            src:[
-              './vendor/jqueryrebox/jquery-rebox.css','./src/css/conversation.css',
+              './src/css/conversation.css',
             ],
             dest:'./dist/css/RongIMWidget.css'
           }
@@ -175,14 +147,6 @@ module.exports = function(grunt) {
           {
             src:'./dist/RongIMWidget.js',
             dest:'./dist/RongIMWidget.min.js'
-          },
-          {
-            src:'./dist/RongIMWidget.full.js',
-            dest:'./dist/RongIMWidget.full.min.js'
-          },
-          {
-            src:'./dist/RongIMWidget.tidy.js',
-            dest:'./dist/RongIMWidget.tidy.min.js'
           }
         ]
       }

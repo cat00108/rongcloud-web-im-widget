@@ -1986,7 +1986,7 @@ ul {
 }*/
 
 /* 图片预览 */
-.rongcloud-rebox-contents .rongcloud-rebox-content {
+.rebox-contents .rebox-content {
     border: none!important;
     box-shadow: 0 0 8px #222!important;
     margin: auto;

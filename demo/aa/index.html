@@ -2,61 +2,48 @@
 <html ng-app="demo">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>用户 aa</title>
 
-    <!-- <link rel="stylesheet" type="text/css" href="../widget/css/conversation.css"/> -->
+    <link rel="stylesheet" type="text/css" href="../vendor/jqueryrebox/jquery-rebox-0.1.0.css"/>
     <link rel="stylesheet" type="text/css" href="../widget/css/RongIMWidget.min.css"/>
 
-    <script>
-    window["SCHEMETYPE"] = "http";
-    if(navigator.userAgent.indexOf("MSIE 9")!=-1){
-      window.WEB_XHR_POLLING = true;
-    }
-    </script>
-
-              <script src="../lib/jquery-1.11.1.min.js"></script>
   </head>
   <body ng-controller="main">
-    <a href="">aaaaaaaaaaaaaaaa</a>
-    <h1>{{title}}</h1>
-    <button ng-click="show()">show</button>
-    <button ng-click="hidden()">hidden</button>
-    <button ng-click="setconversation()">设置会话</button>
-    <label>会话类型</label><input ng-model="targetType">
-    <label>会话Id</label><input ng-model="targetId">
-    <br>
-    <br><br><br><br><br><br><br><br>
-    <button ng-click="show()">show</button>
-    <button ng-click="hidden()">hidden</button>
-    <button ng-click="setconversation()">设置会话</button>
-    <label>会话类型</label><input ng-model="targetType">
-    <label>会话Id</label><input ng-model="targetId">
-    <br>
-    <br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br>
-    <button ng-click="show()">show</button>
-    <button ng-click="hidden()">hidden</button>
-    <button ng-click="setconversation()">设置会话</button>
-    <label>会话类型</label><input ng-model="targetType">
-    <label>会话Id</label><input ng-model="targetId">
 
-    <div>
-      <!-- <rong-conversation style=""></rong-conversation> -->
-      <rong-widget></rong-widget>
-    </div>
-    <!--客服列表框-->
+    <h2>用户 aa</h2>
+    <button ng-click="show()">显示会话窗口</button>
+    <button ng-click="hidden()">关闭会话窗口</button> </br> </br>
 
+    <label>会话类型</label>
+    <select  ng-options="c.name for c in enumConversationType" ng-model="targetType"></select>
+    <label>会话Id</label><input ng-model="targetId">
+    <button ng-click="setconversation()">打开一个会话会话</button></br> </br>
+    
+    <a href="http://www.rongcloud.cn/docs/api/js/global.html#ConversationType" target="_blank">会话类型参考文档</a>
+  
+
+    <rong-widget></rong-widget>
 
   </body>
 
-  <!-- <script src="./RongIMLib.js"></script> -->
-  <!-- <script src="http://cdn.ronghub.com/RongIMLib-2.0.2.beta.min.js"></script> -->
-  <script src="../lib/angular.js"></script>
-  <!-- <script src="./src/angular-animate.min.js"></script> -->
-  <!-- <script src="./emoji-0.9.2.js"></script> -->
-  <!-- <script src="../widget/main.js"></script> -->
+  
+  <script src="../vendor/jquery-2.2.2.js"></script>
+  <script src="../vendor/angular-1.4.8.js"></script>
+
+  <!-- 融云IMLib -->
+  <script src="https://cdn.ronghub.com/RongIMLib-2.2.4.min.js"></script>
+  <script src="http://cdn.ronghub.com/RongEmoji-2.2.4.min.js"></script>
+  <script src="http://cdn.ronghub.com/RongIMVoice-2.2.4.min.js"></script>
+
+  <!-- 上传插件 -->
+  <script src="../vendor/plupload.full.min-2.1.1.js"></script>
+  <script src="../vendor/qiniu-1.0.17.js"></script>
+
+  <!-- 增强体验插件 -->
+  <script src="../vendor/jquery.nicescroll-3.6.8.js"></script>
+  <script src="../vendor/jqueryrebox/jquery-rebox-0.1.0.js"></script>
+
+  <!-- IM插件 -->
   <script src="../widget/RongIMWidget.js"></script>
 
   <script src="./index.js"></script>
