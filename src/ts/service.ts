@@ -11,7 +11,7 @@ module RongWebIMWidget {
         private _cacheGroupInfo: RongWebIMWidget.GroupInfo[] = [];
 
         totalUnreadCount: number = 0;
-        connectionState: boolean = false;
+        connectionState: boolean = true;
         voiceSound: boolean = false;
         currentUserInfo: RongWebIMWidget.UserInfo = <any>{}
         _productInfo: any;

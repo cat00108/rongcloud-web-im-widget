@@ -13,6 +13,9 @@ demo.controller("main", ["$scope", "$http", "RongCustomerService", function($sco
         },
         onSuccess: function(e) {
             console.log('连接成功');
+        },
+        onError: function(e) {
+            console.log('连接失败');
         }
     });
 

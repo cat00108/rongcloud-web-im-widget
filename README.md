@@ -48,12 +48,10 @@ grunt connect:demo
 ```
   |-----------------------
   |  demo实例
-  |            [demo/aa]用户aa
-  |            [demo/bb]用户bb
-  |            [demo/cc]用户cc
-  |            [demo/kefu]客服示例
-  |            [demo/lib]引用js库
+  |            [demo/user1]用户1
+  |            [demo/user2]用户2
   |            [demo/widget]插件所需文件
+  |            [demo/vendor]依赖资源
   |            [demo/index]
   |------------------------
   |  dist插件资源目录
@@ -69,6 +67,6 @@ grunt connect:demo
   |				[]
   |
   |-----------------------
-  | vendor 相关 js 插件库
+  | vendor 依赖 js 插件库
   |
 ```

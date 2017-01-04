@@ -2,21 +2,22 @@ var demo = angular.module("demo", ["RongWebIMWidget"]);
 
 demo.controller("main", ["$scope", "WebIMWidget", "$http", function($scope, WebIMWidget, $http) {
 
-    $scope.enumConversationType = [{name: "私聊",value:1},{name:"群组",value:3}]
+    $scope.targetType = 1; //1：私聊 更多会话类型查看http://www.rongcloud.cn/docs/api/js/global.html#ConversationType
+    $scope.targetId = 'bb';
 
-    $scope.targetType = $scope.enumConversationType[0];
-
+    //注意实际应用中 appkey 、 token 使用自己从融云服务器注册的。
     WebIMWidget.init({
-        appkey: "3argexb6r934e",
-        token: "CIbKk/z1AOjB/ForzWFDWpUnU/cREmEFuMhOJuGv5bPlXUSQuAsZcSIX81T5zgZyU5xfoVDjRmdg2Mh5WIasRw==",
-        style: {
-            width: 600,
-            positionFixed: true,
-            bottom: 20,
-        },
+        appkey: "bmdehs6pdw0ss",
+        token: "byavLZum2sE0WgSav7HyrGmWxWM7S9FuTBrjDXeo1q4CaebTMKXNPfZAVYG99aIBa36aVMvkZzuZjfEOfKApsQ==",
         displayConversationList: true,
-        conversationListPosition: WebIMWidget.EnumConversationListPosition.right,
+        style:{
+            left:3,
+            bottom:3,
+            width:430
+        },
         onSuccess: function(id) {
+            $scope.user = id;
+            document.title = '用户：' + id;
             console.log('连接成功：' + id);
         },
         onError: function(error) {
@@ -30,8 +31,17 @@ demo.controller("main", ["$scope", "WebIMWidget", "$http", function($scope, WebI
         });
     });
 
+    WebIMWidget.setGroupInfoProvider(function(targetId, obj){
+        obj.onSuccess({
+            name:'群组：' + targetId
+        });
+    })
+
     $scope.setconversation = function() {
-        WebIMWidget.setConversation(Number($scope.targetType.value), $scope.targetId, "用户：" + $scope.targetId);
+        if (!!$scope.targetId) {
+            WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "用户：" + $scope.targetId);
+            WebIMWidget.show();
+        }
     }
 
     $scope.show = function() {

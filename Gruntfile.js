@@ -45,6 +45,10 @@ module.exports = function(grunt) {
             cwd: "./src/images/",
             src: "./**",
             dest: "./build/images/"
+          },
+          {
+            src:'./src/css/conversation.css',
+            dest:'./build/css/RongIMWidget.css'
           }
         ]
       },
@@ -55,6 +59,10 @@ module.exports = function(grunt) {
             cwd: "./src/images/",
             src: "./**",
             dest: "./dist/images/"
+          },
+          {
+            src:'./src/css/conversation.css',
+            dest:'./dist/css/RongIMWidget.css'
           }
         ]
       }
@@ -74,16 +82,6 @@ module.exports = function(grunt) {
 
     typescript: {
       build: {
-        src: ["./src/ts/**/*.module.ts","./src/ts/**/*.ts"],
-        option: {
-          module: 'amd', //or commonjs
-          target: 'es5', //or es3
-          sourceMap: true,
-          declaration: false
-        },
-        dest: "./temp/main.js"
-      },
-      release:{
         src: ["./src/ts/**/*.module.ts","./src/ts/**/*.ts"],
         option: {
           module: 'amd', //or commonjs
@@ -114,12 +112,6 @@ module.exports = function(grunt) {
               './temp/myAppHTMLCache.js'
             ],
             dest:'./build/RongIMWidget.js'
-          },
-          {
-            src:[
-              './src/css/conversation.css'
-            ],
-            dest:'./build/css/RongIMWidget.css'
           }
         ]
       },
@@ -131,12 +123,6 @@ module.exports = function(grunt) {
               './temp/myAppHTMLCache.js'
             ],
             dest:'./dist/RongIMWidget.js'
-          },
-          {
-            src:[
-              './src/css/conversation.css',
-            ],
-            dest:'./dist/css/RongIMWidget.css'
           }
         ]
       }
@@ -152,10 +138,6 @@ module.exports = function(grunt) {
       }
     },
     cssmin:{
-      build:{
-        src:'./build/css/RongIMWidget.css',
-        dest:'./build/css/RongIMWidget.min.css'
-      },
       release:{
         src:'./dist/css/RongIMWidget.css',
         dest:'./dist/css/RongIMWidget.min.css',
@@ -196,11 +178,11 @@ module.exports = function(grunt) {
     grunt.log.writeln("env" + process.env.path);
   });
 
-  grunt.registerTask("build", ["clean:build", "typescript:build",
-    "ngtemplates:app","concat:build", "copy:build","clean:temp","cssmin:build"
+  grunt.registerTask("build", ["clean:build", "typescript",
+    "ngtemplates:app","concat:build", "copy:build","clean:temp"
   ]);
 
-  grunt.registerTask("release", ["clean:release", "typescript:release",
+  grunt.registerTask("release", ["clean:release", "typescript",
     "ngtemplates:app","concat:release", "copy:release","clean:temp","uglify:release","cssmin:release"
   ]);
 

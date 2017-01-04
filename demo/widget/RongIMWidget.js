@@ -2891,7 +2891,7 @@ var RongWebIMWidget;
             this._cacheUserInfo = [];
             this._cacheGroupInfo = [];
             this.totalUnreadCount = 0;
-            this.connectionState = false;
+            this.connectionState = true;
             this.voiceSound = false;
             this.currentUserInfo = {};
         }
