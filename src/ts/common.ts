@@ -337,7 +337,6 @@ module RongWebIMWidget {
                         document.getSelection().getRangeAt(0).insertNode(document.createTextNode(content));
                     }
                 }
-                console.log(that.innerHTML);
                 ngModel.$setViewValue(that.innerHTML);
             });
 

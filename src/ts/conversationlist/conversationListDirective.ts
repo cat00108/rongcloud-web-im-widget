@@ -3,27 +3,7 @@ module RongWebIMWidget.conversationlist {
 
     var factory = RongWebIMWidget.DirectiveFactory.GetFactoryFor;
 
-    class rongConversationList {
-
-        restrict: string = "E";
-        templateUrl: string = "./src/ts/conversationlist/conversationList.tpl.html";
-        controller: string = "conversationListController";
-
-        link(scope: any, ele: angular.IRootElementService) {
-            if (window["jQuery"] && window["jQuery"].nicescroll) {
-                $(ele).find(".rongcloud-content").niceScroll({
-                    'cursorcolor': "#0099ff",
-                    'cursoropacitymax': 1,
-                    'touchbehavior': false,
-                    'cursorwidth': "8px",
-                    'cursorborder': "0",
-                    'cursorborderradius': "5px"
-                });
-            }
-        }
-    }
-
-
+    
     class conversationItem implements ng.IDirective {
         static $inject: string[] = ["ConversationServer",
             "ConversationListServer",
@@ -89,7 +69,22 @@ module RongWebIMWidget.conversationlist {
 
 
     angular.module("RongWebIMWidget.conversationlist")
-        .directive("rongConversationList", factory(rongConversationList))
+        .directive("rongConversationList", ['WebIMWidget',
+            function(WebIMWidget:WebIMWidget){
+            
+            return {
+                restrict:"E",
+                templateUrl:"./src/ts/conversationlist/conversationList.tpl.html",
+                controller:"conversationListController",
+                link:function(){
+                    WebIMWidget.isReady = true;
+                    if (WebIMWidget.onReady) {
+                        WebIMWidget.onReady();
+                    }
+                }
+            };
+
+        }])
         .directive("conversationItem",
         factory(conversationItem));
 

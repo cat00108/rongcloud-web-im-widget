@@ -351,7 +351,6 @@ var RongWebIMWidget;
                         document.getSelection().getRangeAt(0).insertNode(document.createTextNode(content));
                     }
                 }
-                console.log(that.innerHTML);
                 ngModel.$setViewValue(that.innerHTML);
             });
             ngModel.$render = function () {
@@ -1330,26 +1329,6 @@ var RongWebIMWidget;
     var conversationlist;
     (function (conversationlist) {
         var factory = RongWebIMWidget.DirectiveFactory.GetFactoryFor;
-        var rongConversationList = (function () {
-            function rongConversationList() {
-                this.restrict = "E";
-                this.templateUrl = "./src/ts/conversationlist/conversationList.tpl.html";
-                this.controller = "conversationListController";
-            }
-            rongConversationList.prototype.link = function (scope, ele) {
-                if (window["jQuery"] && window["jQuery"].nicescroll) {
-                    $(ele).find(".rongcloud-content").niceScroll({
-                        'cursorcolor': "#0099ff",
-                        'cursoropacitymax': 1,
-                        'touchbehavior': false,
-                        'cursorwidth': "8px",
-                        'cursorborder': "0",
-                        'cursorborderradius': "5px"
-                    });
-                }
-            };
-            return rongConversationList;
-        })();
         var conversationItem = (function () {
             function conversationItem(conversationServer, conversationListServer, RongIMSDKServer) {
                 this.conversationServer = conversationServer;
@@ -1404,7 +1383,20 @@ var RongWebIMWidget;
             return conversationItem;
         })();
         angular.module("RongWebIMWidget.conversationlist")
-            .directive("rongConversationList", factory(rongConversationList))
+            .directive("rongConversationList", ['WebIMWidget',
+            function (WebIMWidget) {
+                return {
+                    restrict: "E",
+                    templateUrl: "./src/ts/conversationlist/conversationList.tpl.html",
+                    controller: "conversationListController",
+                    link: function () {
+                        WebIMWidget.isReady = true;
+                        if (WebIMWidget.onReady) {
+                            WebIMWidget.onReady();
+                        }
+                    }
+                };
+            }])
             .directive("conversationItem", factory(conversationItem));
     })(conversationlist = RongWebIMWidget.conversationlist || (RongWebIMWidget.conversationlist = {}));
 })(RongWebIMWidget || (RongWebIMWidget = {}));
@@ -1569,6 +1561,8 @@ var RongWebIMWidget;
             this.$log = $log;
             this.display = false;
             this.connected = false;
+            this.isReady = false;
+            this.isInit = false;
             this.EnumConversationType = RongWebIMWidget.EnumConversationType;
             this.EnumConversationListPosition = RongWebIMWidget.EnumConversationListPosition;
         }
@@ -1657,6 +1651,7 @@ var RongWebIMWidget;
         };
         WebIMWidget.prototype.init = function (config) {
             var _this = this;
+            this.isInit = true;
             config.reminder && (_this.widgetConfig.reminder = config.reminder);
             if (!window.RongIMLib || !window.RongIMLib.RongIMClient) {
                 _this.widgetConfig._config = config;
@@ -1676,9 +1671,14 @@ var RongWebIMWidget;
             else {
                 _this.widgetConfig.voiceNotification = false;
             }
-            setTimeout(function () {
+            if (this.isReady) {
                 _this.initStyle(defaultStyle);
-            }, 0);
+            }
+            else {
+                _this.onReady = function () {
+                    _this.initStyle(defaultStyle);
+                };
+            }
             _this.conversationListServer.setHiddenConversations(_this.widgetConfig.hiddenConversations);
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
             if (RongIMLib.RongIMEmoji) {

@@ -63,6 +63,9 @@ module RongWebIMWidget {
 
         display: boolean = false;
         connected: boolean = false;
+        isReady: boolean = false;
+        onReady:Function;
+        isInit: boolean = false;
 
         constructor(private $q: ng.IQService,
             private conversationServer: RongWebIMWidget.conversation.IConversationService,
@@ -171,6 +174,7 @@ module RongWebIMWidget {
 
         init(config: any) {
             var _this = this;
+            this.isInit = true;
 
             config.reminder && (_this.widgetConfig.reminder = config.reminder)
 
@@ -197,10 +201,14 @@ module RongWebIMWidget {
                 _this.widgetConfig.voiceNotification = false;
             }
 
-            setTimeout(function(){
-                _this.initStyle(defaultStyle);    
-            },0);
-            
+            if (this.isReady){
+                _this.initStyle(defaultStyle);
+            } else {
+                _this.onReady = function(){
+                    _this.initStyle(defaultStyle);
+                }
+            }
+                       
             _this.conversationListServer.setHiddenConversations(_this.widgetConfig.hiddenConversations);
 
             _this.RongIMSDKServer.init(_this.widgetConfig.appkey);
