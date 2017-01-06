@@ -36,6 +36,14 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope, WebIMWidget) 
         });
     });
 
+    WebIMWidget.onReceivedMessage = function(message) {
+        var conversation = WebIMWidget.getCurrentConversation();
+        if (!conversation||!conversation.targetId) {
+            WebIMWidget.setConversation(Number(message.conversationType), message.targetId, '用户:' + message.targetId);
+            WebIMWidget.show();
+        }
+    }
+
     $scope.setconversation = function() {
         if (!!$scope.targetId) {
             WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "用户：" + $scope.targetId);
@@ -51,5 +59,4 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope, WebIMWidget) 
         WebIMWidget.hidden();
     };
 
-    WebIMWidget.show();
 }]);
