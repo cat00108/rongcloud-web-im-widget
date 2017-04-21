@@ -6,8 +6,6 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope, WebIMWidget) 
     $scope.targetId = 'aa';
 
     WebIMWidget.init({
-        // appkey: "bmdehs6pdw0ss",
-        // token: "T0EAr02cSZ816H/fm/POi8vVz5jKjrGTX+4hbq436lxI+TXY9FPwG5cKBWb4Qi4YAoL8QbzPDDo=",
         appkey: '3argexb6r934e',
         token: '2eg8Ji6h+yogIydGYyAZgHryPPkHsvRwWZV8SVI5ICdaNPahtVMiWMCJhI1JMB9njzkH9uHxCkg=',
         style:{
@@ -36,22 +34,20 @@ demo.controller("main", ["$scope", "WebIMWidget", function($scope, WebIMWidget) 
         obj.onSuccess({
             name:'群组：' + targetId
         });
-    });
+    })
 
-    WebIMWidget.onReceivedMessage = function(message) {
-        var conversation = WebIMWidget.getCurrentConversation();
-        if (!conversation||!conversation.targetId) {
-            WebIMWidget.setConversation(Number(message.conversationType), message.targetId, '用户:' + message.targetId);
-            WebIMWidget.show();
-        }
-    }
-
-    $scope.setconversation = function() {
+    $scope.setconversation = function () {
         if (!!$scope.targetId) {
             WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "用户：" + $scope.targetId);
             WebIMWidget.show();
         }
     };
+
+    $scope.customerserviceId = "KEFU145914839332836";
+    $scope.setcustomerservice = function () {
+        WebIMWidget.setConversation(Number(RongIMLib.ConversationType.CUSTOMER_SERVICE), $scope.customerserviceId);
+        WebIMWidget.show();
+    }
 
     $scope.show = function() {
         WebIMWidget.show();

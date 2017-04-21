@@ -12,14 +12,14 @@
     <body ng-controller="main">
 
         <h2>当前用户：<span ng-bind="user"></span></h2><br/>
-        填写你想要对话的用户的 Id 点击发起私聊会话，在对话框输入内容点击发送对方就收到你的消息了。<br/><br/>
-        <label>用户：</label><input class="input" ng-model="targetId">
-        <button class="btn" ng-click="setconversation()">发起私聊会话</button><br/> <br/>
-        
+        <label>用户Id：</label><input class="input" ng-model="targetId">
+        <button class="btn" ng-click="setconversation()">发送消息</button><br/> <br/>
+        <label>客服Id：</label><input class="input" ng-model="customerserviceId">
+        <button class="btn" ng-click="setcustomerservice()">发起咨询</button><br/> <br/>
         <rong-widget></rong-widget>
-        
+
     </body>
-    
+
     <script src="../../vendor/jquery-2.2.2.js"></script>
     <script src="../../vendor/angular-1.4.8.js"></script>
 

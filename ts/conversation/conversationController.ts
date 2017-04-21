@@ -527,14 +527,6 @@ module RongWebIMWidget.conversation {
                 var systemMsg = null;
                 switch (msg.messageType) {
                     case RongWebIMWidget.MessageType.HandShakeResponseMessage://客服握手响应，保存附带客服信息（机器人需要自己提示欢迎语）
-                        _this.conversationServer._customService.type = msg.content.data.serviceType;
-                        _this.conversationServer._customService.connected = true;
-                        _this.conversationServer._customService.companyName = msg.content.data.companyName;
-                        _this.conversationServer._customService.robotName = msg.content.data.robotName;
-                        _this.conversationServer._customService.robotIcon = msg.content.data.robotIcon;
-                        _this.conversationServer._customService.robotWelcome = msg.content.data.robotWelcome;
-                        _this.conversationServer._customService.humanWelcome = msg.content.data.humanWelcome;
-                        _this.conversationServer._customService.noOneOnlineTip = msg.content.data.noOneOnlineTip;
 
                         if (msg.content.data.serviceType == "1") {//仅机器人
                             _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.robot);
