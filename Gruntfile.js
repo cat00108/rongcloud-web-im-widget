@@ -74,7 +74,7 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      demo: {
+      build: {
         options: {
           spawn: false
         },
@@ -85,7 +85,7 @@ module.exports = function(grunt) {
     connect: {
       demo: {
         options: {
-          port: 86,
+          port: 8000,
           hostname: '*',
           open: true,
           keepalive: true,
@@ -105,14 +105,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
 
-  grunt.registerTask("default", function() {
-    grunt.log.writeln("env" + process.env.path);
-  });
-
   grunt.registerTask("build", ["clean:build", "typescript",
     "ngtemplates:app","concat:build", "clean:build"
   ]);
 
-  grunt.registerTask("demo", ["build","watch:demo"]);
-
+  grunt.registerTask('release', ["build","uglify:release","cssmin:release"]);
 }

@@ -20,52 +20,34 @@ npm install
 tsd install
 ```
 
-### 编译开发代码
+### 编译 typescript 代码
 
 ```
 grunt build
 ```
 
-### 发布正式代码
-
-```
-grunt release
-```
-
-### 编译demo
-
-```
-grunt demo
-```
-
 ### 启动demo服务
 
 ```
-grunt connect:demo
+grunt connect
 ```
 
 ## 文件结构说明
 ```
   |-----------------------
   |  demo实例
-  |            [demo/user1]用户1
-  |            [demo/user2]用户2
-  |            [demo/widget]插件所需文件
-  |            [demo/vendor]依赖资源
-  |            [demo/index]
+  |       [demo/user1]用户1
+  |       [demo/user2]用户2
+  |       [demo/index]
   |------------------------
-  |  dist插件资源目录
-  |				[dist/css]样式资源
-  |				[dist/images]图片资源
-  |				[dist/RongIMWidget.js] IM 插件
+  |				[css]样式资源
+  |				[images]图片资源
+  |       [ts] 源码
+  |       [js] 编译后代码
   |-----------------------
   |  doc文档说明
   |				[doc/开发文档]
   |				[doc/客服]关于客服使用的说明
-  |-----------------------
-  |  src源码
-  |				[]
-  |
   |-----------------------
   | vendor 依赖 js 插件库
   |
