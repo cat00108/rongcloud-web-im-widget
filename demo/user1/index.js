@@ -7,8 +7,11 @@ demo.controller("main", ["$scope", "WebIMWidget", "$http", function($scope, WebI
 
     //注意实际应用中 appkey 、 token 使用自己从融云服务器注册的。
     WebIMWidget.init({
-        appkey: "bmdehs6pdw0ss",
-        token: "byavLZum2sE0WgSav7HyrGmWxWM7S9FuTBrjDXeo1q4CaebTMKXNPfZAVYG99aIBa36aVMvkZzuZjfEOfKApsQ==",
+        // appkey: "bmdehs6pdw0ss",
+        // token: "byavLZum2sE0WgSav7HyrGmWxWM7S9FuTBrjDXeo1q4CaebTMKXNPfZAVYG99aIBa36aVMvkZzuZjfEOfKApsQ==",
+        appkey: '3argexb6r934e',
+        // token: 'vgLtcOCPd31MFgR92D0nSpUnU/cREmEFuMhOJuGv5bN2o8gLVOLGVDGHUSj+/+lrkxEvKQc1D1Jg2Mh5WIasRw==',
+        token: "I8zRoTYOdtHug+ox4s7HapUnU/cREmEFuMhOJuGv5bP+dl6CkOlF+WuQPPbm30kCrX6ygPNSBvlJzwuiv72NPw==",
         displayConversationList: true,
         style:{
             left:3,
@@ -42,7 +45,12 @@ demo.controller("main", ["$scope", "WebIMWidget", "$http", function($scope, WebI
             WebIMWidget.setConversation(Number($scope.targetType), $scope.targetId, "用户：" + $scope.targetId);
             WebIMWidget.show();
         }
-    }
+    };
+
+    $scope.customerservice = function () {
+        WebIMWidget.setConversation(Number(RongIMLib.ConversationType.CUSTOMER_SERVICE), "KEFU145914839332836");
+        WebIMWidget.show();
+    };
 
     $scope.show = function() {
         WebIMWidget.show();

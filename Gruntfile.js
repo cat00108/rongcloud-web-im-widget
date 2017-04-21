@@ -2,87 +2,20 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-
     clean: {
-      build: {
-        src: ["./build/*"]
-      },
       demo: {
         src: [
           "./demo/widget/**/*",
           "./demo/widget/**"
         ]
       },
-      release:{
-        src:["./dist/*"]
-      },
-      temp:{
+      build:{
         src:['./temp']
       }
     },
-
-    copy: {
-      demo: {
-        files: [
-          {
-            expand: true,
-            cwd: "./build/",
-            src: "./**",
-            dest: "./demo/widget/"
-          },
-          {
-            expand: true,
-            cwd: "./vendor/",
-            src: "./**",
-            dest: "./demo/vendor/"
-          }
-        ]
-      },
-      build: {
-        files: [
-          {
-            expand: true,
-            cwd: "./src/images/",
-            src: "./**",
-            dest: "./build/images/"
-          },
-          {
-            src:'./src/css/conversation.css',
-            dest:'./build/css/RongIMWidget.css'
-          }
-        ]
-      },
-      release:{
-        files:[
-          {
-            expand: true,
-            cwd: "./src/images/",
-            src: "./**",
-            dest: "./dist/images/"
-          },
-          {
-            src:'./src/css/conversation.css',
-            dest:'./dist/css/RongIMWidget.css'
-          }
-        ]
-      }
-    },
-
-    connect: {
-      demo: {
-        options: {
-          port: 8000,
-          hostname: '*',
-          open: true,
-          keepalive: true,
-          base: ['./demo/']
-        }
-      }
-    },
-
     typescript: {
       build: {
-        src: ["./src/ts/**/*.module.ts","./src/ts/**/*.ts"],
+        src: ["./ts/**/*.module.ts","./ts/**/*.ts"],
         option: {
           module: 'amd', //or commonjs
           target: 'es5', //or es3
@@ -92,60 +25,9 @@ module.exports = function(grunt) {
         dest: "./temp/main.js"
       }
     },
-
-    watch: {
-      demo: {
-        options: {
-          spawn: false
-        },
-        files: ["./src/**"],
-        tasks: ["build", "clean:demo", "copy:demo"]
-      }
-    },
-
-    concat: {
-      build: {
-        files:[
-          {
-            src:[
-              './temp/main.js',
-              './temp/myAppHTMLCache.js'
-            ],
-            dest:'./build/RongIMWidget.js'
-          }
-        ]
-      },
-      release:{
-        files:[
-          {
-            src:[
-              './temp/main.js',
-              './temp/myAppHTMLCache.js'
-            ],
-            dest:'./dist/RongIMWidget.js'
-          }
-        ]
-      }
-    },
-    uglify:{
-      release:{
-        files:[
-          {
-            src:'./dist/RongIMWidget.js',
-            dest:'./dist/RongIMWidget.min.js'
-          }
-        ]
-      }
-    },
-    cssmin:{
-      release:{
-        src:'./dist/css/RongIMWidget.css',
-        dest:'./dist/css/RongIMWidget.min.css',
-      }
-    },
     ngtemplates: {
       app: {
-        src: ["./src/ts/**/*.tpl.html"],
+        src: ["./ts/**/*.tpl.html"],
         dest: "./temp/myAppHTMLCache.js",
         options: {
           module: 'RongWebIMWidget', //name of our app
@@ -159,6 +41,55 @@ module.exports = function(grunt) {
             removeScriptTypeAttributes: true,
             removeStyleLinkTypeAttributes: true
           }
+        }
+      }
+    },
+    concat: {
+      build: {
+        files:[
+          {
+            src:[
+              './temp/main.js',
+              './temp/myAppHTMLCache.js'
+            ],
+            dest:'./js/RongIMWidget.js'
+          }
+        ]
+      },
+    },
+    uglify:{
+      release:{
+        files:[
+          {
+            src:'./js/RongIMWidget.js',
+            dest:'./js/RongIMWidget.min.js'
+          }
+        ]
+      }
+    },
+    cssmin:{
+      release:{
+        src:'./css/RongIMWidget.css',
+        dest:'./css/RongIMWidget.min.css',
+      }
+    },
+    watch: {
+      demo: {
+        options: {
+          spawn: false
+        },
+        files: ["./ts/**"],
+        tasks: ["build"]
+      }
+    },
+    connect: {
+      demo: {
+        options: {
+          port: 86,
+          hostname: '*',
+          open: true,
+          keepalive: true,
+          base: ['./']
         }
       }
     }
@@ -179,16 +110,9 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask("build", ["clean:build", "typescript",
-    "ngtemplates:app","concat:build", "copy:build","clean:temp"
+    "ngtemplates:app","concat:build", "clean:build"
   ]);
 
-  grunt.registerTask("release", ["clean:release", "typescript",
-    "ngtemplates:app","concat:release", "copy:release","clean:temp","uglify:release","cssmin:release"
-  ]);
-
-
-  grunt.registerTask("demo", ["build", "clean:demo", "copy:demo",
-    "watch:demo"
-  ]);
+  grunt.registerTask("demo", ["build","watch:demo"]);
 
 }
