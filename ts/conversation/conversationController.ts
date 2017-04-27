@@ -201,7 +201,6 @@ module RongWebIMWidget.conversation {
                     return;
                 }
 
-
                 var con = RongIMLib.RongIMEmoji.symbolToEmoji($scope.conversation.messageContent);
 
                 var msg = RongIMLib.TextMessage.obtain(con);

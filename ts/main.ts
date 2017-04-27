@@ -6,25 +6,7 @@ module RongWebIMWidget {
         WebIMWidget: RongWebIMWidget.WebIMWidget,
         WidgetConfig: RongWebIMWidget.WidgetConfig,
         RongCustomerService: RongWebIMWidget.RongCustomerService) {
-
-        // var protocol = location.protocol === "https:" ? "https:" : "http:";
-        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function() {
-        //     $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function() {
-        //         RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
-        //     });
-        //     $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function() {
-        //         RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
-        //     });
-        //     if (WidgetConfig._config) {
-        //         if (WidgetConfig._config.__isKefu) {
-        //             RongCustomerService.init(WidgetConfig._config);
-        //         } else {
-        //             WebIMWidget.init(WidgetConfig._config);
-        //         }
-        //     }
-        // });
-        // $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function() { });
-
+            
     }
 
     class rongWidget {

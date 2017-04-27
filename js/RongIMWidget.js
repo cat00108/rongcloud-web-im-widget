@@ -863,14 +863,6 @@ var RongWebIMWidget;
                     var systemMsg = null;
                     switch (msg.messageType) {
                         case RongWebIMWidget.MessageType.HandShakeResponseMessage:
-                            _this.conversationServer._customService.type = msg.content.data.serviceType;
-                            _this.conversationServer._customService.connected = true;
-                            _this.conversationServer._customService.companyName = msg.content.data.companyName;
-                            _this.conversationServer._customService.robotName = msg.content.data.robotName;
-                            _this.conversationServer._customService.robotIcon = msg.content.data.robotIcon;
-                            _this.conversationServer._customService.robotWelcome = msg.content.data.robotWelcome;
-                            _this.conversationServer._customService.humanWelcome = msg.content.data.humanWelcome;
-                            _this.conversationServer._customService.noOneOnlineTip = msg.content.data.noOneOnlineTip;
                             if (msg.content.data.serviceType == "1") {
                                 _this.changeCustomerState(RongWebIMWidget.EnumInputPanelType.robot);
                                 msg.content.data.robotWelcome
@@ -1830,7 +1822,7 @@ var RongWebIMWidget;
                 onReceived: function (data) {
                     _this.$log.debug(data);
                     var msg = RongWebIMWidget.Message.convert(data);
-                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
+                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content && !data.content.user) {
                         _this.providerdata.getUserInfo(msg.senderUserId, {
                             onSuccess: function (data) {
                                 if (data) {
@@ -2244,23 +2236,6 @@ var RongWebIMWidget;
 (function (RongWebIMWidget) {
     runApp.$inject = ["$http", "WebIMWidget", "WidgetConfig", "RongCustomerService"];
     function runApp($http, WebIMWidget, WidgetConfig, RongCustomerService) {
-        // var protocol = location.protocol === "https:" ? "https:" : "http:";
-        // $script.get(protocol + "//cdn.ronghub.com/RongIMLib-2.2.0.min.js", function() {
-        //     $script.get(protocol + "//cdn.ronghub.com/RongEmoji-2.2.0.min.js", function() {
-        //         RongIMLib.RongIMEmoji && RongIMLib.RongIMEmoji.init();
-        //     });
-        //     $script.get(protocol + "//cdn.ronghub.com/RongIMVoice-2.2.0.min.js", function() {
-        //         RongIMLib.RongIMVoice && RongIMLib.RongIMVoice.init();
-        //     });
-        //     if (WidgetConfig._config) {
-        //         if (WidgetConfig._config.__isKefu) {
-        //             RongCustomerService.init(WidgetConfig._config);
-        //         } else {
-        //             WebIMWidget.init(WidgetConfig._config);
-        //         }
-        //     }
-        // });
-        // $script.get(protocol + "//cdn.bootcss.com/plupload/2.1.8/plupload.full.min.js", function() { });
     }
     var rongWidget = (function () {
         function rongWidget() {

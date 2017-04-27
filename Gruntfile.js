@@ -74,10 +74,10 @@ module.exports = function(grunt) {
       }
     },
     watch: {
+      options: {
+        spawn: false
+      },
       build: {
-        options: {
-          spawn: false
-        },
         files: ["./ts/**"],
         tasks: ["build"]
       }

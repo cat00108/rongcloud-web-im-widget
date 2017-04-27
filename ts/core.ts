@@ -288,7 +288,7 @@ module RongWebIMWidget {
                     _this.$log.debug(data);
                     var msg = RongWebIMWidget.Message.convert(data);
 
-                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content) {
+                    if (RongWebIMWidget.Helper.checkType(_this.providerdata.getUserInfo) == "function" && msg.content && !data.content.user) {
                         _this.providerdata.getUserInfo(msg.senderUserId, {
                             onSuccess: function(data) {
                                 if (data) {
