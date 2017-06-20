@@ -160,8 +160,10 @@ module RongWebIMWidget.conversation {
                 var arr = conversationServer._cacheHistory[key];
                 arr.splice(0, arr.length);
                 conversationServer._getHistoryMessages(+$scope.conversation.targetType, $scope.conversation.targetId, 20).then(function(data) {
-                    
-                    conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.TimePanel(conversationServer._cacheHistory[key][0].sentTime));
+                    var firstMessage:any = conversationServer._cacheHistory[key][0];
+                    if (firstMessage) {
+                        conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.TimePanel(firstMessage.sentTime));
+                    }
                     if (data.has) {
                         conversationServer._cacheHistory[key].unshift(new RongWebIMWidget.GetMoreMessagePanel());
                     }
