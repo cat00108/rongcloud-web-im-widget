@@ -1335,19 +1335,14 @@ var RongWebIMWidget;
                 if (!msg.content || (msg.content.userInfo && msg.content.userInfo.name)) {
                     return;
                 }
-                if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE) {
-                    if (this._customService.currentType == 1) {
-                        msg.content.userInfo = {
-                            name: this._customService.human.name || "客服人员",
-                            portraitUri: this._customService.human.headimgurl || this._customService.robotIcon
-                        };
-                    }
-                    else {
-                        msg.content.userInfo = {
-                            name: this._customService.robotName,
-                            portraitUri: this._customService.robotIcon
-                        };
-                    }
+                if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE
+                    && msg.content
+                    && msg.messageDirection == RongWebIMWidget.MessageDirection.RECEIVE
+                    && this._customService.currentType !== 1) {
+                    msg.content.userInfo = {
+                        name: this._customService.robotName,
+                        portraitUri: this._customService.robotIcon
+                    };
                 }
                 else if (msg.conversationType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE && msg.content && msg.messageDirection == RongWebIMWidget.MessageDirection.SEND) {
                     msg.content.userInfo = {
