@@ -1,5 +1,9 @@
 # RongCloud Web IM Widget for Angular
 
+http://rongcloud.github.io/rongcloud-web-im-widget/demo/
+
+http://rongcloud.github.io/rongcloud-web-im-widget/demo/user1/
+
 ---
 
 **Web IM Widget for Angular** 是一个angular插件。通信部分依赖 `RongIMLib`。  
