@@ -477,8 +477,8 @@ module RongWebIMWidget.conversation {
             var isCustomService = obj.targetType == RongWebIMWidget.EnumConversationType.CUSTOMER_SERVICE;
             if (isCustomService) {
                 var curent = _this.conversationServer.getCacheCustomService(obj.targetType, obj.targetId);
+                _this.conversationServer._customService = curent;
                 if (curent && curent.connected) {
-                    _this.conversationServer._customService = curent;
                     _this.changeCustomerState(curent.inputPanelState);    
                 } else {
                     _this.RongIMSDKServer.startCustomService(obj.targetId);
