@@ -56,8 +56,7 @@ module RongWebIMWidget {
 
     export class WidgetConfig {
         displayConversationList: boolean = false;
-        conversationListPosition: number
-        = RongWebIMWidget.EnumConversationListPosition.left;
+        conversationListPosition: number = RongWebIMWidget.EnumConversationListPosition.left;
         displayMinButton: boolean = true;
         desktopNotification: boolean = false;
         reminder: string = "";
