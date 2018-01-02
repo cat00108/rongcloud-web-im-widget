@@ -1434,16 +1434,21 @@ var RongWebIMWidget;
                         if (scope.item.unreadMessageCount > 0) {
                             RongIMSDKServer.clearUnreadCount(scope.item.targetType, scope.item.targetId);
                             RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
-                            conversationListServer.updateConversations();
+                            conversationListServer.updateConversations().then(function () {
+                                setTimeout(function () {
+                                    scope.$apply();
+                                });
+                            });
                         }
                     });
                     scope.remove = function (e) {
                         e.stopPropagation();
                         RongIMSDKServer.removeConversation(scope.item.targetType, scope.item.targetId).then(function () {
-                            if (conversationServer.current.targetType == scope.item.targetType
-                                && conversationServer.current.targetId == scope.item.targetId) {
-                            }
-                            conversationListServer.updateConversations();
+                            conversationListServer.updateConversations().then(function () {
+                                setTimeout(function () {
+                                    scope.$apply();
+                                });
+                            });
                         }, function (error) {
                         });
                     };

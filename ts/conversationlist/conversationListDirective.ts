@@ -22,7 +22,11 @@ module RongWebIMWidget.conversationlist {
                     if (scope.item.unreadMessageCount > 0) {
                         RongIMSDKServer.clearUnreadCount(scope.item.targetType, scope.item.targetId)
                         RongIMSDKServer.sendReadReceiptMessage(scope.item.targetId, Number(scope.item.targetType));
-                        conversationListServer.updateConversations();
+                        conversationListServer.updateConversations().then(function () {
+                            setTimeout(function (){
+                                scope.$apply();
+                            });
+                        });
                     }
                 });
 
@@ -30,11 +34,11 @@ module RongWebIMWidget.conversationlist {
                     e.stopPropagation();
 
                     RongIMSDKServer.removeConversation(scope.item.targetType, scope.item.targetId).then(function() {
-                        if (conversationServer.current.targetType == scope.item.targetType
-                            && conversationServer.current.targetId == scope.item.targetId) {
-                            // conversationServer.onConversationChangged(new RongWebIMWidget.Conversation());
-                        }
-                        conversationListServer.updateConversations();
+                        conversationListServer.updateConversations().then(function (){
+                            setTimeout(function (){
+                                scope.$apply();
+                            });
+                        });
                     }, function(error) {
 
                     })
